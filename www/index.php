@@ -8,8 +8,8 @@
     $request_uri = rtrim($_SERVER['REQUEST_URI'], '/'); // /example?foo=bar1&foo=bar2 => /example?foo=bar2
     $request_is_https = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') == true; // false
 
-    echo "Request Method: $request_method\n";
-    echo "Request URI: $request_uri\n";
-    echo "Request is HTTPS: $request_is_https\n";
+    echo "Request Method: $request_method<br />";
+    echo "Request URI: $request_uri<br />";
+    echo "Request is HTTPS: $request_is_https<br />";
 
 ?>
