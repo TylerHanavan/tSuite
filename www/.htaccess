@@ -1,0 +1,13 @@
+RewriteEngine On
+
+RewriteCond %{REQUEST_URI} !/index.php.*$
+
+# Extract subdomain, domain, and path
+RewriteCond %{HTTP_HOST} ^([^.]+)\.([^.]+\.[^.]+)$
+RewriteCond %{REQUEST_URI} ^/(.*)$
+RewriteRule ^(.*)$ /index.php?subd=%1&dm=%2&cms_path=$1 [L,QSA]
+
+# Handle requests without subdomain
+RewriteCond %{HTTP_HOST} ^([^.]+\.[^.]+)$
+RewriteCond %{REQUEST_URI} ^/(.*)$
+RewriteRule ^(.*)$ /index.php?dm=%1&cms_path=%2 [L,QSA]
