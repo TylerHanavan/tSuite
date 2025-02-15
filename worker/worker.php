@@ -8,6 +8,10 @@
     $repo_url = get_config_value('REPO_URL');
     $branch = get_config_value('BRANCH');
 
+    echo "Repo: $repo\n";
+    echo "Repo URL: $repo_url\n";
+    echo "Branch: $branch\n";
+
     function get_tsuite_config($tsuite_config_location) {
         $ret_conf = array();
         $config_file_contents = $tsuite_config_location != false ? read_flat_file($tsuite_config_location) : null;
