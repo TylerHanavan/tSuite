@@ -1,10 +1,10 @@
 <?php declare(strict_types=1); // strict typing
 
-    function get_database_connection($servername = 'localhost', $username = 'root', $password = 'password') {
+    function get_database_connection($servername = 'localhost', $username = 'root', $password = 'password', $database = 'database') {
 
         try {
 
-            $conn = new PDO("mysql:host=$servername;dbname=sedicms", $username, $password);
+            $conn = new PDO("mysql:host=$servername;dbname=$database", $username, $password);
 
             $conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
