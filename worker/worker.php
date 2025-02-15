@@ -7,10 +7,29 @@
     $repo = get_config_value('REPO');
     $repo_url = get_config_value('REPO_URL');
     $branch = get_config_value('BRANCH');
+    $branch = get_config_value('DOWNLOAD_LOCATION');
+    $branch = get_config_value('INSTALL_LOCATION');
 
     echo "Repo: $repo\n";
     echo "Repo URL: $repo_url\n";
     echo "Branch: $branch\n";
+    echo "Download Location: $download_location\n";
+    echo "Install Location: $install_location\n";
+
+    $tick = 0;
+
+    while(true) {
+        if($tick++ % 62 == 0) {
+            do_git_pull($repo, $branch, $download_location);
+        }
+        sleep(1);
+    }
+
+    function do_git_pull($repo, $branch, $download_location) {
+        $cmd = "cd $download_location && git pull origin $branch";
+        $output = shell_exec($cmd);
+        echo $output;
+    }
 
     function get_tsuite_config($tsuite_config_location) {
         $ret_conf = array();
