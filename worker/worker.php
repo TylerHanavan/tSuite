@@ -10,6 +10,10 @@
 
     function get_tsuite_config($tsuite_config_location) {
         $ret_conf = array();
+        $config_file_contents = $tsuite_config_location != false ? read_flat_file($tsuite_config_location) : null;
+        if($config_file_contents == null) {
+            die ("Unable to read config file at: $tsuite_config_location");
+        }
         $line = strtok($config_file_contents, "\r\n");
 
         while($line != false) {
