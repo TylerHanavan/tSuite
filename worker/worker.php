@@ -35,8 +35,8 @@
         if($items_to_install != null) {
             $items = explode(',', $items_to_install);
             foreach($items as $item) {
-                $cmd = "cp -r $download_location/$item $install_location";
-                echo "COMMAND: $cmd";
+                $cmd = "rm -r $install_location/* && rsync -av $download_location/$item $install_location";
+                echo "COMMAND: $cmd\n";
                 $output = shell_exec($cmd);
                 echo $output;
             }
