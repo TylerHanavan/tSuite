@@ -18,5 +18,13 @@
     echo "URI Path: $uri_path<br />";
     echo "URI Query: $uri_query<br />";
 
+    $uri_args = array();
+
+    foreach (explode('&', $uri_query) as $arg) {
+        $key = explode('=', $arg)[0];
+        $value = explode('=', $arg)[1];
+        $uri_args[$key] = $value;
+        echo "URI Arg: $key => $value<br />";
+    }
 
 ?>
