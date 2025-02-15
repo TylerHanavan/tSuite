@@ -36,6 +36,7 @@
             $items = explode(',', $items_to_install);
             foreach($items as $item) {
                 $cmd = "cp -r $download_location/$item $install_location";
+                echo "COMMAND: $cmd";
                 $output = shell_exec($cmd);
                 echo $output;
             }
