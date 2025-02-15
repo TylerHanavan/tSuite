@@ -22,12 +22,12 @@
 
     while(true) {
         if($tick++ % 62 == 0) {
-            do_git_pull($repo, $branch, $download_location);
+            do_git_pull($repo, $branch, $download_location, $install_location, $items_to_install);
         }
         sleep(1);
     }
 
-    function do_git_pull($repo, $branch, $download_location, $items_to_install) {
+    function do_git_pull($repo, $branch, $download_location, $install_location, $items_to_install) {
         $cmd = "cd $download_location && git pull origin $branch";
         $output = shell_exec($cmd);
         echo $output;
