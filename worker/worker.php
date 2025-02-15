@@ -20,11 +20,7 @@
     
             $kv = explode('=', $line);
     
-            if($retrieved_value != false) {
-                $ret_conf[$kv[0]] = $retrieved_value;
-            } else {
-                $ret_conf[$kv[0]] = $kv[1];
-            }
+            $ret_conf[$kv[0]] = $kv[1];
     
             $line = strtok("\r\n");
         }
