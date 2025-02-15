@@ -7,8 +7,8 @@
     $repo = get_config_value('REPO');
     $repo_url = get_config_value('REPO_URL');
     $branch = get_config_value('BRANCH');
-    $branch = get_config_value('DOWNLOAD_LOCATION');
-    $branch = get_config_value('INSTALL_LOCATION');
+    $download_location = get_config_value('DOWNLOAD_LOCATION');
+    $install_location = get_config_value('INSTALL_LOCATION');
 
     echo "Repo: $repo\n";
     echo "Repo URL: $repo_url\n";
