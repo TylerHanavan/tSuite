@@ -64,12 +64,16 @@
                 sleep(1);
                 continue;
             }
+            
+            echo "Checking if $commit_hash is new for $repo\n";
             if(is_commit_new($repo, $commit_hash)) {
                 echo "New commit detected: $commit_hash\n";
                 do_git_pull($repo, $branch, $download_location, $install_location, $items_to_install);
                 post_commit($repo, $commit_hash, $message, $author);
 
                 $tester = new Tester($install_location . '/.tsuite', 'localhost:1347');
+            } else {
+                echo "The latest commit is already in the system: $commit_hash\n";
             }
         }
         sleep(1);
@@ -82,7 +86,6 @@
     }
 
     function is_commit_new($repo, $commit_hash) {
-        echo "Checking if $commit_hash is new for $repo\n";
         $repo_id = get_repo_id_from_name($repo);
         if($repo_id == null) {
             echo "Could not get repo_id for $repo\n";
