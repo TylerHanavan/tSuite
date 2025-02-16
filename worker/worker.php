@@ -24,6 +24,9 @@
     while(true) {
         if($tick++ % 62 == 0) {
             $git_metadata = pull_git_info($repo, $repo_user, $branch);
+
+            echo "Git API Metadata returned for $repo: \n";
+            var_dump($git_metadata);
             if($git_metadata == null) {
                 echo "Unable to pull git metadata\n";
                 sleep(1);
