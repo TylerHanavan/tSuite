@@ -136,9 +136,9 @@
             return null;
         }
 
-        foreach($repos as $repo) {
-            if($repo['name'] == $repo) {
-                return $repo['id'];
+        foreach($repos as $iter_repo) {
+            if($iter_repo['name'] == $repo) {
+                return $iter_repo['id'];
             }
         }
 
