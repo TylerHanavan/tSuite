@@ -163,7 +163,7 @@
 
     }
 
-    function query($query) {
+    function query($query, $prepared_fields = array()) {
         if($query == null || $query == '')
             return null;
 
@@ -173,7 +173,8 @@
             $conn = get_database_connection();
 
         $stmt = $conn->prepare($query);
-        $stmt->execute();
+
+        $stmt->execute($prepared_fields);
 
         return $stmt->fetchAll();
     }
