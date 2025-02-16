@@ -24,9 +24,41 @@
     while(true) {
         if($tick++ % 62 == 0) {
             $git_metadata = pull_git_info($repo, $repo_user, $branch);
-            $commit_hash = $git_metadata['sha'];
-            $message = $git_metadata['commit']['message'];
-            $author = $git_metadata['commit']['author']['name'];
+            if($git_metadata == null) {
+                echo "Unable to pull git metadata\n";
+                sleep(1);
+                continue;
+            }
+            $commit_hash = $git_metadata['sha'] ?? null;
+            if($commit_hash == null) {
+                echo "Unable to get commit hash\n";
+                sleep(1);
+                continue;
+            }
+            $commit_data = $git_metadata['commit'] ?? null;
+            if($commit_data == null) {
+                echo "Unable to get nested commit data\n";
+                sleep(1);
+                continue;
+            }
+            $message = $commit_data['message'] ?? null;
+            if($message == null) {
+                echo "Unable to get commit message\n";
+                sleep(1);
+                continue;
+            }
+            $commit_author_data = $commit_data['author'] ?? null;
+            if($commit_author_data == null) {
+                echo "Unable to get nested commit author data\n";
+                sleep(1);
+                continue;
+            }
+            $author = $commit_author_data['name'] ?? null;
+            if($author == null) {
+                echo "Unable to get commit author\n";
+                sleep(1);
+                continue;
+            }
             if(is_commit_new($repo, $commit_hash)) {
                 echo "New commit detected: $commit_hash\n";
                 do_git_pull($repo, $branch, $download_location, $install_location, $items_to_install);
