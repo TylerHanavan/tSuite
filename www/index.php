@@ -119,7 +119,9 @@
                         'author' => $author
                     );
 
-                    query($insert_query, $insert_vals);
+                    $result = query($insert_query, $insert_vals);
+
+                    var_dump($result);
 
                     $counter++;
                 }
