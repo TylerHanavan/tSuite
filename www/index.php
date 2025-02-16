@@ -200,9 +200,14 @@
                 echo "<tr><td>$date</td><td>$commit_hash</td><td>$message</td><td>$author</td></tr>";
             }
             echo '</table>';
+            
+            exit();
 
         }
     }
+
+    echo json_encode(array('status' => 'failed', 'error' => '404 Not Found'));
+    exit();
 
     function json_error_and_exit($error_msg) {
         echo json_encode(array('status' => 'failed', 'error' => $error_msg));
