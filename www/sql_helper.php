@@ -134,23 +134,6 @@
         return json_encode($ret);
     }
 
-    function create_table($table) {
-        global $conn;
-
-        if($conn == null)
-            $conn = get_database_connection();
-
-        $query = get_table_create_query($table);
-
-        if($query == null || $query == '' || !isset($query))
-            return null;
-
-        $stmt = $conn->prepare($query);
-        $stmt->execute();
-
-        return $stmt->fetch();
-    }
-
     /*
     * UPDATE a TABLE $table with data found in $updates
     *      $updates is an array of arrays

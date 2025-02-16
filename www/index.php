@@ -27,4 +27,26 @@
         echo "URI Arg: $key => $value<br />";
     }
 
+    $existing_tables = list_tables();
+
+    $required_tables = array('commits');
+
+    foreach($required_tables as $table) {
+        if(!in_array($table, $existing_tables)) {
+            echo "Table $table does not exist!<br />";
+            $create_sql_query = read_flat_file(dirname(__FILE__) . "/sqls/create_table_$table.sql");
+            die();
+        }
+    }
+
+    function read_flat_file($path) {
+        $ret = '';
+        $file = fopen($path, "r") or die("Unable to open file: $path");
+        while(($read = fgets($file)) != null) {
+            $ret .= $read;
+        }
+        fclose($file);
+        return $ret;
+    }
+
 ?>
