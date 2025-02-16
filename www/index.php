@@ -8,15 +8,8 @@
     $request_uri = '/' . ltrim(rtrim($_SERVER['REQUEST_URI'], '/'), '/'); // /example?foo=bar1&foo=bar2 => /example?foo=bar2
     $request_is_https = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') == true; // false
 
-    echo "Request Method: $request_method<br />";
-    echo "Request is HTTPS: $request_is_https<br />";
-    echo "Request URI: $request_uri<br />";
-
-    $uri_path = explode('?', $request_uri)[0];
-    $uri_query = explode('?', $request_uri)[1];
-
-    echo "URI Path: $uri_path<br />";
-    echo "URI Query: $uri_query<br />";
+    $uri_path = explode('?', $request_uri)[0]; // /example
+    $uri_query = explode('?', $request_uri)[1]; //foo=bar1&foo=bar2
 
     $uri_args = array();
 
@@ -24,7 +17,24 @@
         $key = explode('=', $arg)[0];
         $value = explode('=', $arg)[1];
         $uri_args[$key] = $value;
-        echo "URI Arg: $key => $value<br />";
+    }
+
+    $debug == false;
+
+    if($uri_args['debug'] == 'true') {
+        $debug = true;
+    }
+
+    if($debug) {
+        echo "URI Path: $uri_path<br />";
+        echo "URI Query: $uri_query<br />";
+    
+        echo "Request Method: $request_method<br />";
+        echo "Request is HTTPS: $request_is_https<br />";
+        echo "Request URI: $request_uri<br />";
+        foreach (explode('&', $uri_query) as $arg) {
+            echo "URI Arg: $key => $value<br />";
+        }
     }
 
     $existing_tables = list_tables();
@@ -33,10 +43,19 @@
 
     foreach($required_tables as $table) {
         if(!in_array($table, $existing_tables)) {
-            echo "Table $table does not exist!<br />";
+            if($debug)
+                echo "Table $table does not exist!<br />";
             $create_sql_query = read_flat_file(dirname(__FILE__) . "/sqls/create_table_$table.sql");
-            echo query($create_sql_query);
-            die();
+            query($create_sql_query);
+            die("Unable to create required table: $table");
+        }
+    }
+
+    if(str_starts_with($uri_path, '/commits')) {
+        if($request_method == 'GET') {
+            $commits = query('SELECT * FROM commits');
+            echo json_encode($commits);
+            exit();
         }
     }
 
