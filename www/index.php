@@ -125,7 +125,16 @@
 
     if($uri_parts[0] == '') {
         $repos = query('SELECT * FROM repos');
-        var_dump($repos);
+        echo '<table><tr><th>Name</th><th>URL</th><th>Download Location</th><th>Install Location</th></tr>';
+        foreach($repos as $repo) {
+            $name = $repo['name'];
+            $url = $repo['url'];
+            $download_location = $repo['download_location'];
+            $install_location = $repo['install_location'];
+
+            echo "<tr><td>$name</td><td>$url</td><td>$download_location</td><td>$install_location</td></tr>";
+        }
+        echo '</table>';
     }
 
     function json_error_and_exit($error_msg) {
