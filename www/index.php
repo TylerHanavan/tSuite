@@ -194,7 +194,7 @@
             echo "<strong>Install Location</strong>: $install_location<br />";
             echo "<strong>Recent commits</strong>:<br /><br />";
 
-            $commits = query('SELECT * FROM commits WHERE repo = :id', array('id' => $id));
+            $commits = query('SELECT * FROM commits WHERE repo = :id ORDER BY id DESC LIMIT 25', array('id' => $id));
             echo '<table><tr><th>date</th><th>commit_hash</th><th>message</th><th>author</th></tr>';
             foreach($commits as $commit) {
 
