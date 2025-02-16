@@ -62,8 +62,14 @@
                     exit();
                 }
 
-                $commits = query('SELECT * FROM commits');
-                echo json_encode($commits);
+                $repo = $_GET['repo'] ?? null;
+                if($repo == null) {
+                    $commits = query('SELECT * FROM commits');
+                    echo json_encode($commits);
+                } else {
+                    $commits = query('SELECT * FROM commits WHERE repo = :repo', array('repo' => $repo));
+                    echo json_encode($commits);
+                }
                 exit();
             }
             if($request_method == 'POST') {
