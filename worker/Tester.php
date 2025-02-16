@@ -3,6 +3,7 @@
     class Tester {
         public function __construct($tsuite_dir, $endpoint_url) {
 
+            $this->tsuite_dir = $tsuite_dir;
             $this->endpoint_url = $endpoint_url;
 
         }
@@ -13,7 +14,7 @@
 
             $response['status'] = 'success';
 
-            $files = $this->scanDirectoryRecursively($tsuite_dir);
+            $files = $this->scanDirectoryRecursively($this->tsuite_dir);
 
             // Remove `.` and `..` from the list
             $files = array_diff($files, ['.', '..']);
