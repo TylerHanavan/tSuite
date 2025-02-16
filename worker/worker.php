@@ -125,23 +125,24 @@
     }
 
     function get_repo_id_from_name($repo) {
-        $repo_response = do_curl('/api/repos', array('name' => $repo), false);
+        $repo_response = do_curl('/api/repos', array(), false);
         if($repo_response == null || !isset($repo_response['response'])) {
             echo "get_repo_id_from_name did not return a response for $repo for /api/repos\n";
             return null;
         }
         var_dump($repo_response);
-        $repo = json_decode($repo_response['response'], true);
-        if($repo == null || sizeof($repo) == 0) {
+        $repos = json_decode($repo_response['response'], true);
+        if($repos == null || sizeof($repos) == 0) {
             return null;
         }
 
-        $repo_id = $repo[0]['id'] ?? null;
+        foreach($repos as $repo) {
+            if($repo['name'] == $repo) {
+                return $repo['id'];
+            }
+        }
 
-        echo 'Returning repo_id:\n';
-        var_dump($repo_id);
-
-        return $repo_id;
+        return null;
     }
 
     function post_commit($repo, $commit_hash, $message, $author) {
