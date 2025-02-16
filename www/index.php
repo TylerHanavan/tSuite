@@ -170,7 +170,7 @@
             echo "<strong>Repo URL</strong>: <a href='$url'>$url</a><br />";
             echo "<strong>Download Location</strong>: $download_location<br />";
             echo "<strong>Install Location</strong>: $install_location<br />";
-            echo "<strong>Recent commits</strong>:<br />";
+            echo "<strong>Recent commits</strong>:<br /><br />";
 
             $commits = query('SELECT * FROM commits WHERE repo = :id', array('id' => $id));
             echo '<table><tr><th>date</th><th>commit_hash</th><th>message</th><th>author</th></tr>';
