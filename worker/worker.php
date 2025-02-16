@@ -47,6 +47,9 @@
     function post_commit($repo, $commit_hash, $message, $author) {
         $data = array('entities' => array('repo' => $repo, 'commit_hash' => $commit_hash, 'message' => $message, 'author' => $author, 'date' => date('Y-m-d H:i:s')));
         $response = do_curl('/api/commits', $data);
+        echo "/api/commits/ payload:\n";
+        var_dump($data);
+        echo "\n";
         echo "Response:\n";
         var_dump($response);
     }
