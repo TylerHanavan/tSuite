@@ -137,6 +137,42 @@
         echo '</table>';
     }
 
+    if($uri_parts[0] == 'repos') {
+        if(isset($uri_parts[1]) && $uri_parts[2] !== '') {
+            $use_name = true;
+            if(is_int($uri_parts[1])) {
+                $use_name = true;
+            }
+
+            if($use_name) {
+                $arr = query("SELECT * FROM repos WHERE name = :name", array('name' => $uri_parts[1]));
+                if(sizeof($arr) == 0 || $arr == null) {
+                    echo "Repo not found!<br />";
+                    exit();
+                }
+            } else {
+                $arr = query("SELECT * FROM repos WHERE id = :id", array('id' => $uri_parts[1]));
+                if(sizeof($arr) == 0 || $arr == null) {
+                    echo "Repo not found!<br />";
+                    exit();
+                }
+            }
+
+            $repo = $arr[0];
+
+            $name = $repo['name'];
+            $url = $repo['url'];
+            $download_location = $repo['download_location'];
+            $install_location = $repo['install_location'];
+
+            echo "<strong>Repo</strong>: <a href='/repos/$name'>$name</a><br />";
+            echo "<strong>Repo URL</strong>: <a href='$url'>$url</a><br />";
+            echo "<strong>Download Location</strong>: $download_location<br />";
+            echo "<strong>Install Location</strong>: $install_location<br />";
+
+        }
+    }
+
     function json_error_and_exit($error_msg) {
         echo json_encode(array('status' => 'failed', 'error' => $error_msg));
         exit();
