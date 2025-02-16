@@ -123,6 +123,11 @@
         }
     }
 
+    if($uri_parts[0] == '') {
+        $repos = query('SELECT * FROM repos');
+        var_dump($repos);
+    }
+
     function json_error_and_exit($error_msg) {
         echo json_encode(array('status' => 'failed', 'error' => $error_msg));
         exit();
