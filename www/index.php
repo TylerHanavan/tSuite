@@ -122,9 +122,12 @@
                     $result = query($insert_query, $insert_vals);
 
                     var_dump($result);
-
-                    $counter++;
                 }
+
+                $counter++;
+
+                echo json_encode(array('status' => 'success'));
+                exit();
             }
         }
         if($uri_parts[1] == 'repos') {
