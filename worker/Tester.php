@@ -34,13 +34,13 @@
                 foreach ($functions as $function) {
                     try {
                         call_user_func($function);
-                        $response['files'][$file]['tests'][$function->getName()]['status'] = 'success';
+                        $response['files'][$file]['tests'][$function]['status'] = 'success';
                     } catch (Exception $e) {
                         echo 'Caught exception: ',  $e->getMessage(), "\n";
                         $response['status'] = 'failure';
                         $response['files'][$file]['status'] = 'failure';
-                        $response['files'][$file]['tests'][$function->getName()]['status'] = 'failure';
-                        $response['files'][$file]['tests'][$function->getName()]['reason'] = $e->getMessage();
+                        $response['files'][$file]['tests'][$function]['status'] = 'failure';
+                        $response['files'][$file]['tests'][$function]['reason'] = $e->getMessage();
                     }
                 }
             }
