@@ -188,7 +188,7 @@
 
     function do_curl($uri, $data, $post = true) {
 
-        $url = "$uri";
+        $url = "localhost:80/$uri";
         
         $ch = curl_init();
 
