@@ -132,7 +132,7 @@
             $download_location = $repo['download_location'];
             $install_location = $repo['install_location'];
 
-            echo "<tr><td>$name</td><td>$url</td><td>$download_location</td><td>$install_location</td></tr>";
+            echo "<tr><td><a href='/repos/$name'>$name</a></td><td><a href='$url'>$url</a></td><td>$download_location</td><td>$install_location</td></tr>";
         }
         echo '</table>';
     }
