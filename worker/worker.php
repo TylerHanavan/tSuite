@@ -19,14 +19,13 @@
     echo "Install Location: $install_location\n";
     echo "Items to Install: $items_to_install\n";
 
+    include 'Tester.php';
+
     $tick = 0;
 
     while(true) {
         if($tick++ % 62 == 0) {
             $git_metadata = pull_git_info($repo, $repo_user, $branch);
-
-            echo "Git API Metadata returned for $repo: \n";
-            var_dump($git_metadata);
 
             $git_metadata = json_decode($git_metadata['response'], true);
 
@@ -78,10 +77,7 @@
 
     function pull_git_info($repo, $repo_user, $branch) {
         $api_url = "https://api.github.com/repos/$repo_user/$repo/commits/$branch";
-        echo 'Querying API URL: ' . $api_url . "\n";
         $git_metadata = do_github_curl($api_url, array(), false, $repo_user);
-        echo 'The api url returned the following metadata: ' . "\n";
-        var_dump($git_metadata);
         return $git_metadata;
     }
 
@@ -154,11 +150,6 @@
         $data = array('entities' => array());
         $data['entities'][0] = array('repo' => $repo, 'commit_hash' => $commit_hash, 'message' => $message, 'author' => $author, 'date' => date('Y-m-d H:i:s'));
         $response = do_curl('/api/commits', $data);
-        echo "/api/commits/ payload:\n";
-        var_dump($data);
-        echo "\n";
-        echo "Response:\n";
-        var_dump($response);
     }
 
     function get_tsuite_config($tsuite_config_location) {
