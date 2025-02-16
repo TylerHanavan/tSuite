@@ -138,7 +138,7 @@
     }
 
     if($uri_parts[0] == 'repos') {
-        if(isset($uri_parts[1]) && $uri_parts[2] !== '') {
+        if(isset($uri_parts[1]) && $uri_parts[0] !== '') {
             $use_name = true;
             if(is_int($uri_parts[1])) {
                 $use_name = true;
