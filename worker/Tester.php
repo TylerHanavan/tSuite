@@ -5,6 +5,14 @@
 
             $this->endpoint_url = $endpoint_url;
 
+        }
+
+        public function run_tests() {
+            
+            $response = array();
+
+            $response['status'] = 'success';
+
             $files = $this->scanDirectoryRecursively($tsuite_dir);
 
             // Remove `.` and `..` from the list
@@ -19,11 +27,24 @@
                 include_once $file;
 
                 $functions = $this->get_functions_from_file($file);
+
+                $response['files'][$file]['status'] = 'success';
             
                 foreach ($functions as $function) {
-                    call_user_func($function);
+                    try {
+                        call_user_func($function);
+                        $response['files'][$file]['tests'][$function->getName()]['status'] = 'success';
+                    } catch (Exception $e) {
+                        echo 'Caught exception: ',  $e->getMessage(), "\n";
+                        $response['status'] = 'failure';
+                        $response['files'][$file]['status'] = 'failure';
+                        $response['files'][$file]['tests'][$function->getName()]['status'] = 'failure';
+                        $response['files'][$file]['tests'][$function->getName()]['reason'] = $e->getMessage();
+                    }
                 }
             }
+
+            return $response;
 
         }
 
