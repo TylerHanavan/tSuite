@@ -76,7 +76,7 @@
             }
         }
 
-        private function get_functions_from_file($file) {
+        public function get_functions_from_file($file) {
             // Include the file
             include_once $file;
     
@@ -96,7 +96,7 @@
             return $functions;
         }
 
-        private function scanDirectoryRecursively($dir) {
+        public function scanDirectoryRecursively($dir) {
             $files = [];
         
             foreach (scandir($dir) as $file) {
