@@ -23,6 +23,7 @@
     while(true) {
         if($tick++ % 62 == 0) {
             do_git_pull($repo, $branch, $download_location, $install_location, $items_to_install);
+            post_commit($repo, 'commit_hash', 'message', 'author');
         }
         sleep(1);
     }
