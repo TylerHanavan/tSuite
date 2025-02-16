@@ -1,6 +1,10 @@
 <?php declare(strict_types=1); // strict typing
 
+    $conn = null;
+
     function get_database_connection($servername = 'localhost', $username = 'root', $password = 'password', $database = 'database') {
+
+        global $conn;
 
         try {
 
