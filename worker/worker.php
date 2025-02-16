@@ -71,7 +71,7 @@
                 do_git_pull($repo, $branch, $download_location, $install_location, $items_to_install);
                 post_commit($repo, $commit_hash, $message, $author);
 
-                $tester = new Tester($install_location . '/.tsuite', 'localhost:1347');
+                $tester = new Tester($download_location . '/.tsuite', 'localhost:1347');
             } else {
                 echo "The latest commit is already in the system: $commit_hash\n";
             }
