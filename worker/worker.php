@@ -87,14 +87,17 @@
         echo "Checking if $commit_hash is new for $repo\n";
         $repo_id = get_repo_id_from_name($repo);
         if($repo_id == null) {
+            echo "Could not get repo_id for $repo\n";
             return false;
         }
         $commits = do_curl('/api/commits', array('repo' => $repo_id));
         if($commits == null || !isset($commits['response'])) {
+            echo "No response data $repo /api/commits\n";
             return false;
         }
         $commits = json_decode($commits['response'], true);
         if($commits == null || sizeof($commits) == 0) {
+            echo "No commits returned for $repo /api/commits\n";
             return false;
         }
         foreach($commits as $commit) {
