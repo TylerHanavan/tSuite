@@ -77,9 +77,8 @@
                 if($test_response['status'] == 'failure') {
                     echo "$commit_hash failed its tests\n";
                     foreach($test_response['files'] as $file => $file_data) {
-                        echo "File: $file\n";
                         if($file_data['status'] == 'failure') {
-                            echo "File failed\n";
+                            echo "$file failed its tests\n";
                             foreach($file_data['tests'] as $test_name => $test_data) {
                                 echo "Test: $test_name\n";
                                 if($test_data['status'] == 'failure') {
@@ -87,6 +86,8 @@
                                     echo "Reason: " . $test_data['reason'] . "\n";
                                 }
                             }
+                        } else {
+                            echo "$file is passing all tests\n";
                         }
                     }
                 } else {
