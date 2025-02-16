@@ -1,6 +1,7 @@
 # First, ensure you have Composer installed
 sudo apt update
-sudo apt install composer
+sudo apt install php-dom
+apt install composer
 
 # Install PHPUnit globally
 composer global require phpunit/phpunit
