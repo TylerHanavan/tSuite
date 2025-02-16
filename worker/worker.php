@@ -90,7 +90,7 @@
             echo "Could not get repo_id for $repo\n";
             return false;
         }
-        $commits = do_curl('/api/commits', array('repo' => $repo_id));
+        $commits = do_curl('/api/commits', array('repo' => $repo_id), false);
         if($commits == null || !isset($commits['response'])) {
             echo "No response data $repo /api/commits\n";
             return false;
