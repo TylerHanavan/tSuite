@@ -66,6 +66,53 @@
                 echo json_encode($commits);
                 exit();
             }
+            if($request_method == 'POST') {
+                $entities = $_POST['entities'] ?? null;
+                if($entities == null) {
+                    json_error_and_exit('No entities provided');
+                }
+                $counter = 0;
+                foreach($entities as $entity) {
+                    $repo = $entity['repo'] ?? null;
+                    if($repo == null) {
+                        json_error_and_exit("No repo provided for entity $counter");
+                    }
+
+                    $commit_hash = $entity['commit_hash'] ?? null;
+                    if($commit_hash == null) {
+                        json_error_and_exit("No commit_hash provided for entity $counter");
+                    }
+
+                    $date = $entity['date'] ?? null;
+                    if($date == null) {
+                        json_error_and_exit("No date provided for entity $counter");
+                    }
+
+                    $message = $entity['message'] ?? null;
+                    if($message == null) {
+                        json_error_and_exit("No message provided for entity $counter");
+                    }
+
+                    $author = $entity['author'] ?? null;
+                    if($author == null) {
+                        json_error_and_exit("No author provided for entity $counter");
+                    }
+
+                    $insert_query = "INSERT INTO commits (repo, commit_hash, date, message, author) VALUES (:repo, :commit_hash, :date, :message, :author)";
+
+                    $insert_vals = array(
+                        'repo' => $repo,
+                        'commit_hash' => $commit_hash,
+                        'date' => $date,
+                        'message' => $message,
+                        'author' => $author
+                    );
+
+                    query($insert_query, $insert_vals);
+
+                    $counter++;
+                }
+            }
         }
         if($uri_parts[1] == 'repos') {
             if($request_method == 'GET') {
@@ -74,6 +121,11 @@
                 exit();
             }
         }
+    }
+
+    function json_error_and_exit($error_msg) {
+        echo json_encode(array('status' => 'failed', 'error' => $error_msg));
+        exit();
     }
 
     function read_flat_file($path) {
