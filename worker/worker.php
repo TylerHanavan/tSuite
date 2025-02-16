@@ -130,6 +130,7 @@
             echo "get_repo_id_from_name did not return a response for $repo for /api/repos\n";
             return null;
         }
+        var_dump($repo_response);
         $repo = json_decode($repo_response['response'], true);
         if($repo == null || sizeof($repo) == 0) {
             return null;
