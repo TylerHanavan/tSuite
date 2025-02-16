@@ -137,6 +137,9 @@
 
         $repo_id = $repo[0]['id'] ?? null;
 
+        echo 'Returning repo_id:\n';
+        var_dump($repo_id);
+
         return $repo_id;
     }
 
