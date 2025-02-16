@@ -160,6 +160,7 @@
 
             $repo = $arr[0];
 
+            $id = $repo['id'];
             $name = $repo['name'];
             $url = $repo['url'];
             $download_location = $repo['download_location'];
@@ -169,6 +170,20 @@
             echo "<strong>Repo URL</strong>: <a href='$url'>$url</a><br />";
             echo "<strong>Download Location</strong>: $download_location<br />";
             echo "<strong>Install Location</strong>: $install_location<br />";
+            echo "<strong>Recent commits</strong>:<br />";
+
+            $commits = query('SELECT * FROM commits WHERE repo = :id', array('id' => $id));
+            echo '<table><tr><th>date</th><th>commit_hash</th><th>message</th><th>author</th></tr>';
+            foreach($commits as $commit) {
+
+                $date = $commit['date'];
+                $commit_hash = $commit['commit_hash'];
+                $message = $commit['message'];
+                $author = $commit['author'];
+    
+                echo "<tr><td>$date</td><td>$commit_hash</td><td>$message</td><td>$author</td></tr>";
+            }
+            echo '</table>';
 
         }
     }
