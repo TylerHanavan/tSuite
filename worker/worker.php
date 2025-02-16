@@ -43,6 +43,12 @@
         }
     }
 
+    function post_commit($repo, $commit_hash, $message, $author) {
+        $data = array('repo' => $repo, 'commit_hash' => $commit_hash, 'message' => $message, 'author' => $author);
+        $response = do_curl('/commits', $data);
+        echo "Response: " . $response['response'] . "\n";
+    }
+
     function get_tsuite_config($tsuite_config_location) {
         $ret_conf = array();
         $config_file_contents = $tsuite_config_location != false ? read_flat_file($tsuite_config_location) : null;
