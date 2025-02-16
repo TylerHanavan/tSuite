@@ -106,7 +106,7 @@
                 
                 if (is_dir($fullPath)) {
                     // Recursively scan subdirectories
-                    $files = array_merge($files, scanDirectoryRecursively($fullPath));
+                    $files = array_merge($files, $this->scanDirectoryRecursively($fullPath));
                 } else {
                     $files[] = $fullPath; // Add file to results
                 }
