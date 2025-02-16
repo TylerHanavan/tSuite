@@ -142,6 +142,8 @@
             }
         }
 
+        echo "get_repo_id_from_name: Could not find repo_id for $repo\n";
+
         return null;
     }
 
