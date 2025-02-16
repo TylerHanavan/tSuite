@@ -28,7 +28,7 @@
             echo "Git API Metadata returned for $repo: \n";
             var_dump($git_metadata);
 
-            $git_metadata = json_decode($git_metadata['response']);
+            $git_metadata = json_decode($git_metadata['response'], true);
 
             if($git_metadata == null) {
                 echo "Unable to pull git metadata\n";
