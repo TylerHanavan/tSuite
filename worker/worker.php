@@ -69,6 +69,8 @@
                 echo "New commit detected: $commit_hash\n";
                 do_git_pull($repo, $branch, $download_location, $install_location, $items_to_install);
                 post_commit($repo, $commit_hash, $message, $author);
+
+                $tester = new Tester($install_location . '/.tsuite', 'localhost:1347');
             }
         }
         sleep(1);
