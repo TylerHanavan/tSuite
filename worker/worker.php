@@ -127,6 +127,7 @@
     function get_repo_id_from_name($repo) {
         $repo_response = do_curl('/api/repos', array('name' => $repo));
         if($repo_response == null || !isset($repo_response['response'])) {
+            echo "get_repo_id_from_name did not return a response for $repo for /api/repos\n";
             return null;
         }
         $repo = json_decode($repo_response['response'], true);
