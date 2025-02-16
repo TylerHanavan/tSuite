@@ -98,7 +98,6 @@
             echo "No commits returned for $repo /api/commits\n";
             return false;
         }
-        var_dump($commits_arr);
         foreach($commits_arr as $commit) {
             if($commit['commit_hash'] == $commit_hash) {
                 return false;
@@ -129,7 +128,6 @@
             echo "get_repo_id_from_name did not return a response for $repo for /api/repos\n";
             return null;
         }
-        var_dump($repo_response);
         $repos = json_decode($repo_response['response'], true);
         if($repos == null || sizeof($repos) == 0) {
             return null;
