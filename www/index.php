@@ -67,6 +67,13 @@
                 exit();
             }
         }
+        if($uri_parts[1] == 'repos') {
+            if($request_method == 'GET') {
+                $repos = query('SELECT * FROM repos');
+                echo json_encode($repos);
+                exit();
+            }
+        }
     }
 
     function read_flat_file($path) {
