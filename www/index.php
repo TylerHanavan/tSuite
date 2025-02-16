@@ -69,7 +69,10 @@
             if($request_method == 'POST') {
                 $entities = $_POST['entities'] ?? null;
                 if($entities == null) {
-                    json_error_and_exit('No entities provided');
+                    json_error_and_exit('Entities null or missing from payload');
+                }
+                if(sizeof($entities) == 0) {
+                    json_error_and_exit('Entities array exists but is empty');
                 }
                 $counter = 0;
                 foreach($entities as $entity) {
