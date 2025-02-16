@@ -86,15 +86,15 @@
     function is_commit_new($repo, $commit_hash) {
         $repo_id = get_repo_id_from_name($repo);
         if($repo_id == null) {
-            return true;
+            return false;
         }
         $commits = do_curl('/api/commits', array('repo' => $repo_id));
         if($commits == null || !isset($commits['response'])) {
-            return true;
+            return false;
         }
         $commits = json_decode($commits['response'], true);
         if($commits == null || sizeof($commits) == 0) {
-            return true;
+            return false;
         }
         foreach($commits as $commit) {
             if($commit['commit_hash'] == $commit_hash) {
