@@ -103,6 +103,14 @@
 
                     $insert_query = "INSERT INTO commits (repo, commit_hash, date, message, author) VALUES (:repo, :commit_hash, :date, :message, :author)";
 
+                    if(!is_int($repo)) {
+                        $repo_id = query('SELECT id FROM repos WHERE name = :name', array('name' => $repo));
+                        if(sizeof($repo_id) == 0) {
+                            json_error_and_exit("Repo $repo not found");
+                        }
+                        $repo = $repo_id[0]['id'];
+                    }
+
                     $insert_vals = array(
                         'repo' => $repo,
                         'commit_hash' => $commit_hash,
