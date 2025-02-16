@@ -84,6 +84,7 @@
     }
 
     function is_commit_new($repo, $commit_hash) {
+        echo "Checking if $commit_hash is new for $repo\n";
         $repo_id = get_repo_id_from_name($repo);
         if($repo_id == null) {
             return false;
