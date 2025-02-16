@@ -35,6 +35,7 @@
         if(!in_array($table, $existing_tables)) {
             echo "Table $table does not exist!<br />";
             $create_sql_query = read_flat_file(dirname(__FILE__) . "/sqls/create_table_$table.sql");
+            echo query($create_sql_query);
             die();
         }
     }
