@@ -80,10 +80,11 @@
                         if($file_data['status'] == 'failure') {
                             echo "$file failed its tests\n";
                             foreach($file_data['tests'] as $test_name => $test_data) {
-                                echo "Test: $test_name\n";
                                 if($test_data['status'] == 'failure') {
-                                    echo "Test failed\n";
+                                    echo "Test failed: $test_name\n";
                                     echo "Reason: " . $test_data['reason'] . "\n";
+                                } else {
+                                    echo "Test passed: $test_name\n";
                                 }
                             }
                         } else {
