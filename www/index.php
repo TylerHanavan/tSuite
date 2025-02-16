@@ -11,6 +11,8 @@
     $uri_path = explode('?', $request_uri)[0]; // /example
     $uri_query = explode('?', $request_uri)[1]; //foo=bar1&foo=bar2
 
+    $uri_parts = explode('/', ltrim($uri_path, '/')); // ['', 'example']
+
     $uri_args = array();
 
     foreach (explode('&', $uri_query) as $arg) {
@@ -39,7 +41,7 @@
 
     $existing_tables = list_tables();
 
-    $required_tables = array('commits');
+    $required_tables = array('commits', 'repos');
 
     foreach($required_tables as $table) {
         if(!in_array($table, $existing_tables)) {
@@ -51,11 +53,19 @@
         }
     }
 
-    if(str_starts_with($uri_path, '/commits')) {
-        if($request_method == 'GET') {
-            $commits = query('SELECT * FROM commits');
-            echo json_encode($commits);
-            exit();
+    if($uri_parts[0] == 'api') {
+        if($uri_parts[1] == 'commits') {
+            if($request_method == 'GET') {
+                if($uri_parts[2] == 'latest') {
+                    $commits = query('SELECT * FROM commits ORDER BY id DESC LIMIT 10');
+                    echo json_encode($commits);
+                    exit();
+                }
+
+                $commits = query('SELECT * FROM commits');
+                echo json_encode($commits);
+                exit();
+            }
         }
     }
 
