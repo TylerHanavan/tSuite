@@ -5,7 +5,7 @@
 
             $this->endpoint_url = $endpoint_url;
 
-            $files = scanDirectoryRecursively($tsuite_dir);
+            $files = $this->scanDirectoryRecursively($tsuite_dir);
 
             // Remove `.` and `..` from the list
             $files = array_diff($files, ['.', '..']);
@@ -18,7 +18,7 @@
 
                 include_once $file;
 
-                $functions = get_functions_from_file($file);
+                $functions = $this->get_functions_from_file($file);
             
                 foreach ($functions as $function) {
                     call_user_func($function);
