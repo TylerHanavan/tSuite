@@ -80,24 +80,6 @@
             return array('http_code' => $httpCode, 'response' => $head);
         }
 
-        public function assertEquals($expected, $actual, $message = null) {
-            if ($expected !== $actual) {
-                throw new Exception("Expected $expected but got $actual");
-            }
-        }
-
-        public function assertTrue($actual) {
-            if (!$actual) {
-                throw new Exception("Expected true but got false");
-            }
-        }
-
-        public function assertFalse($actual) {
-            if ($actual) {
-                throw new Exception("Expected false but got true");
-            }
-        }
-
         public function get_functions_from_file($file) {
             // Include the file
             include_once $file;
@@ -139,6 +121,22 @@
 
     }
 
+    function assertEquals($expected, $actual, $message = null) {
+        if ($expected !== $actual) {
+            throw new Exception("Expected $expected but got $actual");
+        }
+    }
 
+    function assertTrue($actual) {
+        if (!$actual) {
+            throw new Exception("Expected true but got false");
+        }
+    }
+
+    function assertFalse($actual) {
+        if ($actual) {
+            throw new Exception("Expected false but got true");
+        }
+    }
 
 ?>
