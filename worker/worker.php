@@ -95,12 +95,13 @@
             echo "No response data $repo /api/commits\n";
             return false;
         }
-        $commits = json_decode($commits['response'], true);
-        if($commits == null || sizeof($commits) == 0) {
+        $commits_arr = json_decode($commits['response'], true);
+        if($commits_arr == null || sizeof($commits_arr) == 0) {
             echo "No commits returned for $repo /api/commits\n";
             return false;
         }
-        foreach($commits as $commit) {
+        var_dump($commits_arr);
+        foreach($commits_arr as $commit) {
             if($commit['commit_hash'] == $commit_hash) {
                 return false;
             }
