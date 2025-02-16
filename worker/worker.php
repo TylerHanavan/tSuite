@@ -72,6 +72,27 @@
                 post_commit($repo, $commit_hash, $message, $author);
 
                 $tester = new Tester($download_location . '/.tsuite', 'localhost:1347');
+                $test_response = $tester->run_tests();
+
+                if($test_response['status'] == 'failure') {
+                    echo "$commit_hash failed its tests\n";
+                    foreach($test_response['files'] as $file => $file_data) {
+                        echo "File: $file\n";
+                        if($file_data['status'] == 'failure') {
+                            echo "File failed\n";
+                            foreach($file_data['tests'] as $test_name => $test_data) {
+                                echo "Test: $test_name\n";
+                                if($test_data['status'] == 'failure') {
+                                    echo "Test failed\n";
+                                    echo "Reason: " . $test_data['reason'] . "\n";
+                                }
+                            }
+                        }
+                    }
+                } else {
+                    echo "$commit_hash is passing all tests\n";
+                }
+
             } else {
                 echo "The latest commit is already in the system: $commit_hash\n";
             }
