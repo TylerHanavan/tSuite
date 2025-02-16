@@ -28,7 +28,7 @@
             echo "Git API Metadata returned for $repo: \n";
             var_dump($git_metadata);
 
-            $git_metadata = json_decode($git_metadata['response'], true);
+            $git_metadata = json_decode($git_metadata['response']);
 
             if($git_metadata == null) {
                 echo "Unable to pull git metadata\n";
@@ -75,7 +75,11 @@
     }
 
     function pull_git_info($repo, $repo_user, $branch) {
-        $git_metadata = do_curl("https://api.github.com/repos/$repo_user/$repo/commits/$branch", array(), false);
+        $api_url = "https://api.github.com/repos/$repo_user/$repo/commits/$branch";
+        echo 'Querying API URL: ' . $api_url . "\n";
+        $git_metadata = do_curl($api_url, array(), false);
+        echo 'The api url returned the following metadata: ' . "\n";
+        var_dump($git_metadata);
         return $git_metadata;
     }
 
