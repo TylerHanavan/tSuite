@@ -5,6 +5,7 @@
     $_TSUITE_CONFIG = get_tsuite_config($tsuite_config_location);
 
     $repo = get_config_value('REPO');
+    $repo_user = get_config_value('REPO_USER');
     $repo_url = get_config_value('REPO_URL');
     $branch = get_config_value('BRANCH');
     $download_location = get_config_value('DOWNLOAD_LOCATION');
@@ -22,10 +23,36 @@
 
     while(true) {
         if($tick++ % 62 == 0) {
-            do_git_pull($repo, $branch, $download_location, $install_location, $items_to_install);
-            post_commit($repo, 'commit_hash', 'message', 'author');
+            $git_metadata = pull_git_info($repo, $repo_user, $branch);
+            $commit_hash = $git_metadata['sha'];
+            $message = $git_metadata['commit']['message'];
+            $author = $git_metadata['commit']['author']['name'];
+            if(is_commit_new($repo, $commit_hash)) {
+                echo "New commit detected: $commit_hash\n";
+                do_git_pull($repo, $branch, $download_location, $install_location, $items_to_install);
+                post_commit($repo, $commit_hash, $message, $author);
+            }
         }
         sleep(1);
+    }
+
+    function pull_git_info($repo, $repo_user, $branch) {
+        $git_metadata = do_curl("https://api.github.com/repos/$repo_user/$repo/commits/$branch", array(), false);
+        return $git_metadata;
+    }
+
+    function is_commit_new($repo, $commit_hash) {
+        $commits = query("SELECT * FROM commits WHERE repo = :repo", array('repo' => $repo));
+        $repo_id = get_repo_id_from_name($repo);
+        if($repo_id == null) {
+            return true;
+        }
+        foreach($commits as $commit) {
+            if($commit['commit_hash'] == $commit_hash) {
+                return false;
+            }
+        }
+        return true;
     }
 
     function do_git_pull($repo, $branch, $download_location, $install_location, $items_to_install) {
@@ -42,6 +69,17 @@
                 echo $output;
             }
         }
+    }
+
+    function get_repo_id_from_name($repo) {
+        $repo = query("SELECT id FROM repos WHERE name = :name", array('name' => $repo));
+        if($repo != null && sizeof($repo) > 0) {
+            $repo_id = $repo[0]['id'];
+        }
+        else {
+            $repo_id = null;
+        }
+        return $repo_id;
     }
 
     function post_commit($repo, $commit_hash, $message, $author) {
