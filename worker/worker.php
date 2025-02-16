@@ -84,9 +84,16 @@
     }
 
     function is_commit_new($repo, $commit_hash) {
-        $commits = query("SELECT * FROM commits WHERE repo = :repo", array('repo' => $repo));
         $repo_id = get_repo_id_from_name($repo);
         if($repo_id == null) {
+            return true;
+        }
+        $commits = do_curl('/api/commits', array('repo' => $repo_id));
+        if($commits == null || !isset($commits['response'])) {
+            return true;
+        }
+        $commits = json_decode($commits['response'], true);
+        if($commits == null || sizeof($commits) == 0) {
             return true;
         }
         foreach($commits as $commit) {
@@ -114,13 +121,17 @@
     }
 
     function get_repo_id_from_name($repo) {
-        $repo = query("SELECT id FROM repos WHERE name = :name", array('name' => $repo));
-        if($repo != null && sizeof($repo) > 0) {
-            $repo_id = $repo[0]['id'];
+        $repo_response = do_curl('/api/repos', array('name' => $repo));
+        if($repo_response == null || !isset($repo_response['response'])) {
+            return null;
         }
-        else {
-            $repo_id = null;
+        $repo = json_decode($repo_response['response'], true);
+        if($repo == null || sizeof($repo) == 0) {
+            return null;
         }
+
+        $repo_id = $repo[0]['id'] ?? null;
+
         return $repo_id;
     }
 
