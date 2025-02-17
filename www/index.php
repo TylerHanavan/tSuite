@@ -267,9 +267,9 @@
                 echo "<strong>Author</strong>: $author<br />";
                 echo "<strong>Test Status</strong>: $test_status<br />";
 
-                $test_result_file = "$repo_download_path/test_results/$commit_hash.json";
+                $test_result_file = dirname($repo_download_path) . "/test_results/$commit_hash.json";
 
-                $test_result_json = read_flat_file(dirname($test_result_file));
+                $test_result_json = read_flat_file($test_result_file);
 
                 $test_result = json_decode($test_result_json, true);
 
