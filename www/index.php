@@ -280,6 +280,7 @@
                 echo '<table><tr><th>File</th><th>Test Name</th><th>Status</th><th>Reason</th></tr>';
 
                 foreach($files as $file) {
+                    var_dump($file);
                     foreach($file['tests'] as $function => $data) {
                         $status = $data['status'];
                         $reason = $data['reason'] ?? '';
