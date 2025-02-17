@@ -69,13 +69,13 @@
             if(is_commit_new($repo, $commit_hash)) {
                 echo "New commit detected: $commit_hash\n";
                 do_git_pull($repo, $branch, $download_location, $install_location, $items_to_install);
-                post_commit($repo, $commit_hash, $message, $author);
 
                 $tester = new Tester($download_location . '/.tsuite', 'localhost:1347');
                 $test_response = $tester->run_tests();
 
                 if($test_response['status'] == 'failure') {
                     echo "$commit_hash failed its tests\n";
+                    post_commit($repo, $commit_hash, $message, $author, 1);
                     foreach($test_response['files'] as $file => $file_data) {
                         if($file_data['status'] == 'failure') {
                             echo "$file failed its tests\n";
@@ -93,6 +93,7 @@
                     }
                 } else {
                     echo "$commit_hash is passing all tests\n";
+                    post_commit($repo, $commit_hash, $message, $author, 0);
                 }
 
             } else {
@@ -170,9 +171,9 @@
         return null;
     }
 
-    function post_commit($repo, $commit_hash, $message, $author) {
+    function post_commit($repo, $commit_hash, $message, $author, $test_status) {
         $data = array('entities' => array());
-        $data['entities'][0] = array('repo' => $repo, 'commit_hash' => $commit_hash, 'message' => $message, 'author' => $author, 'date' => date('Y-m-d H:i:s'));
+        $data['entities'][0] = array('repo' => $repo, 'commit_hash' => $commit_hash, 'message' => $message, 'author' => $author, 'date' => date('Y-m-d H:i:s'), 'test_status' => $test_status);
         $response = do_curl('/api/commits', $data);
     }
 
