@@ -237,6 +237,7 @@
 
                 $repo = $repo[0];
                 $repo_id = $repo['id'];
+                $repo_download_path = $repo['download_location'];
 
                 $commit = query('SELECT * FROM commits WHERE repo = :repo AND commit_hash = :commit_hash', array('repo' => $repo_id, 'commit_hash' => $commit_hash));
                 if(sizeof($commit) == 0) {
@@ -265,6 +266,30 @@
                 echo "<strong>Message</strong>: $message<br />";
                 echo "<strong>Author</strong>: $author<br />";
                 echo "<strong>Test Status</strong>: $test_status<br />";
+
+                $test_result_file = "$repo_download_path/test_results/$commit_hash.json";
+
+                $test_result_json = read_flat_file($test_result_file);
+
+                $test_result = json_decode($test_result_json, true);
+
+                $files = $test_result['files'];
+
+                echo "<strong>Test Results</strong>:<br /><br />";
+
+                echo '<table><tr><th>File</th><th>Test Name</th><th>Status</th><th>Reason</th></tr>';
+
+                foreach($files as $file) {
+                    foreach($file['tests'] as $function => $data) {
+                        $status = $data['status'];
+                        $reason = $data['reason'] ?? '';
+
+                        echo "<tr><td>$file</td><td>$function</td><td>$status</td><td>$reason</td></tr>";
+                    }
+                }
+                
+                echo '</table>';
+
                 exit();
             }
         }
