@@ -207,7 +207,7 @@
                 $author = $commit['author'];
                 $test_status = $commit['test_status'] ?? null;
 
-                if($test_status == null) {
+                if($test_status === null) {
                     $test_status = 'N/A';
                 }
 
