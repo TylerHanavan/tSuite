@@ -279,8 +279,8 @@
 
                 echo '<table><tr><th>File</th><th>Test Name</th><th>Status</th><th>Reason</th></tr>';
 
-                foreach($files as $file) {
-                    foreach($file['tests'] as $function => $data) {
+                foreach($files as $file => $file_data) {
+                    foreach($file_data as $function => $data) {
                         $status = $data['status'];
                         $reason = $data['reason'] ?? '';
 
