@@ -285,7 +285,7 @@
                         $status = $data['status'];
                         $reason = $data['reason'] ?? '';
 
-                        echo "<tr><td>$file_name<_name/td><td>$function</td><td>$status</td><td>$reason</td></tr>";
+                        echo "<tr><td>$file_name</td><td>$function</td><td>$status</td><td>$reason</td></tr>";
                     }
                 }
                 
