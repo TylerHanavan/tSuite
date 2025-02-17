@@ -163,7 +163,7 @@
     }
 
     if($uri_parts[0] == 'repos') {
-        if(isset($uri_parts[1]) && $uri_parts[0] !== '') {
+        if(isset($uri_parts[1]) && sizeof($uri_parts) == 2) {
             $use_name = true;
             if(is_int($uri_parts[1])) {
                 $use_name = true;
@@ -220,6 +220,53 @@
             
             exit();
 
+        }
+
+        if(isset($uri_parts[1]) && sizeof($uri_parts) == 4) {
+            // /repos/REPO_NAME/commits/COMMIT_HASH
+
+            if($uri_parts[2] == 'commits') {
+                $repo_name = $uri_parts[1];
+                $commit_hash = $uri_parts[3];
+
+                $repo = query('SELECT * FROM repos WHERE name = :name', array('name' => $repo_name));
+                if(sizeof($repo) == 0) {
+                    echo "Repo not found!<br />";
+                    exit();
+                }
+
+                $repo = $repo[0];
+                $repo_id = $repo['id'];
+
+                $commit = query('SELECT * FROM commits WHERE repo = :repo AND commit_hash = :commit_hash', array('repo' => $repo_id, 'commit_hash' => $commit_hash));
+                if(sizeof($commit) == 0) {
+                    echo "Commit not found!<br />";
+                    exit();
+                }
+
+                $commit = $commit[0];
+
+                $date = $commit['date'];
+                $commit_hash = $commit['commit_hash'];
+                $message = $commit['message'];
+                $author = $commit['author'];
+                $test_status = $commit['test_status'] ?? null;
+
+                if($test_status === null) {
+                    $test_status = 'N/A';
+                }
+
+                if($test_status == 0) $test_status = 'Passed';
+                if($test_status == 1) $test_status = 'Failed';
+
+                echo "<strong>Repo</strong>: <a href='/repos/$repo_name'>$repo_name</a><br />";
+                echo "<strong>Commit Hash</strong>: $commit_hash<br />";
+                echo "<strong>Date</strong>: $date<br />";
+                echo "<strong>Message</strong>: $message<br />";
+                echo "<strong>Author</strong>: $author<br />";
+                echo "<strong>Test Status</strong>: $test_status<br />";
+                exit();
+            }
         }
     }
 
