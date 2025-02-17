@@ -122,21 +122,21 @@
 
     }
 
-    function assertEquals($expected, $actual, $message = null) {
+    function assertEquals($expected, $actual, $message = '') {
         if ($expected !== $actual) {
-            throw new Exception("Expected $expected but got $actual");
+            throw new Exception("$message / Expected $expected but got $actual");
         }
     }
 
-    function assertTrue($actual) {
+    function assertTrue($actual, $message = '') {
         if (!$actual) {
-            throw new Exception("Expected true but got false");
+            throw new Exception("$message / Expected true but got $actual");
         }
     }
 
-    function assertFalse($actual) {
+    function assertFalse($actual, $message = '') {
         if ($actual) {
-            throw new Exception("Expected false but got true");
+            throw new Exception("$message / Expected false but got $actual");
         }
     }
 
