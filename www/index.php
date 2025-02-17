@@ -214,7 +214,7 @@
                 if($test_status == 0) $test_status = 'Passed';
                 if($test_status == 1) $test_status = 'Failed';
     
-                echo "<tr><td>$date</td><td>$commit_hash</td><td>$message</td><td>$author</td><td>$test_status</td></tr>";
+                echo "<tr><td>$date</td><td><a href='/repos/$name/$commit_hash'>$commit_hash</a>$commit_hash</td><td>$message</td><td>$author</td><td>$test_status</td></tr>";
             }
             echo '</table>';
             
