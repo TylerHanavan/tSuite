@@ -107,7 +107,9 @@
                         json_error_and_exit("No author provided for entity $counter");
                     }
 
-                    $insert_query = "INSERT INTO commits (repo, commit_hash, date, message, author) VALUES (:repo, :commit_hash, :date, :message, :author)";
+                    $test_status = $entity['test_status'] ?? null;
+
+                    $insert_query = "INSERT INTO commits (repo, commit_hash, date, message, author, test_status) VALUES (:repo, :commit_hash, :date, :message, :author, :test_status)";
 
                     if(!is_int($repo)) {
                         $repo_id = query('SELECT id FROM repos WHERE name = :name', array('name' => $repo));
@@ -122,7 +124,8 @@
                         'commit_hash' => $commit_hash,
                         'date' => $date,
                         'message' => $message,
-                        'author' => $author
+                        'author' => $author,
+                        'test_status' => $test_status
                     );
 
                     $result = query($insert_query, $insert_vals);
@@ -195,15 +198,23 @@
             echo "<strong>Recent commits</strong>:<br /><br />";
 
             $commits = query('SELECT * FROM commits WHERE repo = :id ORDER BY id DESC LIMIT 25', array('id' => $id));
-            echo '<table><tr><th>date</th><th>commit_hash</th><th>message</th><th>author</th></tr>';
+            echo '<table><tr><th>date</th><th>commit_hash</th><th>message</th><th>author</th><th>Test Status</th></tr>';
             foreach($commits as $commit) {
 
                 $date = $commit['date'];
                 $commit_hash = $commit['commit_hash'];
                 $message = $commit['message'];
                 $author = $commit['author'];
+                $test_status = $commit['test_status'] ?? null;
+
+                if($test_status == null) {
+                    $test_status = 'N/A';
+                }
+
+                if($test_status == 0) $test_status = 'Passed';
+                if($test_status == 1) $test_status = 'Failed';
     
-                echo "<tr><td>$date</td><td>$commit_hash</td><td>$message</td><td>$author</td></tr>";
+                echo "<tr><td>$date</td><td>$commit_hash</td><td>$message</td><td>$author</td><td>$test_status</td></tr>";
             }
             echo '</table>';
             
