@@ -35,6 +35,8 @@
                     try {
                         call_user_func($function);
                         $response['files'][$file]['tests'][$function]['status'] = 'success';
+                        $response['files'][$file]['status'] = 'success';
+                        $response['files'][$file]['tests'][$function]['reason'] = $e->getMessage();
                     } catch (Exception $e) {
                         echo 'Caught exception: ',  $e->getMessage(), "\n";
                         $response['status'] = 'failure';
