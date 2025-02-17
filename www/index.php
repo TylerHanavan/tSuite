@@ -274,13 +274,13 @@
                 $test_result = json_decode($test_result_json, true);
 
                 $files = $test_result['files'];
+                var_dump($files);
 
                 echo "<strong>Test Results</strong>:<br /><br />";
 
                 echo '<table><tr><th>File</th><th>Test Name</th><th>Status</th><th>Reason</th></tr>';
 
                 foreach($files as $file) {
-                    var_dump($file);
                     foreach($file['tests'] as $function => $data) {
                         $status = $data['status'];
                         $reason = $data['reason'] ?? '';
