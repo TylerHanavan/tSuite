@@ -96,6 +96,8 @@
                     post_commit($repo, $commit_hash, $message, $author, 0);
                 }
 
+                write_to_file(dirname($tsuite_config_location) . '/test_results/' . $commit_hash . '.json', json_encode($test_response, JSON_PRETTY_PRINT));
+
             } else {
                 echo "The latest commit is already in the system: $commit_hash\n";
             }
@@ -281,6 +283,18 @@
         curl_close($ch);
 
         return array('http_code' => $httpCode, 'response' => $head);
+    }
+
+    function write_to_file($path, $content) {
+        $cmd = "mkdir -p " . dirname($path) . "";
+
+        exec($cmd, $output);
+
+        $cmd = "touch $path &";
+
+        exec($cmd, $output);
+
+        file_put_contents($path, $content, FILE_APPEND);
     }
 
 ?>
