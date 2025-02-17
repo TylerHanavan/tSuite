@@ -274,7 +274,6 @@
                 $test_result = json_decode($test_result_json, true);
 
                 $files = $test_result['files'];
-                var_dump($files);
 
                 echo "<strong>Test Results</strong>:<br /><br />";
 
