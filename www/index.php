@@ -280,12 +280,12 @@
 
                 echo '<table><tr><th>File</th><th>Test Name</th><th>Status</th><th>Reason</th></tr>';
 
-                foreach($files as $file) {
-                    foreach($file['tests'] as $function => $data) {
+                foreach($files as $file_name => $file_data) {
+                    foreach($file_data['tests'] as $function => $data) {
                         $status = $data['status'];
                         $reason = $data['reason'] ?? '';
 
-                        echo "<tr><td>$file</td><td>$function</td><td>$status</td><td>$reason</td></tr>";
+                        echo "<tr><td>$file<_name/td><td>$function</td><td>$status</td><td>$reason</td></tr>";
                     }
                 }
                 
