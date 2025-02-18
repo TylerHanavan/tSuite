@@ -25,9 +25,9 @@
         $uri_args[$key] = $value;
     }
 
-    $debug == false;
+    $debug = false;
 
-    if($uri_args['debug'] == 'true') {
+    if(isset($uri_args['debug']) && $uri_args['debug'] == 'true') {
         $debug = true;
     }
 
@@ -278,7 +278,7 @@
                 $repo_id = $repo['id'];
                 $repo_download_path = $repo['download_location'];
 
-                $commit = query('SELECT * FROM commits WHERE repo = :repo AND commit_hash = :commit_hash ORDER BY status DESC', array('repo' => $repo_id, 'commit_hash' => $commit_hash));
+                $commit = query('SELECT * FROM commits WHERE repo = :repo AND commit_hash = :commit_hash ORDER BY test_status DESC', array('repo' => $repo_id, 'commit_hash' => $commit_hash));
                 if(sizeof($commit) == 0) {
                     echo "Commit not found!<br />";
                     exit();
