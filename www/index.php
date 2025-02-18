@@ -348,8 +348,15 @@
                     foreach($file_data['tests'] as $function => $data) {
                         $status = $data['status'];
                         $reason = $data['reason'] ?? '';
+
+                        if($status == 'success') {
+                            $status = 'Passed';
+                        } 
+                        if($status == 'failure') {
+                            $status = 'Failed';
+                        }
                         
-                        $test_status_td = $test_status == 'success' ? '<td style="background-color:d4edda;color:155724;font-weight:bold">' : '<td style="background-color:ffebeb;color:d00;font-weight:bold">';
+                        $test_status_td = $test_status == 'Passed' ? '<td style="background-color:d4edda;color:155724;font-weight:bold">' : '<td style="background-color:ffebeb;color:d00;font-weight:bold">';
     
 
                         echo "<tr><td>$file_name</td><td>$function</td>$test_status_td$status</td><td>$reason</td></tr>";
