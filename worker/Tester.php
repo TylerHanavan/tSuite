@@ -37,7 +37,6 @@
                         $response['files'][$file]['tests'][$function]['status'] = 'success';
                         $response['files'][$file]['status'] = 'success';
                     } catch (Exception $e) {
-                        echo 'Caught exception: ',  $e->getMessage(), "\n";
                         $response['status'] = 'failure';
                         $response['files'][$file]['status'] = 'failure';
                         $response['files'][$file]['tests'][$function]['status'] = 'failure';
@@ -137,6 +136,18 @@
     function assertFalse($actual, $message = '') {
         if ($actual) {
             throw new Exception("$message / Expected false but got $actual");
+        }
+    }
+
+    function assertStrContains($haystack, $needle, $message = '') {
+        if (strpos($haystack, $needle) === false) {
+            throw new Exception("$message / Expected string $needle to be in $haystack but it wasn't");
+        }
+    }
+
+    function assertArrayContains($haystack, $needle, $message = '') {
+        if (!in_array($needle, $haystack)) {
+            throw new Exception("$message / Expected array to contain $needle but it didn't");
         }
     }
 
