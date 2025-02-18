@@ -125,9 +125,9 @@
 
                     $test_status = $entity['test_status'] ?? null;
 
-                    $download_duration = $entity['download_duration'] ?? 'Unknown';
-                    $install_duration = $entity['install_duration'] ?? 'Unknown';
-                    $test_duration = $entity['test_duration'] ?? 'Unknown';
+                    $download_duration = $entity['download_duration'] ?? -1;
+                    $install_duration = $entity['install_duration'] ?? -1;
+                    $test_duration = $entity['test_duration'] ?? -1;
 
                     $insert_query = "INSERT INTO commits (repo, commit_hash, date, message, author, test_status, success_tests, failed_tests, download_duration, install_duration, test_duration) VALUES (:repo, :commit_hash, :date, :message, :author, :test_status, :success_tests, :failed_tests, :download_duration, :install_duration, :test_duration)";
 
