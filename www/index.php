@@ -69,7 +69,7 @@
     if($uri_parts[0] == 'api') {
         if($uri_parts[1] == 'commits') {
             if($request_method == 'GET') {
-                if($uri_parts[2] == 'latest') {
+                if(isset($uri_parts[2]) && $uri_parts[2] == 'latest') {
                     $commits = query('SELECT * FROM commits ORDER BY id DESC LIMIT 10');
                     echo json_encode($commits);
                     exit();

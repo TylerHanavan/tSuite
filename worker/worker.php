@@ -186,9 +186,8 @@
 
     function post_commit($repo, $commit_hash, $message, $author, $test_status, $download_duration, $install_duration, $test_duration) {
         $data = array('entities' => array());
-        $data['entities'][0] = array('repo' => $repo, 'commit_hash' => $commit_hash, 'message' => $message, 'author' => $author, 'date' => date('Y-m-d H:i:s'), 'test_status' => $test_status, 'download_time' => $download_duration, 'install_time' => $install_duration, 'test_time' => $test_duration);
-        //this should use like /api/commits/COMMIT_HASH instead
-        $response = do_curl('/api/commits/latest', $data);
+        $data['entities'][0] = array('repo' => $repo, 'commit_hash' => $commit_hash, 'message' => $message, 'author' => $author, 'date' => date('Y-m-d H:i:s'), 'test_status' => $test_status, 'download_duration' => $download_duration, 'install_duration' => $install_duration, 'test_duration' => $test_duration);
+        $response = do_curl('/api/commits', $data);
     }
 
     function get_tsuite_config($tsuite_config_location) {
