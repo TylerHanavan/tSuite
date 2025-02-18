@@ -13,7 +13,12 @@
     $request_is_https = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') == true; // false
 
     $uri_path = explode('?', $request_uri)[0]; // /example
-    $uri_query = explode('?', $request_uri)[1]; //foo=bar1&foo=bar2
+
+    $uri_query = explode('?', $request_uri); //foo=bar1&foo=bar2
+    if(isset($uri_query[1]))
+        $uri_query = $uri_query[1];
+    else
+        $uri_query = '';
 
     $uri_parts = explode('/', ltrim($uri_path, '/')); // ['', 'example']
 
