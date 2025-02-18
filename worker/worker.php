@@ -68,14 +68,23 @@
             echo "Checking if $commit_hash is new for $repo\n";
             if(is_commit_new($repo, $commit_hash)) {
                 echo "New commit detected: $commit_hash\n";
+                $start_time_download = get_current_time_milliseconds();
                 do_git_pull($repo, $branch, $download_location, $install_location, $items_to_install);
+                $start_time_install = get_current_time_milliseconds();
+                do_install($download_location, $install_location, $items_to_install);
 
+                $start_time_test = get_current_time_milliseconds();
                 $tester = new Tester($download_location . '/.tsuite', 'localhost:1347');
                 $test_response = $tester->run_tests();
+                $end_time_test = get_current_time_milliseconds();
+
+                $download_duration = $start_time_install - $start_time_download;
+                $install_duration = $start_time_test - $start_time_install;
+                $test_duration = $end_time_test - $start_time_test;
 
                 if($test_response['status'] == 'failure') {
                     echo "$commit_hash failed its tests\n";
-                    post_commit($repo, $commit_hash, $message, $author, 1);
+                    post_commit($repo, $commit_hash, $message, $author, 1, $download_duration, $install_duration, $test_duration);
                     foreach($test_response['files'] as $file => $file_data) {
                         if($file_data['status'] == 'failure') {
                             echo "$file failed its tests\n";
@@ -93,7 +102,7 @@
                     }
                 } else {
                     echo "$commit_hash is passing all tests\n";
-                    post_commit($repo, $commit_hash, $message, $author, 0);
+                    post_commit($repo, $commit_hash, $message, $author, 0, $download_duration, $install_duration, $test_duration);
                 }
 
                 write_to_file(dirname($tsuite_config_location) . '/test_results/' . $commit_hash . '.json', json_encode($test_response, JSON_PRETTY_PRINT));
@@ -139,7 +148,9 @@
         $cmd = "cd $download_location && git pull origin $branch";
         $output = shell_exec($cmd);
         echo $output;
+    }
 
+    function do_install($download_location, $install_location, $items_to_install) {
         if($items_to_install != null) {
             $items = explode(',', $items_to_install);
             foreach($items as $item) {
@@ -173,9 +184,9 @@
         return null;
     }
 
-    function post_commit($repo, $commit_hash, $message, $author, $test_status) {
+    function post_commit($repo, $commit_hash, $message, $author, $test_status, $download_duration, $install_duration, $test_duration) {
         $data = array('entities' => array());
-        $data['entities'][0] = array('repo' => $repo, 'commit_hash' => $commit_hash, 'message' => $message, 'author' => $author, 'date' => date('Y-m-d H:i:s'), 'test_status' => $test_status);
+        $data['entities'][0] = array('repo' => $repo, 'commit_hash' => $commit_hash, 'message' => $message, 'author' => $author, 'date' => date('Y-m-d H:i:s'), 'test_status' => $test_status, 'download_time' => $download_duration, 'install_time' => $install_duration, 'test_time' => $test_duration);
         $response = do_curl('/api/commits', $data);
     }
 
@@ -295,6 +306,10 @@
         exec($cmd, $output);
 
         file_put_contents($path, $content, FILE_APPEND);
+    }
+
+    function get_current_time_milliseconds() {
+        return round(microtime(true) * 1000);
     }
 
 ?>
