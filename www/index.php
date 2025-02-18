@@ -1,5 +1,9 @@
 <?php
 
+    ini_set('display_errors', '1');
+    ini_set('display_startup_errors', '1');
+    error_reporting(E_ALL);
+
     include 'sql_helper.php';
 
     $tsuite_conn = get_database_connection('localhost', 'tsuite_admin', 'password', 'tsuite');
