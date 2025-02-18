@@ -25,6 +25,10 @@
     $uri_args = array();
 
     foreach (explode('&', $uri_query) as $arg) {
+        $parts = explode('=', $arg);
+        if(sizeof($parts) < 2) {
+            continue;
+        }
         $key = explode('=', $arg)[0];
         $value = explode('=', $arg)[1];
         $uri_args[$key] = $value;
