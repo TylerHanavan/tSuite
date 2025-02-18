@@ -107,9 +107,16 @@
                         json_error_and_exit("No author provided for entity $counter");
                     }
 
+                    $success_tests = $entity['success_tests'] ?? null;
+                    $failed_tests = $entity['failed_tests'] ?? null;
+
                     $test_status = $entity['test_status'] ?? null;
 
-                    $insert_query = "INSERT INTO commits (repo, commit_hash, date, message, author, test_status) VALUES (:repo, :commit_hash, :date, :message, :author, :test_status)";
+                    $download_duration = $entity['download_duration'] ?? 'Unknown';
+                    $install_duration = $entity['install_duration'] ?? 'Unknown';
+                    $test_duration = $entity['test_duration'] ?? 'Unknown';
+
+                    $insert_query = "INSERT INTO commits (repo, commit_hash, date, message, author, test_status, success_tests, failed_tests, download_duration, install_duration, test_duration) VALUES (:repo, :commit_hash, :date, :message, :author, :test_status, :success_tests, :failed_tests, :download_duration, :install_duration, :test_duration)";
 
                     if(!is_int($repo)) {
                         $repo_id = query('SELECT id FROM repos WHERE name = :name', array('name' => $repo));
@@ -125,7 +132,12 @@
                         'date' => $date,
                         'message' => $message,
                         'author' => $author,
-                        'test_status' => $test_status
+                        'test_status' => $test_status,
+                        'success_tests' => $success_tests,
+                        'failed_tests' => $failed_tests,
+                        'download_duration' => $download_duration,
+                        'install_duration' => $install_duration,
+                        'test_duration' => $test_duration
                     );
 
                     $result = query($insert_query, $insert_vals);
@@ -160,6 +172,7 @@
             echo "<tr><td><a href='/repos/$name'>$name</a></td><td><a href='$url'>$url</a></td><td>$download_location</td><td>$install_location</td></tr>";
         }
         echo '</table>';
+        exit();
     }
 
     if($uri_parts[0] == 'repos') {
@@ -195,10 +208,10 @@
             echo "<strong>Repo URL</strong>: <a href='$url'>$url</a><br />";
             echo "<strong>Download Location</strong>: $download_location<br />";
             echo "<strong>Install Location</strong>: $install_location<br />";
-            echo "<strong>Recent commits</strong>:<br /><br />";
+            echo "<br /><strong>Recent commits</strong>:<br />";
 
             $commits = query('SELECT * FROM commits WHERE repo = :id ORDER BY id DESC LIMIT 25', array('id' => $id));
-            echo '<table><tr><th>date</th><th>commit_hash</th><th>message</th><th>author</th><th>Test Status</th></tr>';
+            echo '<table style="width:100%;border-collapse:collapse;margin-top:10px"><tr><th>date</th><th>commit_hash</th><th>message</th><th>author</th><th>Test Status</th><th>Tests Passing</th><th>Tests Failing</th><th>Download Duration</th><th>Install Duration</th><th>Test Duration</th><th>Total Duration</th></tr>';
             foreach($commits as $commit) {
 
                 $date = $commit['date'];
@@ -206,6 +219,26 @@
                 $message = $commit['message'];
                 $author = $commit['author'];
                 $test_status = $commit['test_status'] ?? null;
+                $success_tests = $commit['success_tests'] ?? 'Unknown';
+                $failed_tests = $commit['failed_tests'] ?? 'Unknown';
+                $download_duration = $commit['download_duration'] ?? 'Unknown';
+                $install_duration = $commit['install_duration'] ?? 'Unknown';
+                $test_duration = $commit['test_duration'] ?? 'Unknown';
+                $total_duration = 0;
+
+                if($download_duration != 'Unknown') {
+                    $total_duration += $download_duration;
+                }
+                if($install_duration != 'Unknown') {
+                    $total_duration += $install_duration;
+                }
+                if($test_duration != 'Unknown') {
+                    $total_duration += $test_duration;
+                }
+
+                if($total_duration == 0) {
+                    $total_duration = 'Unknown';
+                }
 
                 if($test_status === null) {
                     $test_status = 'N/A';
@@ -213,8 +246,10 @@
 
                 if($test_status == 0) $test_status = 'Passed';
                 if($test_status == 1) $test_status = 'Failed';
+
+                $test_status_td = $test_status == 'Passed' ? '<td style="background-color:d4edda;color:155724;font-weight:bold">' : '<td style="background-color:ffebeb;color:d00;font-weight:bold">';
     
-                echo "<tr><td>$date</td><td><a href='/repos/$name/commits/$commit_hash'>$commit_hash</a></td><td>$message</td><td>$author</td><td>$test_status</td></tr>";
+                echo "<tr><td>$date</td><td><a href='/repos/$name/commits/$commit_hash'>$commit_hash</a></td><td>$message</td><td>$author</td>$test_status_td$test_status</td><td>$success_tests</td><td>$failed_tests</td><td>$download_duration</td><td>$install_duration</td><td>$test_duration</td><td>$total_duration</td></tr>";
             }
             echo '</table>';
             
@@ -239,7 +274,7 @@
                 $repo_id = $repo['id'];
                 $repo_download_path = $repo['download_location'];
 
-                $commit = query('SELECT * FROM commits WHERE repo = :repo AND commit_hash = :commit_hash', array('repo' => $repo_id, 'commit_hash' => $commit_hash));
+                $commit = query('SELECT * FROM commits WHERE repo = :repo AND commit_hash = :commit_hash ORDER BY status DESC', array('repo' => $repo_id, 'commit_hash' => $commit_hash));
                 if(sizeof($commit) == 0) {
                     echo "Commit not found!<br />";
                     exit();
@@ -252,6 +287,26 @@
                 $message = $commit['message'];
                 $author = $commit['author'];
                 $test_status = $commit['test_status'] ?? null;
+                $success_tests = $commit['success_tests'] ?? 'Unknown';
+                $failed_tests = $commit['failed_tests'] ?? 'Unknown';
+                $download_duration = $commit['download_duration'] ?? 'Unknown';
+                $install_duration = $commit['install_duration'] ?? 'Unknown';
+                $test_duration = $commit['test_duration'] ?? 'Unknown';
+                $total_duration = 0;
+
+                if($download_duration != 'Unknown') {
+                    $total_duration += $download_duration;
+                }
+                if($install_duration != 'Unknown') {
+                    $total_duration += $install_duration;
+                }
+                if($test_duration != 'Unknown') {
+                    $total_duration += $test_duration;
+                }
+
+                if($total_duration == 0) {
+                    $total_duration = 'Unknown';
+                }
 
                 if($test_status === null) {
                     $test_status = 'N/A';
@@ -266,6 +321,12 @@
                 echo "<strong>Message</strong>: $message<br />";
                 echo "<strong>Author</strong>: $author<br />";
                 echo "<strong>Test Status</strong>: $test_status<br />";
+                echo "<strong>Tests Passing</strong>: $success_tests<br />";
+                echo "<strong>Tests Failing</strong>: $failed_tests<br />";
+                echo "<strong>Download Duration</strong>: $download_duration<br />";
+                echo "<strong>Install Duration</strong>: $install_duration<br />";
+                echo "<strong>Test Duration</strong>: $test_duration<br />";
+                echo "<strong>Total Duration</strong>: $total_duration<br />";
 
                 $test_result_file = dirname($repo_download_path) . "/test_results/$commit_hash.json";
 
@@ -275,16 +336,19 @@
 
                 $files = $test_result['files'];
 
-                echo "<strong>Test Results</strong>:<br /><br />";
+                echo "<br /><strong>Test Results</strong>:<br /><br />";
 
-                echo '<table><tr><th>File</th><th>Test Name</th><th>Status</th><th>Reason</th></tr>';
+                echo '<table style="width:100%;border-collapse:collapse;margin-top:10px"><tr><th>File</th><th>Test Name</th><th>Status</th><th>Reason</th></tr>';
 
                 foreach($files as $file_name => $file_data) {
                     foreach($file_data['tests'] as $function => $data) {
                         $status = $data['status'];
                         $reason = $data['reason'] ?? '';
+                        
+                        $test_status_td = $test_status == 'success' ? '<td style="background-color:d4edda;color:155724;font-weight:bold">' : '<td style="background-color:ffebeb;color:d00;font-weight:bold">';
+    
 
-                        echo "<tr><td>$file_name</td><td>$function</td><td>$status</td><td>$reason</td></tr>";
+                        echo "<tr><td>$file_name</td><td>$function</td>$test_status_td$status</td><td>$reason</td></tr>";
                     }
                 }
                 
@@ -295,6 +359,7 @@
         }
     }
 
+    http_response_code(404);
     echo json_encode(array('status' => 'failed', 'error' => '404 Not Found'));
     exit();
 
@@ -312,8 +377,6 @@
         fclose($file);
         return $ret;
     }
-
-    
 
     function do_curl($uri, $data, $post = true) {
 
