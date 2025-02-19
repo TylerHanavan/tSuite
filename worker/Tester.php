@@ -31,9 +31,12 @@
 
                 $response['files'][$file]['status'] = 'success';
             
+                $properties = array();
+                $properties['endpoint_url'] = $this->endpoint_url;
+
                 foreach ($functions as $function) {
                     try {
-                        call_user_func($function);
+                        call_user_func_array($function, array(&$properties));
                         $response['files'][$file]['tests'][$function]['status'] = 'success';
                         $response['files'][$file]['status'] = 'success';
                     } catch (Exception $e) {
