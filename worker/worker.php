@@ -124,7 +124,7 @@
                     post_commit($repo, $commit_hash, $message, $author, 0, $total_tests_passed, $total_tests_failed, $download_duration, $install_duration, $test_duration);
                 }
 
-                write_to_file(dirname($tsuite_config_location) . '/test_results/' . $commit_hash . '.json', json_encode($test_response, JSON_PRETTY_PRINT));
+                write_to_file(dirname($tsuite_config_location) . '/test_results/' . $commit_hash . '.json', json_encode($test_response, JSON_PRETTY_PRINT), true);
 
             } else {
                 echo "The latest commit is already in the system: $commit_hash\n";
