@@ -315,7 +315,7 @@
         return array('http_code' => $httpCode, 'response' => $head);
     }
 
-    function write_to_file($path, $content) {
+    function write_to_file($path, $content, $overwrite = false) {
         $cmd = "mkdir -p " . dirname($path) . "";
 
         exec($cmd, $output);
@@ -324,7 +324,10 @@
 
         exec($cmd, $output);
 
-        file_put_contents($path, $content, FILE_APPEND);
+        if(!$overwrite)
+            file_put_contents($path, $content, FILE_APPEND);
+        else
+            file_put_contents($path, $content);
     }
 
     function get_current_time_milliseconds() {
