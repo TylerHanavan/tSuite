@@ -76,11 +76,24 @@
                 }
 
                 $repo = $_GET['repo'] ?? null;
+                $do_retest_flag = $_GET['do_retest_flag'] ?? null;
                 if($repo == null) {
-                    $commits = query('SELECT * FROM commits');
+                    $query = 'SELECT * FROM commits';
+                    $params = array();
+                    if($do_retest_flag != null) {
+                        $query .= ' WHERE do_retest_flag = :do_retest_flag';
+                        $params = array('do_retest_flag' => $do_retest_flag);
+                    }
+                    $commits = query($query, $params);
                     echo json_encode($commits);
                 } else {
-                    $commits = query('SELECT * FROM commits WHERE repo = :repo', array('repo' => $repo));
+                    $query = 'SELECT * FROM commits WHERE repo = :repo';
+                    $params = array('repo' => $repo);
+                    if($do_retest_flag != null) {
+                        $query .= ' AND do_retest_flag = :do_retest_flag';
+                        $params = array('repo' => $repo, 'do_retest_flag' => $do_retest_flag);
+                    }
+                    $commits = query($query, $params);
                     echo json_encode($commits);
                 }
                 exit();
