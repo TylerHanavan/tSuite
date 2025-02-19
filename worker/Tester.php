@@ -52,37 +52,6 @@
 
         }
 
-        public function test_curl($uri, $data, $post = true) {
-
-            $url = $this->endpoint_url . "/$uri";
-            
-            $ch = curl_init();
-    
-            if(!$post) {
-                $url .= '?' . http_build_query($data);
-            }
-            else {
-                curl_setopt($ch, CURLOPT_POST, true);
-                curl_setopt($ch, CURLOPT_POSTFIELDS, http_build_query($data));
-            }
-    
-            curl_setopt($ch, CURLOPT_URL, $url);
-    
-            curl_setopt($ch, CURLOPT_HEADER, false);
-    
-            curl_setopt($ch, CURLOPT_NOBODY, false); // remove body
-    
-            curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-    
-            $head = curl_exec($ch);
-    
-            $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-    
-            curl_close($ch);
-    
-            return array('http_code' => $httpCode, 'response' => $head);
-        }
-
         public function get_functions_from_file($file) {
             // Include the file
             include_once $file;
@@ -122,6 +91,37 @@
             return $files;
         }
 
+    }
+
+    function test_curl($uri, $data, $post = true) {
+
+        $url = $this->endpoint_url . "/$uri";
+        
+        $ch = curl_init();
+
+        if(!$post) {
+            $url .= '?' . http_build_query($data);
+        }
+        else {
+            curl_setopt($ch, CURLOPT_POST, true);
+            curl_setopt($ch, CURLOPT_POSTFIELDS, http_build_query($data));
+        }
+
+        curl_setopt($ch, CURLOPT_URL, $url);
+
+        curl_setopt($ch, CURLOPT_HEADER, false);
+
+        curl_setopt($ch, CURLOPT_NOBODY, false); // remove body
+
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+
+        $head = curl_exec($ch);
+
+        $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+
+        curl_close($ch);
+
+        return array('http_code' => $httpCode, 'response' => $head);
     }
 
     function assertEquals($expected, $actual, $message = '') {

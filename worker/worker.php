@@ -12,6 +12,10 @@
     $install_location = get_config_value('INSTALL_LOCATION');
     $items_to_install = get_config_value('ITEMS_TO_INSTALL');
 
+    $test_location = $download_location . '/.tsuite';
+
+    //$test_file_order = get_tests_ordered($test_location);
+
     echo "Repo: $repo\n";
     echo "Repo URL: $repo_url\n";
     echo "Branch: $branch\n";
