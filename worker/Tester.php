@@ -95,7 +95,7 @@
 
     function test_curl($uri, $data, $post = true) {
 
-        $url = $this->endpoint_url . "/$uri";
+        $url = $uri;
         
         $ch = curl_init();
 
