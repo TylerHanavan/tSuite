@@ -105,6 +105,7 @@
                                 }
                             }
                         } else {
+                            echo "$file passed its tests\n";
                             foreach($file_data['tests'] as $test_name => $test_data) {
                                 if($test_data['status'] == 'failure') {
                                     echo "Test failed: $test_name\n";
