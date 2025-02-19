@@ -107,8 +107,8 @@
                         } else {
                             echo "$file is passing all tests\n";
                         }
-                        post_commit($repo, $commit_hash, $message, $author, 1, $total_tests_passed, $total_tests_failed, $download_duration, $install_duration, $test_duration);
                     }
+                    post_commit($repo, $commit_hash, $message, $author, 1, $total_tests_passed, $total_tests_failed, $download_duration, $install_duration, $test_duration);
                 } else {
                     echo "$commit_hash is passing all tests\n";
                     post_commit($repo, $commit_hash, $message, $author, 0, $total_tests_passed, $total_tests_failed, $download_duration, $install_duration, $test_duration);
