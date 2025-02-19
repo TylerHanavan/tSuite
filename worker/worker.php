@@ -86,9 +86,11 @@
                 $install_duration = $start_time_test - $start_time_install;
                 $test_duration = $end_time_test - $start_time_test;
 
+                $total_tests_passed = 0;
+                $total_tests_failed = 0;
+
                 if($test_response['status'] == 'failure') {
                     echo "$commit_hash failed its tests\n";
-                    post_commit($repo, $commit_hash, $message, $author, 1, $download_duration, $install_duration, $test_duration);
                     foreach($test_response['files'] as $file => $file_data) {
                         if($file_data['status'] == 'failure') {
                             echo "$file failed its tests\n";
@@ -96,17 +98,20 @@
                                 if($test_data['status'] == 'failure') {
                                     echo "Test failed: $test_name\n";
                                     echo "Reason: " . $test_data['reason'] . "\n";
+                                    $total_tests_failed++;
                                 } else {
                                     echo "Test passed: $test_name\n";
+                                    $total_tests_passed++;
                                 }
                             }
                         } else {
                             echo "$file is passing all tests\n";
                         }
+                        post_commit($repo, $commit_hash, $message, $author, 1, $total_tests_passed, $total_tests_failed, $download_duration, $install_duration, $test_duration);
                     }
                 } else {
                     echo "$commit_hash is passing all tests\n";
-                    post_commit($repo, $commit_hash, $message, $author, 0, $download_duration, $install_duration, $test_duration);
+                    post_commit($repo, $commit_hash, $message, $author, 0, $total_tests_passed, $total_tests_failed, $download_duration, $install_duration, $test_duration);
                 }
 
                 write_to_file(dirname($tsuite_config_location) . '/test_results/' . $commit_hash . '.json', json_encode($test_response, JSON_PRETTY_PRINT));
@@ -188,9 +193,9 @@
         return null;
     }
 
-    function post_commit($repo, $commit_hash, $message, $author, $test_status, $download_duration, $install_duration, $test_duration) {
+    function post_commit($repo, $commit_hash, $message, $author, $test_status, $success_tests, $failed_tests, $download_duration, $install_duration, $test_duration) {
         $data = array('entities' => array());
-        $data['entities'][0] = array('repo' => $repo, 'commit_hash' => $commit_hash, 'message' => $message, 'author' => $author, 'date' => date('Y-m-d H:i:s'), 'test_status' => $test_status, 'download_duration' => $download_duration, 'install_duration' => $install_duration, 'test_duration' => $test_duration);
+        $data['entities'][0] = array('repo' => $repo, 'commit_hash' => $commit_hash, 'message' => $message, 'author' => $author, 'date' => date('Y-m-d H:i:s'), 'test_status' => $test_status, 'success_tests' => $success_tests, 'failed_tests' => $failed_tests, 'download_duration' => $download_duration, 'install_duration' => $install_duration, 'test_duration' => $test_duration);
         $response = do_curl('/api/commits', $data);
     }
 
