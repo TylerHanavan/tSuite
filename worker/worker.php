@@ -105,7 +105,6 @@
                                 }
                             }
                         } else {
-                            echo "$file passed its tests\n";
                             foreach($file_data['tests'] as $test_name => $test_data) {
                                 if($test_data['status'] == 'failure') {
                                     echo "Test failed: $test_name\n";
@@ -122,6 +121,33 @@
                     post_commit($repo, $commit_hash, $message, $author, 1, $total_tests_passed, $total_tests_failed, $download_duration, $install_duration, $test_duration);
                 } else {
                     echo "$commit_hash is passing all tests\n";
+                    foreach($test_response['files'] as $file => $file_data) {
+                        if($file_data['status'] == 'failure') {
+                            echo "$file failed its tests\n";
+                            foreach($file_data['tests'] as $test_name => $test_data) {
+                                if($test_data['status'] == 'failure') {
+                                    echo "Test failed: $test_name\n";
+                                    echo "Reason: " . $test_data['reason'] . "\n";
+                                    $total_tests_failed++;
+                                } else {
+                                    echo "Test passed: $test_name\n";
+                                    $total_tests_passed++;
+                                }
+                            }
+                        } else {
+                            foreach($file_data['tests'] as $test_name => $test_data) {
+                                if($test_data['status'] == 'failure') {
+                                    echo "Test failed: $test_name\n";
+                                    echo "Reason: " . $test_data['reason'] . "\n";
+                                    $total_tests_failed++;
+                                } else {
+                                    echo "Test passed: $test_name\n";
+                                    $total_tests_passed++;
+                                }
+                            }
+                            echo "$file is passing all tests\n";
+                        }
+                    }
                     post_commit($repo, $commit_hash, $message, $author, 0, $total_tests_passed, $total_tests_failed, $download_duration, $install_duration, $test_duration);
                 }
 
