@@ -11,12 +11,14 @@
     $download_location = get_config_value('DOWNLOAD_LOCATION');
     $install_location = get_config_value('INSTALL_LOCATION');
     $items_to_install = get_config_value('ITEMS_TO_INSTALL');
+    $PAT = get_config_value('PAT');
 
     $test_location = $download_location . '/.tsuite';
 
     //$test_file_order = get_tests_ordered($test_location);
 
     echo "Repo: $repo\n";
+    echo "Repo User: $repo_user\n";
     echo "Repo URL: $repo_url\n";
     echo "Branch: $branch\n";
     echo "Download Location: $download_location\n";
@@ -28,7 +30,7 @@
     $tick = 0;
 
     while(true) {
-        if($tick++ % 62 == 0) {
+        if($tick++ % 15 == 0) {
             $git_metadata = pull_git_info($repo, $repo_user, $branch);
 
             $git_metadata = json_decode($git_metadata['response'], true);
@@ -73,7 +75,7 @@
             if(is_commit_new($repo, $commit_hash)) {
                 echo "New commit detected: $commit_hash\n";
                 $start_time_download = get_current_time_milliseconds();
-                do_git_pull($repo, $branch, $download_location, $install_location, $items_to_install);
+                do_git_pull($repo, $branch, $download_location, $install_location, $items_to_install, $repo_user, $PAT);
                 $start_time_install = get_current_time_milliseconds();
                 do_install($download_location, $install_location, $items_to_install);
 
@@ -172,26 +174,32 @@
             echo "Could not get repo_id for $repo\n";
             return false;
         }
-        $commits = do_curl('/api/commits', array('repo' => $repo_id, 'do_retest_flag' => false), false);
+        $commits = do_curl('/api/v1/commit', array('repo_id' => $repo_id, 'do_retest_flag' => false), false);
         if($commits == null || !isset($commits['response'])) {
-            echo "No response data $repo /api/commits\n";
+            echo "No response data $repo /api/commit\n";
             return false;
         }
         $commits_arr = json_decode($commits['response'], true);
         if($commits_arr == null || sizeof($commits_arr) == 0) {
-            echo "No commits returned for $repo /api/commits\n";
+            echo "No commits returned for $repo /api/v1/commit\n";
             return false;
         }
         foreach($commits_arr as $commit) {
-            if($commit['commit_hash'] == $commit_hash) {
+            if($commit['hash'] == $commit_hash) {
                 return false;
             }
         }
         return true;
     }
 
-    function do_git_pull($repo, $branch, $download_location, $install_location, $items_to_install) {
-        $cmd = "cd $download_location && git pull origin $branch";
+    function do_git_pull($repo, $branch, $download_location, $install_location, $items_to_install, $username, $token) {
+        
+        $git_url = "https://$username:$token@github.com/$username/$repo.git";
+
+        echo $git_url .'\n';
+
+        // Change directory and pull from the repository
+        $cmd = "cd $download_location && git pull $git_url $branch 2>&1";
         $output = shell_exec($cmd);
         echo $output;
     }
@@ -209,9 +217,9 @@
     }
 
     function get_repo_id_from_name($repo) {
-        $repo_response = do_curl('/api/repos', array(), false);
+        $repo_response = do_curl('/api/v1/repo', array(), false);
         if($repo_response == null || !isset($repo_response['response'])) {
-            echo "get_repo_id_from_name did not return a response for $repo for /api/repos\n";
+            echo "get_repo_id_from_name did not return a response for $repo for /api/repo\n";
             return null;
         }
         $repos = json_decode($repo_response['response'], true);
@@ -231,9 +239,23 @@
     }
 
     function post_commit($repo, $commit_hash, $message, $author, $test_status, $success_tests, $failed_tests, $download_duration, $install_duration, $test_duration) {
-        $data = array('entities' => array());
-        $data['entities'][0] = array('repo' => $repo, 'commit_hash' => $commit_hash, 'message' => $message, 'author' => $author, 'date' => date('Y-m-d H:i:s'), 'test_status' => $test_status, 'success_tests' => $success_tests, 'failed_tests' => $failed_tests, 'download_duration' => $download_duration, 'install_duration' => $install_duration, 'test_duration' => $test_duration);
-        $response = do_curl('/api/commits', $data);
+        $data = array();
+        $repo_id = get_repo_id_from_name($repo);
+        if($repo_id == null) {
+            echo "Failed to post commit: $commit_hash\n";
+            echo "Could not get repo_id for $repo\n";
+            return null;
+        }
+        $data[0] = array('repo_id' => $repo_id, 'hash' => $commit_hash, 'message' => $message, 'author' => $author, 'date' => date('Y-m-d H:i:s'), 'test_status' => $test_status, 'success_tests' => $success_tests, 'failed_tests' => $failed_tests, 'download_duration' => $download_duration, 'install_duration' => $install_duration, 'test_duration' => $test_duration);
+        $response = do_curl('/api/v1/commit', $data);
+
+        if($response['http_code'] != 200) {
+            echo "Failed to post commit: $commit_hash\n";
+        } else {
+            echo "Posted commit: $commit_hash\n";
+        }
+
+        return $response;
     }
 
     function get_tsuite_config($tsuite_config_location) {
