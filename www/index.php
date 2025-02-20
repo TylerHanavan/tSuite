@@ -63,7 +63,8 @@
             '/api/v1/commit' => 'handle_api_commit_get',
             '/api/v1/repo' => 'handle_api_repo_get',
             '/api/v1/setting' => 'handle_api_setting_get',
-            '/settings/repo/{repo}' => 'handle_page_setting_get'
+            '/settings/repo/{repo}' => 'handle_page_repo_setting_get',
+            '/settings/global' => 'handle_page_global_setting_get'
         ),
         'POST' => array(
             '/api/v1/commit' => 'handle_api_commit_post',
@@ -164,6 +165,7 @@
 
             echo "<strong>Repo</strong>: <a href='/repo/$name'>$name</a><br />";
             echo "<strong>Repo URL</strong>: <a href='$url'>$url</a><br />";
+            echo "<strong>Repo Settings URL</strong>: <a href='/settings/repo/$name'>Repo Settings</a><br />";
             echo "<strong>Download Location</strong>: $download_location<br />";
             echo "<strong>Install Location</strong>: $install_location<br />";
             echo "<br /><strong>Recent commits</strong>:<br />";
