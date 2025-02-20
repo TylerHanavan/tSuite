@@ -5,6 +5,9 @@
     error_reporting(E_ALL);
 
     include 'sql_helper.php';
+    include 'api_commit_handler.php';
+    include 'api_repo_handler.php';
+    include 'api_setting_handler.php';
 
     $tsuite_conn = get_database_connection('localhost', 'tsuite_admin', 'password', 'tsuite');
 
@@ -52,9 +55,25 @@
         }
     }
 
+    $api_routes = array(
+        'GET' => array(
+            '/api/v1/commit' => 'handle_api_commit_get',
+            '/api/v1/repo' => 'handle_api_repo_get',
+            '/api/v1/setting' => 'handle_api_setting_get'
+        ),
+        'POST' => array(
+            '/api/v1/commit' => 'handle_api_commit_post',
+            '/api/v1/setting' => 'handle_api_setting_post'
+        ),
+        'PUT' => array(
+            '/api/v1/commit',
+            '/api/v1/setting' => 'handle_api_setting_put'
+        )
+    );
+
     $existing_tables = list_tables();
 
-    $required_tables = array('commits', 'repos');
+    $required_tables = array('commit', 'repo', 'setting');
 
     foreach($required_tables as $table) {
         if(!in_array($table, $existing_tables)) {
@@ -66,128 +85,17 @@
         }
     }
 
-    if($uri_parts[0] == 'api') {
-        if($uri_parts[1] == 'commits') {
-            if($request_method == 'GET') {
-                if(isset($uri_parts[2]) && $uri_parts[2] == 'latest') {
-                    $commits = query('SELECT * FROM commits ORDER BY id DESC LIMIT 10');
-                    echo json_encode($commits);
-                    exit();
-                }
+    route_request($api_routes, $request_method, $uri_path, $uri_parts, $uri_args);
 
-                $repo = $_GET['repo'] ?? null;
-                $do_retest_flag = $_GET['do_retest_flag'] ?? null;
-                if($repo == null) {
-                    $query = 'SELECT * FROM commits';
-                    $params = array();
-                    if($do_retest_flag != null) {
-                        $query .= ' WHERE do_retest_flag = :do_retest_flag';
-                        $params = array('do_retest_flag' => $do_retest_flag);
-                    }
-                    $commits = query($query, $params);
-                    echo json_encode($commits);
-                } else {
-                    $query = 'SELECT * FROM commits WHERE repo = :repo';
-                    $params = array('repo' => $repo);
-                    if($do_retest_flag != null) {
-                        $query .= ' AND do_retest_flag = :do_retest_flag';
-                        $params = array('repo' => $repo, 'do_retest_flag' => $do_retest_flag);
-                    }
-                    $commits = query($query, $params);
-                    echo json_encode($commits);
-                }
-                exit();
-            }
-            if($request_method == 'POST') {
-                $entities = $_POST['entities'] ?? null;
-                if($entities == null) {
-                    json_error_and_exit('Entities null or missing from payload');
-                }
-                if(sizeof($entities) == 0) {
-                    json_error_and_exit('Entities array exists but is empty');
-                }
-                $counter = 0;
-                foreach($entities as $entity) {
-                    $repo = $entity['repo'] ?? null;
-                    if($repo == null) {
-                        json_error_and_exit("No repo provided for entity $counter");
-                    }
-
-                    $commit_hash = $entity['commit_hash'] ?? null;
-                    if($commit_hash == null) {
-                        json_error_and_exit("No commit_hash provided for entity $counter");
-                    }
-
-                    $date = $entity['date'] ?? null;
-                    if($date == null) {
-                        json_error_and_exit("No date provided for entity $counter");
-                    }
-
-                    $message = $entity['message'] ?? null;
-                    if($message == null) {
-                        json_error_and_exit("No message provided for entity $counter");
-                    }
-
-                    $author = $entity['author'] ?? null;
-                    if($author == null) {
-                        json_error_and_exit("No author provided for entity $counter");
-                    }
-
-                    $success_tests = $entity['success_tests'] ?? null;
-                    $failed_tests = $entity['failed_tests'] ?? null;
-
-                    $test_status = $entity['test_status'] ?? null;
-
-                    $download_duration = $entity['download_duration'] ?? -1;
-                    $install_duration = $entity['install_duration'] ?? -1;
-                    $test_duration = $entity['test_duration'] ?? -1;
-
-                    $insert_query = "INSERT INTO commits (repo, commit_hash, date, message, author, test_status, success_tests, failed_tests, download_duration, install_duration, test_duration) VALUES (:repo, :commit_hash, :date, :message, :author, :test_status, :success_tests, :failed_tests, :download_duration, :install_duration, :test_duration)";
-
-                    if(!is_int($repo)) {
-                        $repo_id = query('SELECT id FROM repos WHERE name = :name', array('name' => $repo));
-                        if(sizeof($repo_id) == 0) {
-                            json_error_and_exit("Repo $repo not found");
-                        }
-                        $repo = $repo_id[0]['id'];
-                    }
-
-                    $insert_vals = array(
-                        'repo' => $repo,
-                        'commit_hash' => $commit_hash,
-                        'date' => $date,
-                        'message' => $message,
-                        'author' => $author,
-                        'test_status' => $test_status,
-                        'success_tests' => $success_tests,
-                        'failed_tests' => $failed_tests,
-                        'download_duration' => $download_duration,
-                        'install_duration' => $install_duration,
-                        'test_duration' => $test_duration
-                    );
-
-                    $result = query($insert_query, $insert_vals);
-
-                    var_dump($result);
-                }
-
-                $counter++;
-
-                echo json_encode(array('status' => 'success'));
-                exit();
-            }
-        }
-        if($uri_parts[1] == 'repos') {
-            if($request_method == 'GET') {
-                $repos = query('SELECT * FROM repos');
-                echo json_encode($repos);
-                exit();
-            }
-        }
+    function route_request($api_routes, $request_method, $uri_path, $uri_parts, $uri_args) {
+        if(isset($api_routes) && !empty($api_routes))
+            if(isset($api_routes[$request_method]))
+                if(isset($api_routes[$request_method][$uri_path]))
+                    call_user_func_array($api_routes[$request_method][$uri_path], array('uri_parts' => $uri_parts, 'uri_args' =>$uri_args));
     }
 
     if($uri_parts[0] == '') {
-        $repos = query('SELECT * FROM repos');
+        $repos = query('SELECT * FROM repo');
         echo '<table><tr><th>Name</th><th>URL</th><th>Download Location</th><th>Install Location</th></tr>';
         foreach($repos as $repo) {
             $name = $repo['name'];
@@ -195,13 +103,20 @@
             $download_location = $repo['download_location'];
             $install_location = $repo['install_location'];
 
-            echo "<tr><td><a href='/repos/$name'>$name</a></td><td><a href='$url'>$url</a></td><td>$download_location</td><td>$install_location</td></tr>";
+            echo "<tr><td><a href='/repo/$name'>$name</a></td><td><a href='$url'>$url</a></td><td>$download_location</td><td>$install_location</td></tr>";
         }
         echo '</table>';
+
+        if(is_worker_running()) {
+            echo '<br /><strong>Worker is running</strong>';
+        } else {
+            echo '<br /><strong>Worker is not running</strong>';
+        }
+
         exit();
     }
 
-    if($uri_parts[0] == 'repos') {
+    if($uri_parts[0] == 'repo') {
         if(isset($uri_parts[1]) && sizeof($uri_parts) == 2) {
             $use_name = true;
             if(is_int($uri_parts[1])) {
@@ -209,13 +124,13 @@
             }
 
             if($use_name) {
-                $arr = query("SELECT * FROM repos WHERE name = :name", array('name' => $uri_parts[1]));
+                $arr = query("SELECT * FROM repo WHERE name = :name", array('name' => $uri_parts[1]));
                 if(sizeof($arr) == 0 || $arr == null) {
                     echo "Repo not found!<br />";
                     exit();
                 }
             } else {
-                $arr = query("SELECT * FROM repos WHERE id = :id", array('id' => $uri_parts[1]));
+                $arr = query("SELECT * FROM repo WHERE id = :id", array('id' => $uri_parts[1]));
                 if(sizeof($arr) == 0 || $arr == null) {
                     echo "Repo not found!<br />";
                     exit();
@@ -230,18 +145,18 @@
             $download_location = $repo['download_location'];
             $install_location = $repo['install_location'];
 
-            echo "<strong>Repo</strong>: <a href='/repos/$name'>$name</a><br />";
+            echo "<strong>Repo</strong>: <a href='/repo/$name'>$name</a><br />";
             echo "<strong>Repo URL</strong>: <a href='$url'>$url</a><br />";
             echo "<strong>Download Location</strong>: $download_location<br />";
             echo "<strong>Install Location</strong>: $install_location<br />";
             echo "<br /><strong>Recent commits</strong>:<br />";
 
-            $commits = query('SELECT * FROM commits WHERE repo = :id ORDER BY id DESC LIMIT 25', array('id' => $id));
-            echo '<table style="width:100%;border-collapse:collapse;margin-top:10px"><tr><th>date</th><th>commit_hash</th><th>message</th><th>author</th><th>Test Status</th><th>Tests Passing</th><th>Tests Failing</th><th>Download Duration</th><th>Install Duration</th><th>Test Duration</th><th>Total Duration</th></tr>';
+            $commits = query('SELECT * FROM commit WHERE repo_id = :id ORDER BY id DESC LIMIT 25', array('id' => $id));
+            echo '<table style="width:100%;border-collapse:collapse;margin-top:10px"><tr><th>date</th><th>hash</th><th>message</th><th>author</th><th>Test Status</th><th>Tests Passing</th><th>Tests Failing</th><th>Download Duration</th><th>Install Duration</th><th>Test Duration</th><th>Total Duration</th><th>Actions</th></tr>';
             foreach($commits as $commit) {
 
                 $date = $commit['date'];
-                $commit_hash = $commit['commit_hash'];
+                $commit_hash = $commit['hash'];
                 $message = $commit['message'];
                 $author = $commit['author'];
                 $test_status = $commit['test_status'] ?? null;
@@ -275,7 +190,7 @@
 
                 $test_status_td = $test_status == 'Passed' ? '<td style="background-color:d4edda;color:155724;font-weight:bold">' : '<td style="background-color:ffebeb;color:d00;font-weight:bold">';
     
-                echo "<tr><td>$date</td><td><a href='/repos/$name/commits/$commit_hash'>$commit_hash</a></td><td>$message</td><td>$author</td>$test_status_td$test_status</td><td>$success_tests</td><td>$failed_tests</td><td>$download_duration</td><td>$install_duration</td><td>$test_duration</td><td>$total_duration</td></tr>";
+                echo "<tr><td>$date</td><td><a href='/repo/$name/commit/$commit_hash'>$commit_hash</a></td><td>$message</td><td>$author</td>$test_status_td$test_status</td><td>$success_tests</td><td>$failed_tests</td><td>$download_duration</td><td>$install_duration</td><td>$test_duration</td><td>$total_duration</td><td><p>Actions here</p></td></tr>";
             }
             echo '</table>';
             
@@ -284,13 +199,13 @@
         }
 
         if(isset($uri_parts[1]) && sizeof($uri_parts) == 4) {
-            // /repos/REPO_NAME/commits/COMMIT_HASH
+            // /repos/REPO_NAME/commit/COMMIT_HASH
 
-            if($uri_parts[2] == 'commits') {
+            if($uri_parts[2] == 'commit') {
                 $repo_name = $uri_parts[1];
                 $commit_hash = $uri_parts[3];
 
-                $repo = query('SELECT * FROM repos WHERE name = :name', array('name' => $repo_name));
+                $repo = query('SELECT * FROM repo WHERE name = :name', array('name' => $repo_name));
                 if(sizeof($repo) == 0) {
                     echo "Repo not found!<br />";
                     exit();
@@ -300,7 +215,7 @@
                 $repo_id = $repo['id'];
                 $repo_download_path = $repo['download_location'];
 
-                $commit = query('SELECT * FROM commits WHERE repo = :repo AND commit_hash = :commit_hash ORDER BY test_status DESC', array('repo' => $repo_id, 'commit_hash' => $commit_hash));
+                $commit = query('SELECT * FROM commit WHERE repo_id = :repo_id AND hash = :hash ORDER BY test_status DESC', array('repo_id' => $repo_id, 'hash' => $commit_hash));
                 if(sizeof($commit) == 0) {
                     echo "Commit not found!<br />";
                     exit();
@@ -309,7 +224,7 @@
                 $commit = $commit[0];
 
                 $date = $commit['date'];
-                $commit_hash = $commit['commit_hash'];
+                $commit_hash = $commit['hash'];
                 $message = $commit['message'];
                 $author = $commit['author'];
                 $test_status = $commit['test_status'] ?? null;
@@ -341,8 +256,8 @@
                 if($test_status == 0) $test_status = 'Passed';
                 if($test_status == 1) $test_status = 'Failed';
 
-                echo "<strong>Repo</strong>: <a href='/repos/$repo_name'>$repo_name</a><br />";
-                echo "<strong>Commit Hash</strong>: $commit_hash<br />";
+                echo "<strong>Repo</strong>: <a href='/repo/$repo_name'>$repo_name</a><br />";
+                echo "<strong>Hash</strong>: $commit_hash<br />";
                 echo "<strong>Date</strong>: $date<br />";
                 echo "<strong>Message</strong>: $message<br />";
                 echo "<strong>Author</strong>: $author<br />";
@@ -356,8 +271,12 @@
 
                 $test_result_file = dirname($repo_download_path) . "/test_results/$commit_hash.json";
 
-                $test_result_json = read_flat_file($test_result_file);
-
+                try {
+                    $test_result_json = read_flat_file($test_result_file);
+                } catch(Exception $e) {
+                    echo "Test results not found!<br />";
+                    exit();
+                }
                 $test_result = json_decode($test_result_json, true);
 
                 $files = $test_result['files'];
@@ -396,14 +315,18 @@
     echo json_encode(array('status' => 'failed', 'error' => '404 Not Found'));
     exit();
 
-    function json_error_and_exit($error_msg) {
+    function json_error_and_exit($error_msg, $http_code = '400') {
+        http_response_code($http_code);
         echo json_encode(array('status' => 'failed', 'error' => $error_msg));
         exit();
     }
 
     function read_flat_file($path) {
         $ret = '';
-        $file = fopen($path, "r") or die("Unable to open file: $path");
+        $file = fopen($path, "r");
+        if(!$file) {
+            throw new Exception("Unable to open file $path");
+        }
         while(($read = fgets($file)) != null) {
             $ret .= $read;
         }
@@ -440,6 +363,16 @@
         curl_close($ch);
 
         return array('http_code' => $httpCode, 'response' => $head);
+    }
+
+    function get_worker_sys_details() {
+        $cmd = "ps -ef | grep worker.php | grep -v grep";
+        $output = shell_exec($cmd);
+        return $output;
+    }
+
+    function is_worker_running() {
+        return get_worker_sys_details() != '';
     }
 
 ?>
