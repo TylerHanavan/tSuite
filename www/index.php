@@ -204,6 +204,11 @@
                     $total_duration = 'Unknown';
                 }
 
+                $download_duration = format_milliseconds($download_duration);
+                $install_duration = format_milliseconds($install_duration);
+                $test_duration = format_milliseconds($test_duration);
+                $total_duration = format_milliseconds($total_duration);
+
                 if($test_status === null) {
                     $test_status = 'N/A';
                 }
@@ -271,6 +276,11 @@
                 if($total_duration == 0) {
                     $total_duration = 'Unknown';
                 }
+
+                $download_duration = format_milliseconds($download_duration);
+                $install_duration = format_milliseconds($install_duration);
+                $test_duration = format_milliseconds($test_duration);
+                $total_duration = format_milliseconds($total_duration);
 
                 if($test_status === null) {
                     $test_status = 'N/A';
@@ -402,6 +412,22 @@
 
     function is_worker_running() {
         return get_worker_sys_details() != '';
+    }
+
+    function format_milliseconds($milliseconds) {
+        if ($milliseconds === 'Unknown') {
+            return 'Unknown';
+        }
+        
+        if ($milliseconds < 1000) {
+            return "{$milliseconds}ms";  // Show as ms
+        } elseif ($milliseconds < 60000) {
+            return number_format($milliseconds / 1000, 3) . "s"; // Convert to seconds with 2 decimal places
+        } else {
+            $minutes = floor($milliseconds / 60000);
+            $seconds = number_format(($milliseconds % 60000) / 1000, 2);
+            return "{$minutes}m {$seconds}s"; // Show minutes & seconds
+        }
     }
 
 ?>
