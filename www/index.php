@@ -8,7 +8,8 @@
 
     include 'http/handler/api/api_commit_handler.php';
     include 'http/handler/api/api_repo_handler.php';
-    include 'http/handler/api/api_setting_handler.php';
+    include 'http/handler/api/api_global_setting_handler.php';
+    include 'http/handler/api/api_repo_setting_handler.php';
 
     include 'http/handler/page/page_setting_handler.php';
 
@@ -62,17 +63,20 @@
         'GET' => array(
             '/api/v1/commit' => 'handle_api_commit_get',
             '/api/v1/repo' => 'handle_api_repo_get',
-            '/api/v1/setting' => 'handle_api_setting_get',
+            '/api/v1/repo_setting' => 'handle_api_repo_setting_get',
+            '/api/v1/global_setting' => 'handle_api_global_setting_get',
             '/settings/repo/{repo}' => 'handle_page_repo_setting_get',
             '/settings/global' => 'handle_page_global_setting_get'
         ),
         'POST' => array(
             '/api/v1/commit' => 'handle_api_commit_post',
-            '/api/v1/setting' => 'handle_api_setting_post'
+            '/api/v1/repo_setting' => 'handle_api_repo_setting_post',
+            '/api/v1/global_setting' => 'handle_api_global_setting_post'
         ),
         'PUT' => array(
             '/api/v1/commit',
-            '/api/v1/setting' => 'handle_api_setting_put'
+            '/api/v1/repo_setting' => 'handle_api_repo_setting_put',
+            '/api/v1/global_setting' => 'handle_api_global_setting_put'
         )
     );
 
