@@ -5,9 +5,10 @@
     error_reporting(E_ALL);
 
     include 'sql_helper.php';
-    include 'api_commit_handler.php';
-    include 'api_repo_handler.php';
-    include 'api_setting_handler.php';
+
+    include 'http/handler/api/api_commit_handler.php';
+    include 'http/handler/api/api_repo_handler.php';
+    include 'http/handler/api/api_setting_handler.php';
 
     $tsuite_conn = get_database_connection('localhost', 'tsuite_admin', 'password', 'tsuite');
 
