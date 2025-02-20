@@ -172,11 +172,32 @@
         if($conn == null)
             $conn = get_database_connection();
 
-        $stmt = $conn->prepare($query);
+        try {
+        
+            $stmt = $conn->prepare($query);
 
-        $stmt->execute($prepared_fields);
+            // If prepare failed, it will throw an exception
+            if (!$stmt) {
+                throw new Exception("Query preparation failed.");
+            }
 
-        return $stmt->fetchAll();
+            $stmt->execute($prepared_fields);
+            
+            // If it's an INSERT or UPDATE, return affected rows or inserted ID
+            if (strpos(strtoupper($query), 'INSERT') === 0) {
+                return $conn->lastInsertId(); // Return the last inserted ID for INSERT queries
+            }
+        
+            if (strpos(strtoupper($query), 'UPDATE') === 0) {
+                return $stmt->rowCount(); // Return the number of affected rows for UPDATE queries
+            }
+
+            return $stmt->fetchAll();
+
+        } catch (Exception $e) {
+            //echo $e->getMessage();
+            return false;
+        }
     }
 
 ?>
