@@ -10,6 +10,8 @@
     include 'http/handler/api/api_repo_handler.php';
     include 'http/handler/api/api_setting_handler.php';
 
+    include 'http/handler/page/page_setting_handler.php';
+
     $tsuite_conn = get_database_connection('localhost', 'tsuite_admin', 'password', 'tsuite');
 
     $request_method = $_SERVER['REQUEST_METHOD']; // GET, POST, PUT, DELETE...
@@ -60,7 +62,8 @@
         'GET' => array(
             '/api/v1/commit' => 'handle_api_commit_get',
             '/api/v1/repo' => 'handle_api_repo_get',
-            '/api/v1/setting' => 'handle_api_setting_get'
+            '/api/v1/setting' => 'handle_api_setting_get',
+            '/settings/repo/{repo}' => 'handle_page_setting_get'
         ),
         'POST' => array(
             '/api/v1/commit' => 'handle_api_commit_post',
@@ -74,7 +77,7 @@
 
     $existing_tables = list_tables();
 
-    $required_tables = array('commit', 'repo', 'setting');
+    $required_tables = array('commit', 'repo', 'global_setting', 'repo_setting');
 
     foreach($required_tables as $table) {
         if(!in_array($table, $existing_tables)) {
@@ -91,8 +94,21 @@
     function route_request($api_routes, $request_method, $uri_path, $uri_parts, $uri_args) {
         if(isset($api_routes) && !empty($api_routes))
             if(isset($api_routes[$request_method]))
-                if(isset($api_routes[$request_method][$uri_path]))
-                    call_user_func_array($api_routes[$request_method][$uri_path], array('uri_parts' => $uri_parts, 'uri_args' =>$uri_args));
+                if(isset($api_routes[$request_method][$uri_path])) {
+                    call_user_func_array($api_routes[$request_method][$uri_path], array('uri_parts' => $uri_parts, 'uri_args' => $uri_args));
+                    return;
+                }
+
+        foreach ($api_routes[$request_method] as $route => $handler) {
+            // Convert {param} placeholders to regex pattern (match any non-slash characters)
+            $pattern = preg_replace('/\{([a-zA-Z0-9_]+)\}/', '(?P<$1>[^/]+)', $route);
+    
+            if (preg_match("#^" . $pattern . "$#", $uri_path, $matches)) {
+                $params = array_filter($matches, 'is_string', ARRAY_FILTER_USE_KEY); // Extract named params
+                call_user_func_array($handler, array_merge($params, array('uri_parts' => $uri_parts, 'uri_args' => $uri_args)));
+                return;
+            }
+        }
     }
 
     if($uri_parts[0] == '') {
@@ -319,6 +335,12 @@
     function json_error_and_exit($error_msg, $http_code = '400') {
         http_response_code($http_code);
         echo json_encode(array('status' => 'failed', 'error' => $error_msg));
+        exit();
+    }
+
+    function html_error_and_exit($error_msg, $http_code = '400') {
+        http_response_code($http_code);
+        echo $error_msg;
         exit();
     }
 
