@@ -5,7 +5,8 @@
         $check_params = array('name' => $repo);
         $check_result = query($check_query, $check_params);
         if(!$check_result) {
-            html_error_and_exit('Repo not found', 404);
+            html_error('Repo not found', 404);
+            return;
         }
         $repo_props = $check_result[0];
         if($repo != $repo_props['name']) {
@@ -28,8 +29,6 @@
         } else {
             echo "<p>No settings found.</p>";
         }
-
-        exit();
     }
 
     function handle_page_global_setting_get($uri_parts, $uri_args) {
@@ -49,7 +48,6 @@
             echo "<p>No settings found.</p>";
         }
 
-        exit();
     }
 
 ?>
