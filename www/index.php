@@ -11,7 +11,11 @@
     include 'http/handler/api/api_global_setting_handler.php';
     include 'http/handler/api/api_repo_setting_handler.php';
 
+    include 'http/handler/lib/lib_js_handler.php';
+
     include 'http/handler/page/page_setting_handler.php';
+    include 'http/handler/page/page_repo_handler.php';
+    include 'http/handler/page/page_home_handler.php';
 
     $tsuite_conn = get_database_connection('localhost', 'tsuite_admin', 'password', 'tsuite');
 
@@ -65,8 +69,6 @@
             '/api/v1/repo' => 'handle_api_repo_get',
             '/api/v1/repo_setting' => 'handle_api_repo_setting_get',
             '/api/v1/global_setting' => 'handle_api_global_setting_get',
-            '/settings/repo/{repo}' => 'handle_page_repo_setting_get',
-            '/settings/global' => 'handle_page_global_setting_get'
         ),
         'POST' => array(
             '/api/v1/commit' => 'handle_api_commit_post',
@@ -74,9 +76,29 @@
             '/api/v1/global_setting' => 'handle_api_global_setting_post'
         ),
         'PUT' => array(
-            '/api/v1/commit',
+            '/api/v1/commit' => 'handle_api_commit_put',
             '/api/v1/repo_setting' => 'handle_api_repo_setting_put',
             '/api/v1/global_setting' => 'handle_api_global_setting_put'
+        )
+    );
+
+    $page_routes = array(
+        'GET' => array(
+            '/settings/repo/{repo}' => 'handle_page_repo_setting_get',
+            '/settings/global' => 'handle_page_global_setting_get',
+            '/' => 'handle_page_home_get',
+            '/repo/{repo}' => 'handle_page_repo_get',
+            '/repo/{repo}/commit/{hash}' => 'handle_page_repo_commit_get'
+        )
+    );
+
+    $lib_routes = array(
+        'GET' => array(
+            '/lib/js/{file}' => 'handle_lib_js_get',
+        ),
+        'POST' => array(
+        ),
+        'PUT' => array(
         )
     );
 
@@ -94,14 +116,24 @@
         }
     }
 
-    route_request($api_routes, $request_method, $uri_path, $uri_parts, $uri_args);
+    $api_routed = route_request($api_routes, $request_method, $uri_path, $uri_parts, $uri_args);
+    if(!$api_routed) {
+        $lib_routed = route_request($lib_routes, $request_method, $uri_path, $uri_parts, $uri_args);
+        if(!$lib_routed) {
+            render_default_header();
+            render_default_body_start();
+            $page_routed = route_request($page_routes, $request_method, $uri_path, $uri_parts, $uri_args);
+            render_default_footer();
+            render_default_body_end();
+        }
+    }
 
     function route_request($api_routes, $request_method, $uri_path, $uri_parts, $uri_args) {
         if(isset($api_routes) && !empty($api_routes))
             if(isset($api_routes[$request_method]))
                 if(isset($api_routes[$request_method][$uri_path])) {
                     call_user_func_array($api_routes[$request_method][$uri_path], array('uri_parts' => $uri_parts, 'uri_args' => $uri_args));
-                    return;
+                    return true;
                 }
 
         foreach ($api_routes[$request_method] as $route => $handler) {
@@ -111,235 +143,7 @@
             if (preg_match("#^" . $pattern . "$#", $uri_path, $matches)) {
                 $params = array_filter($matches, 'is_string', ARRAY_FILTER_USE_KEY); // Extract named params
                 call_user_func_array($handler, array_merge($params, array('uri_parts' => $uri_parts, 'uri_args' => $uri_args)));
-                return;
-            }
-        }
-    }
-
-    if($uri_parts[0] == '') {
-        $repos = query('SELECT * FROM repo');
-        echo '<table><tr><th>Name</th><th>URL</th><th>Download Location</th><th>Install Location</th></tr>';
-        foreach($repos as $repo) {
-            $name = $repo['name'];
-            $url = $repo['url'];
-            $download_location = $repo['download_location'];
-            $install_location = $repo['install_location'];
-
-            echo "<tr><td><a href='/repo/$name'>$name</a></td><td><a href='$url'>$url</a></td><td>$download_location</td><td>$install_location</td></tr>";
-        }
-        echo '</table>';
-
-        if(is_worker_running()) {
-            echo '<br /><strong>Worker is running</strong>';
-        } else {
-            echo '<br /><strong>Worker is not running</strong>';
-        }
-
-        exit();
-    }
-
-    if($uri_parts[0] == 'repo') {
-        if(isset($uri_parts[1]) && sizeof($uri_parts) == 2) {
-            $use_name = true;
-            if(is_int($uri_parts[1])) {
-                $use_name = true;
-            }
-
-            if($use_name) {
-                $arr = query("SELECT * FROM repo WHERE name = :name", array('name' => $uri_parts[1]));
-                if(sizeof($arr) == 0 || $arr == null) {
-                    echo "Repo not found!<br />";
-                    exit();
-                }
-            } else {
-                $arr = query("SELECT * FROM repo WHERE id = :id", array('id' => $uri_parts[1]));
-                if(sizeof($arr) == 0 || $arr == null) {
-                    echo "Repo not found!<br />";
-                    exit();
-                }
-            }
-
-            $repo = $arr[0];
-
-            $id = $repo['id'];
-            $name = $repo['name'];
-            $url = $repo['url'];
-            $download_location = $repo['download_location'];
-            $install_location = $repo['install_location'];
-
-            echo "<strong>Repo</strong>: <a href='/repo/$name'>$name</a><br />";
-            echo "<strong>Repo URL</strong>: <a href='$url'>$url</a><br />";
-            echo "<strong>Repo Settings URL</strong>: <a href='/settings/repo/$name'>Repo Settings</a><br />";
-            echo "<strong>Download Location</strong>: $download_location<br />";
-            echo "<strong>Install Location</strong>: $install_location<br />";
-            echo "<br /><strong>Recent commits</strong>:<br />";
-
-            $commits = query('SELECT * FROM commit WHERE repo_id = :id ORDER BY id DESC LIMIT 25', array('id' => $id));
-            echo '<table style="width:100%;border-collapse:collapse;margin-top:10px"><tr><th>date</th><th>hash</th><th>message</th><th>author</th><th>Test Status</th><th>Tests Passing</th><th>Tests Failing</th><th>Download Duration</th><th>Install Duration</th><th>Test Duration</th><th>Total Duration</th><th>Actions</th></tr>';
-            foreach($commits as $commit) {
-
-                $date = $commit['date'];
-                $commit_hash = $commit['hash'];
-                $message = $commit['message'];
-                $author = $commit['author'];
-                $test_status = $commit['test_status'] ?? null;
-                $success_tests = $commit['success_tests'] ?? 'Unknown';
-                $failed_tests = $commit['failed_tests'] ?? 'Unknown';
-                $download_duration = $commit['download_duration'] ?? 'Unknown';
-                $install_duration = $commit['install_duration'] ?? 'Unknown';
-                $test_duration = $commit['test_duration'] ?? 'Unknown';
-                $total_duration = 0;
-
-                if($download_duration != 'Unknown') {
-                    $total_duration += $download_duration;
-                }
-                if($install_duration != 'Unknown') {
-                    $total_duration += $install_duration;
-                }
-                if($test_duration != 'Unknown') {
-                    $total_duration += $test_duration;
-                }
-
-                if($total_duration == 0) {
-                    $total_duration = 'Unknown';
-                }
-
-                $download_duration = format_milliseconds($download_duration);
-                $install_duration = format_milliseconds($install_duration);
-                $test_duration = format_milliseconds($test_duration);
-                $total_duration = format_milliseconds($total_duration);
-
-                if($test_status === null) {
-                    $test_status = 'N/A';
-                }
-
-                if($test_status == 0) $test_status = 'Passed';
-                if($test_status == 1) $test_status = 'Failed';
-
-                $test_status_td = $test_status == 'Passed' ? '<td style="background-color:d4edda;color:155724;font-weight:bold">' : '<td style="background-color:ffebeb;color:d00;font-weight:bold">';
-    
-                echo "<tr><td>$date</td><td><a href='/repo/$name/commit/$commit_hash'>$commit_hash</a></td><td>$message</td><td>$author</td>$test_status_td$test_status</td><td>$success_tests</td><td>$failed_tests</td><td>$download_duration</td><td>$install_duration</td><td>$test_duration</td><td>$total_duration</td><td><p>Actions here</p></td></tr>";
-            }
-            echo '</table>';
-            
-            exit();
-
-        }
-
-        if(isset($uri_parts[1]) && sizeof($uri_parts) == 4) {
-            // /repos/REPO_NAME/commit/COMMIT_HASH
-
-            if($uri_parts[2] == 'commit') {
-                $repo_name = $uri_parts[1];
-                $commit_hash = $uri_parts[3];
-
-                $repo = query('SELECT * FROM repo WHERE name = :name', array('name' => $repo_name));
-                if(sizeof($repo) == 0) {
-                    echo "Repo not found!<br />";
-                    exit();
-                }
-
-                $repo = $repo[0];
-                $repo_id = $repo['id'];
-                $repo_download_path = $repo['download_location'];
-
-                $commit = query('SELECT * FROM commit WHERE repo_id = :repo_id AND hash = :hash ORDER BY test_status DESC', array('repo_id' => $repo_id, 'hash' => $commit_hash));
-                if(sizeof($commit) == 0) {
-                    echo "Commit not found!<br />";
-                    exit();
-                }
-
-                $commit = $commit[0];
-
-                $date = $commit['date'];
-                $commit_hash = $commit['hash'];
-                $message = $commit['message'];
-                $author = $commit['author'];
-                $test_status = $commit['test_status'] ?? null;
-                $success_tests = $commit['success_tests'] ?? 'Unknown';
-                $failed_tests = $commit['failed_tests'] ?? 'Unknown';
-                $download_duration = $commit['download_duration'] ?? 'Unknown';
-                $install_duration = $commit['install_duration'] ?? 'Unknown';
-                $test_duration = $commit['test_duration'] ?? 'Unknown';
-                $total_duration = 0;
-
-                if($download_duration != 'Unknown') {
-                    $total_duration += $download_duration;
-                }
-                if($install_duration != 'Unknown') {
-                    $total_duration += $install_duration;
-                }
-                if($test_duration != 'Unknown') {
-                    $total_duration += $test_duration;
-                }
-
-                if($total_duration == 0) {
-                    $total_duration = 'Unknown';
-                }
-
-                $download_duration = format_milliseconds($download_duration);
-                $install_duration = format_milliseconds($install_duration);
-                $test_duration = format_milliseconds($test_duration);
-                $total_duration = format_milliseconds($total_duration);
-
-                if($test_status === null) {
-                    $test_status = 'N/A';
-                }
-
-                if($test_status == 0) $test_status = 'Passed';
-                if($test_status == 1) $test_status = 'Failed';
-
-                echo "<strong>Repo</strong>: <a href='/repo/$repo_name'>$repo_name</a><br />";
-                echo "<strong>Hash</strong>: $commit_hash<br />";
-                echo "<strong>Date</strong>: $date<br />";
-                echo "<strong>Message</strong>: $message<br />";
-                echo "<strong>Author</strong>: $author<br />";
-                echo "<strong>Test Status</strong>: $test_status<br />";
-                echo "<strong>Tests Passing</strong>: $success_tests<br />";
-                echo "<strong>Tests Failing</strong>: $failed_tests<br />";
-                echo "<strong>Download Duration</strong>: $download_duration<br />";
-                echo "<strong>Install Duration</strong>: $install_duration<br />";
-                echo "<strong>Test Duration</strong>: $test_duration<br />";
-                echo "<strong>Total Duration</strong>: $total_duration<br />";
-
-                $test_result_file = dirname($repo_download_path) . "/test_results/$commit_hash.json";
-
-                try {
-                    $test_result_json = read_flat_file($test_result_file);
-                } catch(Exception $e) {
-                    echo "Test results not found!<br />";
-                    exit();
-                }
-                $test_result = json_decode($test_result_json, true);
-
-                $files = $test_result['files'];
-
-                echo "<br /><strong>Test Results</strong>:<br /><br />";
-
-                echo '<table style="width:100%;border-collapse:collapse;margin-top:10px"><tr><th>File</th><th>Test Name</th><th>Status</th><th>Reason</th></tr>';
-
-                foreach($files as $file_name => $file_data) {
-                    foreach($file_data['tests'] as $function => $data) {
-                        $status = $data['status'];
-                        $reason = $data['reason'] ?? '';
-
-                        if($status == 'success') {
-                            $status = 'Passed';
-                        } 
-                        if($status == 'failure') {
-                            $status = 'Failed';
-                        }
-                        
-                        $test_status_td = $status == 'Passed' ? '<td style="background-color:d4edda;color:155724;font-weight:bold">' : '<td style="background-color:ffebeb;color:d00;font-weight:bold">';
-    
-
-                        echo "<tr><td>$file_name</td><td>$function</td>$test_status_td$status</td><td>$reason</td></tr>";
-                    }
-                }
-                
-                echo '</table>';
-
-                exit();
+                return true;
             }
         }
     }
@@ -347,6 +151,28 @@
     http_response_code(404);
     echo json_encode(array('status' => 'failed', 'error' => '404 Not Found'));
     exit();
+
+    function render_default_header() {
+        echo '<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>tSuite</title><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.4.1/dist/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
+        <link rel="stylesheet" href="https://code.jquery.com/ui/1.13.2/themes/base/jquery-ui.css">
+        <script src="/lib/js/main.js"></script></head><body>';
+    }
+
+    function render_default_body_start() {
+        echo '<div style="margin: 0 auto; width: 80%;"><h1>tSuite</h1>';
+    }
+
+    function render_default_body_end() {
+        echo '</div>';
+    }
+
+    function render_default_footer() {
+        echo '        <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+        <script src="https://code.jquery.com/ui/1.13.2/jquery-ui.min.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js" integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo" crossorigin="anonymous"></script>
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.4.1/dist/js/bootstrap.min.js" integrity="sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6" crossorigin="anonymous"></script>
+</body></html>';
+    }
 
     function json_error_and_exit($error_msg, $http_code = '400') {
         http_response_code($http_code);
@@ -358,6 +184,11 @@
         http_response_code($http_code);
         echo $error_msg;
         exit();
+    }
+
+    function html_error($error_msg, $http_code = '400') {
+        http_response_code($http_code);
+        echo $error_msg;
     }
 
     function read_flat_file($path) {
