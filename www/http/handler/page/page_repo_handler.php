@@ -114,6 +114,16 @@
                     return;
                 }
 
+                $repo_settings = query('SELECT * FROM repo_setting WHERE repo_id = :repo_id', array('repo_id' => $repo_id));
+
+                $test_result_location = null;
+
+                foreach($repo_settings as $setting) {
+                    if($setting['name'] == 'TEST_RESULT_LOCATION') {
+                        $test_result_location = $setting['value'];
+                    }
+                }
+
                 $commit = $commit[0];
 
                 $date = $commit['date'];
@@ -167,7 +177,7 @@
                 echo "<strong>Test Duration</strong>: $test_duration<br />";
                 echo "<strong>Total Duration</strong>: $total_duration<br />";
 
-                $test_result_file = dirname($repo_download_path) . "/test_results/$commit_hash.json";
+                $test_result_file = $test_result_location . "/$commit_hash.json";
 
                 try {
                     $test_result_json = read_flat_file($test_result_file);
