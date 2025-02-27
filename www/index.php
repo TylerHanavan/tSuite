@@ -17,7 +17,12 @@
     include 'http/handler/page/page_repo_handler.php';
     include 'http/handler/page/page_home_handler.php';
 
-    $tsuite_conn = get_database_connection('localhost', 'tsuite_admin', 'password', 'tsuite');
+    $db_host = getenv('TSUITE_DB_HOST');
+    $db_user = getenv('TSUITE_DB_USER');
+    $db_pass = getenv('TSUITE_DB_PASS');
+    $db_name = getenv('TSUITE_DB_NAME');
+    
+    $tsuite_conn = get_database_connection($db_host, $db_user, $db_pass, $db_name);
 
     $request_method = $_SERVER['REQUEST_METHOD']; // GET, POST, PUT, DELETE...
     $request_uri = '/' . ltrim(rtrim($_SERVER['REQUEST_URI'], '/'), '/'); // /example?foo=bar1&foo=bar2 => /example?foo=bar2
@@ -111,8 +116,14 @@
             if($debug)
                 echo "Table $table does not exist!<br />";
             $create_sql_query = read_flat_file(dirname(__FILE__) . "/sqls/create_table_$table.sql");
-            query($create_sql_query);
-            die("Unable to create required table: $table");
+            $res = query($create_sql_query);
+            echo "Trying to create required table $table...<br />";
+            if($res) {
+                echo "Created table $table<br />";
+            }
+            else {
+                echo "Failed to create table $table<br />";
+            }
         }
     }
 
@@ -148,9 +159,11 @@
         }
     }
 
-    http_response_code(404);
-    echo json_encode(array('status' => 'failed', 'error' => '404 Not Found'));
-    exit();
+    if(!$page_routed) {
+        http_response_code(404);
+        echo json_encode(array('status' => 'failed', 'error' => '404 Not Found'));
+        exit();
+    }
 
     function render_default_header() {
         echo '<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>tSuite</title><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.4.1/dist/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
