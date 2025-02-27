@@ -192,6 +192,9 @@
         curl_setopt($ch, CURLOPT_NOBODY, false); // remove body
 
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        
+        curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
+        curl_setopt($ch, CURLOPT_MAXREDIRS, 10);
 
         $head = curl_exec($ch);
 
