@@ -1,10 +1,11 @@
 <?php
 
     class Tester {
-        public function __construct($tsuite_dir, $endpoint_url) {
+        public function __construct($tsuite_dir, $endpoint_url, $repo_settings) {
 
-            $this->tsuite_dir = $tsuite_dir;
+            $this->tsuite_dir = rtrim($tsuite_dir, '/');
             $this->endpoint_url = $endpoint_url;
+            $this->repo_settings = $repo_settings;
 
         }
 
@@ -19,13 +20,90 @@
             // Remove `.` and `..` from the list
             $files = array_diff($files, ['.', '..']);
 
+            $pre_files_to_process = array();
+            $order_file = null;
+            $install_file = null;
+
             foreach($files as $file) {
+
+                if($file == $this->tsuite_dir . '/order') {
+                    $order_file = $file;
+                    continue;
+                }
+                if($file == $this->tsuite_dir . '/install') {
+                    $install_file = $file;
+                    continue;
+                }
 
                 if(!str_ends_with($file, 'Test.php')) {
                     continue;
                 }
+                $pre_files_to_process[] = $file;
+            }
+
+            $files_from_order_file = array();
+
+            if($order_file != null) {
+                echo "Found order file: $order_file\n";
+                $order_file_contents = read_flat_file($order_file);
+                foreach(explode("\n", $order_file_contents) as $line) {
+                    if(trim($line) == '') {
+                        continue;
+                    }
+                    $line = $this->tsuite_dir . '/' . trim($line);
+                    $files_from_order_file[] = $line;
+                }
+            }
+
+            foreach($pre_files_to_process as $file) {
+                if(!in_array($file, $files_from_order_file)) {
+                    echo "WARN: Found file not in order file: $file\n";
+                    $response['warnings'][] = "Found file not in order file: $file";
+                }
+            }
+
+            $command_string = '';
+
+            foreach($this->repo_settings as $key => $value) {
+                $command_string .= "$key=\"$value\";";
+            }
+            
+            if($install_file != null) {
+                echo "Found install file: $install_file\n";
+                echo "Here are the commands that the install file will run:\n";
+                foreach(explode("\n", read_flat_file($install_file)) as $line) {
+                    if(trim($line) == '') {
+                        continue;
+                    }
+                    echo "$line\n";
+                    $command_string .= "$line;";
+                }
+            }
+
+            var_dump($this->repo_settings);
+
+            $command_output = shell_exec($command_string);
+            echo "Command output:\n";
+            echo "$command_output\n";
+            $response['command_output'] = $command_output;
+
+            $files_to_process = array();
+
+            foreach($files_from_order_file as $file) {
+                $files_to_process[] = $file;
+            }
+
+            foreach($pre_files_to_process as $file) {
+                if(!in_array($file, $files_to_process)) {
+                    $files_to_process[] = $file;
+                }
+            }
+
+            foreach($files_to_process as $file) {
 
                 include_once $file;
+
+                echo "$file\n";
 
                 $functions = $this->get_functions_from_file($file);
 
