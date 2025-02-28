@@ -100,6 +100,7 @@
                 $commit_hash = $git_metadata['sha'] ?? null;
                 if($commit_hash == null) {
                     echo "Unable to get commit hash\n";
+                    var_dump($git_metadata);
                     sleep(1);
                     continue;
                 }
