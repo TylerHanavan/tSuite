@@ -195,7 +195,7 @@
         curl_setopt($ch, CURLOPT_MAXREDIRS, 10);
 
         if ($session_cookie != null && !empty($session_cookie)) {
-            curl_setopt($ch, CURLOPT_COOKIE, "session_token=$session_token");
+            curl_setopt($ch, CURLOPT_COOKIE, "session_token=$session_cookie");
         }
 
         $head = curl_exec($ch);
