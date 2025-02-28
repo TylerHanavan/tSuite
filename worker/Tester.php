@@ -80,8 +80,6 @@
                 }
             }
 
-            var_dump($this->repo_settings);
-
             $command_output = shell_exec($command_string);
             echo "Command output:\n";
             echo "$command_output\n";
@@ -171,7 +169,7 @@
 
     }
 
-    function test_curl($uri, $data, $post = true) {
+    function test_curl($uri, $data, $post = true, $cookie = null) {
 
         $url = $uri;
         
@@ -195,6 +193,10 @@
         
         curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
         curl_setopt($ch, CURLOPT_MAXREDIRS, 10);
+
+        if ($use_cookie && !empty($session_cookie)) {
+            curl_setopt($ch, CURLOPT_COOKIE, "session_token=$session_token");
+        }
 
         $head = curl_exec($ch);
 
