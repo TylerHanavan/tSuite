@@ -223,13 +223,13 @@
         }
     }
 
-    function assertStrContains($haystack, $needle, $message = '') {
+    function assertStrContains($needle, $haystack, $message = '') {
         if (strpos($haystack, $needle) === false) {
             throw new Exception("$message / Expected string $needle to be in $haystack but it wasn't");
         }
     }
 
-    function assertArrayContains($haystack, $needle, $message = '') {
+    function assertArrayContains($needle, $haystack, $message = '') {
         if (!in_array($needle, $haystack)) {
             throw new Exception("$message / Expected array to contain $needle but it didn't");
         }
