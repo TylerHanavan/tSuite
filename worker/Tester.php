@@ -169,7 +169,7 @@
 
     }
 
-    function test_curl($uri, $data, $post = true, $cookie = null) {
+    function test_curl($uri, $data, $post = true, $session_cookie = null) {
 
         $url = $uri;
         
@@ -194,7 +194,7 @@
         curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
         curl_setopt($ch, CURLOPT_MAXREDIRS, 10);
 
-        if ($use_cookie && !empty($session_cookie)) {
+        if ($session_cookie != null && !empty($session_cookie)) {
             curl_setopt($ch, CURLOPT_COOKIE, "session_token=$session_token");
         }
 
