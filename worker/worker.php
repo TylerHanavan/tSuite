@@ -5,7 +5,7 @@
     $tick = 0;
 
     while(true) {
-        if($tick++ % 15 == 0) {
+        if($tick++ % 10 == 0) {
             $repos = do_curl('/api/v1/repo', array(), false);
             if($repos == null || !isset($repos['response'])) {
                 echo "No response data /api/repo\n";
