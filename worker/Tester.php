@@ -215,13 +215,19 @@
 
     function assertTrue($actual, $message = '') {
         if (!$actual) {
-            throw new Exception("$message / Expected true but got $actual");
+            if($actual === false)
+                throw new Exception("$message / Expected true but got false");
+            else
+                throw new Exception("$message / Expected true but got $actual");
         }
     }
 
     function assertFalse($actual, $message = '') {
         if ($actual) {
-            throw new Exception("$message / Expected false but got $actual");
+            if($actual === true)
+                throw new Exception("$message / Expected false but got true");
+            else
+                throw new Exception("$message / Expected false but got $actual");
         }
     }
 
