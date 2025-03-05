@@ -5,14 +5,13 @@
     $repos = do_curl('/api/v1/repo', array(), false);
     if($repos == null || !isset($repos['response'])) {
         echo "No response data /api/repo\n";
-        sleep(1);
-        continue;
+        exit();
     }
     $repos_arr = json_decode($repos['response'], true);
     if($repos_arr == null || sizeof($repos_arr) == 0) {
         echo "No repos returned for /api/repo\n";
         sleep(1);
-        continue;
+        exit();
     }
     foreach($repos_arr as $iter_repo) {
 
