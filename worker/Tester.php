@@ -99,7 +99,8 @@
 
             foreach($files_to_process as $file) {
 
-                include_once $file;
+                opcache_invalidate($file, true);
+                include $file;
 
                 echo "$file\n";
 
