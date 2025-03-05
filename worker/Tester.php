@@ -122,7 +122,6 @@
                         $response['files'][$file]['tests'][$function]['status'] = 'failure';
                         $response['files'][$file]['tests'][$function]['reason'] = $e->getMessage();
                     }
-                    runkit7_remove_function($function);
                 }
             }
 
