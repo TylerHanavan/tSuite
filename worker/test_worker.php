@@ -215,7 +215,6 @@
             echo "The latest commit is already in the system: $commit_hash\n";
         }
     }
-}
 
     function pull_git_info($repo, $repo_user, $branch, $pat = null) {
         if($pat == null)
