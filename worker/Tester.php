@@ -209,6 +209,10 @@
 
     function assertEquals($expected, $actual, $message = '') {
         if ($expected !== $actual) {
+            if($actual === true) $actual = 'true';
+            if($actual === false) $actual = 'false';
+            if($expected === true) $expected = 'true';
+            if($expected === false) $expected = 'false';
             throw new Exception("$message / Expected $expected but got $actual");
         }
     }
