@@ -137,6 +137,8 @@
                     $start_time_install = get_current_time_milliseconds();
                     do_install($download_location, $install_location, $items_to_install);
 
+                    usleep(50);
+
                     $start_time_test = get_current_time_milliseconds();
                     $tester = new Tester($download_location . '/.tsuite', 'localhost:1347', $simplified_repo_settings);
                     $test_response = $tester->run_tests();
