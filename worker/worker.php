@@ -5,7 +5,7 @@
     $tick = 0;
 
     while(true) {
-        if($tick++ % 12 == 0) {
+        if($tick++ % 15 == 0) {
             $repos = do_curl('/api/v1/repo', array(), false);
             if($repos == null || !isset($repos['response'])) {
                 echo "No response data /api/repo\n";
@@ -241,7 +241,7 @@
         $commits_arr = json_decode($commits['response'], true);
         if($commits_arr == null || sizeof($commits_arr) == 0) {
             echo "No commits returned for $repo /api/v1/commit\n";
-            return false;
+            return true;
         }
         foreach($commits_arr as $commit) {
             if($commit['hash'] == $commit_hash) {
