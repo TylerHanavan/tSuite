@@ -5,7 +5,7 @@
     $tick = 0;
 
     while(true) {
-        if($tick++ % 15 == 0) {
+        if($tick++ % 10 == 0) {
             $repos = do_curl('/api/v1/repo', array(), false);
             if($repos == null || !isset($repos['response'])) {
                 echo "No response data /api/repo\n";
@@ -88,7 +88,7 @@
 
                 echo "($repo_user/$repo, Branch: $branch)\n";
                 
-                $git_metadata = pull_git_info($repo, $repo_user, $branch);
+                $git_metadata = pull_git_info($repo, $repo_user, $branch, $PAT);
 
                 $git_metadata = json_decode($git_metadata['response'], true);
 
@@ -223,8 +223,11 @@
         sleep(1);
     }
 
-    function pull_git_info($repo, $repo_user, $branch) {
-        $api_url = "https://api.github.com/repos/$repo_user/$repo/commits/$branch";
+    function pull_git_info($repo, $repo_user, $branch, $pat = null) {
+        if($pat == null)
+            $api_url = "https://api.github.com/repos/$repo_user/$repo/commits/$branch";
+        else
+            $api_url = "https://$pat@api.github.com/repos/$repo_user/$repo/commits/$branch";
         $git_metadata = do_github_curl($api_url, array(), false, $repo_user);
         return $git_metadata;
     }
