@@ -1,0 +1,43 @@
+{
+  "stages": {
+    "setupDB": {
+      "title": "Setup MySQL Database",
+      "description": "This test drops the MySQL database if it exists, creates a new database, creates the user and grants the permissions to the user.",
+      "actions": [
+        {
+          "shell": [
+            "export MYSQL_PWD=\"${DB_PASS}\"",
+            "echo \"TODO... create DB and user here...\"",
+            "echo \"Showing tables\"",
+            "mysql -u ${DB_USER} ${DB_NAME} -e \"SHOW TABLES\"",
+            "echo \"Deleting tables\"",
+            "mysql -u ${DB_USER} ${DB_NAME} -e \"DROP TABLE test\"",
+            "mysql -u ${DB_USER} ${DB_NAME} -e \"DROP TABLE pages\"",
+            "mysql -u ${DB_USER} ${DB_NAME} -e \"DROP TABLE sessions\"",
+            "mysql -u ${DB_USER} ${DB_NAME} -e \"DROP TABLE accounts\"",
+            "mysql -u ${DB_USER} ${DB_NAME} -e \"DROP TABLE record_fields\"",
+            "mysql -u ${DB_USER} ${DB_NAME} -e \"DROP TABLE record_definitions\"",
+            "echo \"Deleted all tables\"",
+            "echo \"Showing tables\"",
+            "mysql -u ${DB_USER} ${DB_NAME} -e \"SHOW TABLES\""
+          ]
+        }
+      ]
+    },
+    "runXHRTests": {
+      "title": "Run XHR Tests",
+      "description": "This runs the vRec XHR tests.",
+      "actions": [
+        {
+          "php": [
+            "tests/XHRSignupTest.php",
+            "tests/XHRSetupTest.php",
+            "tests/XHRLoginTest.php",
+            "tests/XHRRecordDefinitionTest.php",
+            "tests/XHRRecordTest.php"
+          ]
+        }
+      ]
+    }
+  }
+}
