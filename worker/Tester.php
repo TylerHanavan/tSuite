@@ -32,6 +32,13 @@
 
         }
 
+        public function get_repo_settings_command_string() {
+            foreach($this->repo_settings as $key => $value) {
+                $command_string .= "$key=\"$value\";";
+            }
+            return $command_string;
+        }
+
         public function get_functions_from_file($file) {
             // Include the file
             include_once $file;
@@ -77,7 +84,7 @@
                     echo "Handling `$subaction` action\n";
                     var_dump($subaction_array);
                     if($subaction == 'shell') {
-                        $command_string = '';
+                        $command_string = $this->get_repo_settings_command_string() . ';';
                         foreach($subaction_array as $command) {
                             $command_string = "$command_string;$command;";
                         }
