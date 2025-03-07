@@ -34,9 +34,10 @@
 
         public function get_repo_settings_command_string() {
             foreach($this->repo_settings as $key => $value) {
+                if(!isset($key) || $key == '' || $key === '' || $key == null) continue;
                 $command_string .= "$key=\"$value\";";
             }
-            return $command_string;
+            return rtrim($command_string, ';');
         }
 
         public function get_functions_from_file($file) {
@@ -84,7 +85,7 @@
                     echo "Handling `$subaction` action\n";
                     var_dump($subaction_array);
                     if($subaction == 'shell') {
-                        $command_string = $this->get_repo_settings_command_string() . ';';
+                        $command_string = $this->get_repo_settings_command_string();
                         foreach($subaction_array as $command) {
                             $command_string = rtrim("$command_string;$command", ';');
                         }
