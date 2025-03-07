@@ -123,9 +123,11 @@
             
             $testbook_properties = get_testbook_properties($test_location);
 
+            $end_time_install = get_current_time_milliseconds();
+
             if($testbook_properties == null) {
                 echo "Test failed because tSuite could not load testbook\n";
-                post_commit($repo, $commit_hash, $message, $author, 2, 0, 0, $download_duration, $install_duration, $test_duration);
+                post_commit($repo, $commit_hash, $message, $author, 2, 0, 0, $start_time_install - $start_time_download, $end_time_install - $start_time_install, ($start_time_install - $start_time_download) + ($end_time_install - $start_time_install));
                 continue;
             }
 
