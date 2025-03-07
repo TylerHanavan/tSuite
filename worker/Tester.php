@@ -15,6 +15,7 @@
             $response = array();
 
             $response['status'] = 'success';
+            $response['files'] = array();
 
             foreach($this->testbook_properties['stages'] as $stage_name => $stage) {
                 $stage_title = $stage['title'];
@@ -22,7 +23,15 @@
                 echo "Running $stage_title:\n";
                 echo "\t$stage_description\n";
 
-                $this->handleAction($stage['actions']);
+                $action_response = $this->handleAction($stage['actions']);
+
+                if(!isset($action_response) || $action_response == null) continue;
+
+                if($action_response['status'] == 'failure') $response['status'] = 'failure';
+
+                foreach($action_response['files'] as $file => $data) {
+                    $response['files'][$file] = $data;
+                }
 
             }
 
@@ -31,6 +40,7 @@
         }
 
         public function get_repo_settings_command_string() {
+            $command_string = '';
             foreach($this->repo_settings as $key => $value) {
                 if(!isset($key) || $key == '' || $key === '' || $key == null) continue;
                 $command_string .= "$key=\"$value\";";
@@ -125,6 +135,8 @@
                     }
                 }
             }
+
+            return $response;
         }
 
     }
