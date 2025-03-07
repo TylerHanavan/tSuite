@@ -10,7 +10,6 @@
     $repos_arr = json_decode($repos['response'], true);
     if($repos_arr == null || sizeof($repos_arr) == 0) {
         echo "No repos returned for /api/repo\n";
-        sleep(1);
         exit();
     }
     foreach($repos_arr as $iter_repo) {
@@ -25,7 +24,6 @@
         $repo_settings = do_curl('/api/v1/repo_setting', array('repo_id' => $iter_repo['id']), false);
         if($repo_settings == null || !isset($repo_settings['response'])) {
             echo "No response data /api/v1/repo_setting\n";
-            sleep(1);
             continue;
         }
 
@@ -59,25 +57,21 @@
 
         if($branch == null) {
             echo "Unable to get branch for $repo from /api/v1/repo_setting\n";
-            sleep(1);
             continue;
         }
 
         if($PAT == null) {
             echo "Unable to get PAT for $repo from /api/v1/repo_setting\n";
-            sleep(1);
             continue;
         }
 
         if($items_to_install == null) {
             echo "Unable to get items to install for $repo from /api/v1/repo_setting\n";
-            sleep(1);
             continue;
         }
 
         if($repo_user == null) {
             echo "Unable to get repo user for $repo from /api/v1/repo_setting\n";
-            sleep(1);
             continue;
         }
 
@@ -89,38 +83,32 @@
 
         if($git_metadata == null) {
             echo "Unable to pull git metadata\n";
-            sleep(1);
             continue;
         }
         $commit_hash = $git_metadata['sha'] ?? null;
         if($commit_hash == null) {
             echo "Unable to get commit hash\n";
             var_dump($git_metadata);
-            sleep(1);
             continue;
         }
         $commit_data = $git_metadata['commit'] ?? null;
         if($commit_data == null) {
             echo "Unable to get nested commit data\n";
-            sleep(1);
             continue;
         }
         $message = $commit_data['message'] ?? null;
         if($message == null) {
             echo "Unable to get commit message\n";
-            sleep(1);
             continue;
         }
         $commit_author_data = $commit_data['author'] ?? null;
         if($commit_author_data == null) {
             echo "Unable to get nested commit author data\n";
-            sleep(1);
             continue;
         }
         $author = $commit_author_data['name'] ?? null;
         if($author == null) {
             echo "Unable to get commit author\n";
-            sleep(1);
             continue;
         }
         
