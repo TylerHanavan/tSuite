@@ -1,11 +1,12 @@
 <?php
 
     class Tester {
-        public function __construct($tsuite_dir, $endpoint_url, $repo_settings) {
+        public function __construct($tsuite_dir, $endpoint_url, $repo_settings, $testbook_properties) {
 
             $this->tsuite_dir = rtrim($tsuite_dir, '/');
             $this->endpoint_url = $endpoint_url;
             $this->repo_settings = $repo_settings;
+            $this->testbook_properties = $testbook_properties;
 
         }
 
@@ -85,7 +86,7 @@
             echo "$command_output\n";
             $response['command_output'] = $command_output;*/
 
-            foreach($testbook_properties['stages'] as $stage) {
+            foreach($this->testbook_properties['stages'] as $stage) {
                 $stage_title = $stage['title'];
                 $stage_description = $stage['description'];
                 echo "Running $stage_title:";
