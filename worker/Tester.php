@@ -68,7 +68,7 @@
                 $command_string .= "$key=\"$value\";";
             }
             
-            if($install_file != null) {
+            /*if($install_file != null) {
                 echo "Found install file: $install_file\n";
                 echo "Here are the commands that the install file will run:\n";
                 foreach(explode("\n", read_flat_file($install_file)) as $line) {
@@ -83,7 +83,17 @@
             $command_output = shell_exec($command_string);
             echo "Command output:\n";
             echo "$command_output\n";
-            $response['command_output'] = $command_output;
+            $response['command_output'] = $command_output;*/
+
+            foreach($testbook_properties['stages'] as $stage) {
+                $stage_title = $stage['title'];
+                $stage_description = $stage['description'];
+                echo "Running $stage_title:"
+                echo "\t$stage_description";
+
+                handleAction($stage['actions']);
+
+            }
 
             $files_to_process = array();
 
@@ -97,7 +107,7 @@
                 }
             }
 
-            foreach($files_to_process as $file) {
+            /*foreach($files_to_process as $file) {
 
                 opcache_invalidate($file, true);
                 include $file;
@@ -123,7 +133,7 @@
                         $response['files'][$file]['tests'][$function]['reason'] = $e->getMessage();
                     }
                 }
-            }
+            }*/
 
             return $response;
 
@@ -166,6 +176,49 @@
             }
         
             return $files;
+        }
+
+        public function handleAction($actions) {
+            foreach($actions as $subaction) {
+                if($subaction == 'shell') {
+                    $command_string = '';
+                    foreach($subaction as $command) {
+                        $command_string = "$command_string;$command;";
+                    }
+                    echo "Running command string $command_string";
+                    $output = shell_exec($command_string);
+                    echo $output;
+                }
+                if($subaction == 'php') {
+                    foreach($subaction as $php_file) {
+                        $file = $php_file;
+                        opcache_invalidate($file, true);
+                        include $file;
+
+                        echo "$file\n";
+
+                        $functions = $this->get_functions_from_file($file);
+
+                        $response['files'][$file]['status'] = 'success';
+                    
+                        $properties = array();
+                        $properties['endpoint_url'] = $this->endpoint_url;
+
+                        foreach ($functions as $function) {
+                            try {
+                                call_user_func_array($function, array(&$properties));
+                                $response['files'][$file]['tests'][$function]['status'] = 'success';
+                                $response['files'][$file]['status'] = 'success';
+                            } catch (Exception $e) {
+                                $response['status'] = 'failure';
+                                $response['files'][$file]['status'] = 'failure';
+                                $response['files'][$file]['tests'][$function]['status'] = 'failure';
+                                $response['files'][$file]['tests'][$function]['reason'] = $e->getMessage();
+                            }
+                        }
+                    }
+                }
+            }
         }
 
     }

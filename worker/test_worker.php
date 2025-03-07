@@ -143,7 +143,7 @@
             }
 
             $start_time_test = get_current_time_milliseconds();
-            $tester = new Tester($download_location . '/.tsuite', 'localhost:1347', $simplified_repo_settings);
+            $tester = new Tester($download_location . '/.tsuite', 'localhost:1347', $simplified_repo_settings, $testbook_properties);
             $test_response = $tester->run_tests();
             $end_time_test = get_current_time_milliseconds();
 
