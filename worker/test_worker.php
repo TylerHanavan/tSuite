@@ -22,6 +22,17 @@
 
         $test_location = $download_location . '/.tsuite';
 
+        $testbook_properties = get_testbook_properties($test_location);
+
+        if($testbook_properties == null) {
+            echo 'Could not load testbook';
+        } else {
+            echo 'Loaded testbook';
+            var_dump($testbook_properties);
+        }
+
+
+
         $repo_settings = do_curl('/api/v1/repo_setting', array('repo_id' => $iter_repo['id']), false);
         if($repo_settings == null || !isset($repo_settings['response'])) {
             echo "No response data /api/v1/repo_setting\n";
@@ -213,6 +224,15 @@
         }
     }
 
+    function get_testbook_properties($test_location) {
+        $file = $test_location . '/' . 'testbook.json';
+        $testbook_contents = read_flat_file($file);
+
+        $testbook_properties = json_decode($testbook_contents, true);
+
+        return $testbook_properties;
+    }
+
     function pull_git_info($repo, $repo_user, $branch, $pat = null) {
         if($pat == null)
             $api_url = "https://api.github.com/repos/$repo_user/$repo/commits/$branch";
@@ -334,7 +354,9 @@
 
     function read_flat_file($path) {
         $ret = '';
-        $file = fopen($path, "r") or die("Unable to open file: $path");
+        if(!file_exists($path))
+            throw new Exception("File not found $path");
+        $file = fopen($path, "r");
         while(($read = fgets($file)) != null) {
             $ret .= $read;
         }
