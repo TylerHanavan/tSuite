@@ -100,8 +100,6 @@
                         echo "Handling `$subaction` action\n";
                         foreach($subaction_array as $php_file) {
                             $file = $php_file;
-                            opcache_invalidate($file, true);
-                            include $file;
     
                             $functions = $this->get_functions_from_file($file);
 
