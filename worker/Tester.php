@@ -72,44 +72,46 @@
         }
 
         public function handleAction($actions) {
-            foreach($actions as $subaction => $subaction_array) {
-                echo "Handling `$subaction` action\n";
-                var_dump($subaction_array);
-                if($subaction == 'shell') {
-                    $command_string = '';
-                    foreach($subaction_array as $command) {
-                        $command_string = "$command_string;$command;";
-                    }
-                    echo "Running command string $command_string";
-                    $output = shell_exec($command_string);
-                    echo $output;
-                }
-                if($subaction == 'php') {
+            foreach($actions as $action) {
+                foreach($action as $subaction => $subaction_array) {
                     echo "Handling `$subaction` action\n";
-                    foreach($subaction as $php_file) {
-                        $file = $php_file;
-                        opcache_invalidate($file, true);
-                        include $file;
-
-                        echo "$file\n";
-
-                        $functions = $this->get_functions_from_file($file);
-
-                        $response['files'][$file]['status'] = 'success';
-                    
-                        $properties = array();
-                        $properties['endpoint_url'] = $this->endpoint_url;
-
-                        foreach ($functions as $function) {
-                            try {
-                                call_user_func_array($function, array(&$properties));
-                                $response['files'][$file]['tests'][$function]['status'] = 'success';
-                                $response['files'][$file]['status'] = 'success';
-                            } catch (Exception $e) {
-                                $response['status'] = 'failure';
-                                $response['files'][$file]['status'] = 'failure';
-                                $response['files'][$file]['tests'][$function]['status'] = 'failure';
-                                $response['files'][$file]['tests'][$function]['reason'] = $e->getMessage();
+                    var_dump($subaction_array);
+                    if($subaction == 'shell') {
+                        $command_string = '';
+                        foreach($subaction_array as $command) {
+                            $command_string = "$command_string;$command;";
+                        }
+                        echo "Running command string $command_string";
+                        $output = shell_exec($command_string);
+                        echo $output;
+                    }
+                    if($subaction == 'php') {
+                        echo "Handling `$subaction` action\n";
+                        foreach($subaction as $php_file) {
+                            $file = $php_file;
+                            opcache_invalidate($file, true);
+                            include $file;
+    
+                            echo "$file\n";
+    
+                            $functions = $this->get_functions_from_file($file);
+    
+                            $response['files'][$file]['status'] = 'success';
+                        
+                            $properties = array();
+                            $properties['endpoint_url'] = $this->endpoint_url;
+    
+                            foreach ($functions as $function) {
+                                try {
+                                    call_user_func_array($function, array(&$properties));
+                                    $response['files'][$file]['tests'][$function]['status'] = 'success';
+                                    $response['files'][$file]['status'] = 'success';
+                                } catch (Exception $e) {
+                                    $response['status'] = 'failure';
+                                    $response['files'][$file]['status'] = 'failure';
+                                    $response['files'][$file]['tests'][$function]['status'] = 'failure';
+                                    $response['files'][$file]['tests'][$function]['reason'] = $e->getMessage();
+                                }
                             }
                         }
                     }
