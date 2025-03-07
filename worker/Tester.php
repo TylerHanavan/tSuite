@@ -80,6 +80,9 @@
         }
 
         public function handleAction($actions) {
+
+            $response = array();
+
             foreach($actions as $action) {
                 foreach($action as $subaction => $subaction_array) {
                     echo "Handling `$subaction` action\n";
@@ -95,7 +98,8 @@
                     }
                     if($subaction == 'php') {
                         echo "Handling `$subaction` action\n";
-                        foreach($subaction as $php_file) {
+                        foreach($subaction as $php_file => $php_file_array) {
+                            var_dump($php_file_array);
                             $file = $php_file;
                             opcache_invalidate($file, true);
                             include $file;
