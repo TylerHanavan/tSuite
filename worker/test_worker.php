@@ -124,8 +124,8 @@
             $testbook_properties = get_testbook_properties($test_location);
 
             if($testbook_properties == null) {
-                echo 'Test failed because tSuite could not load testbook';
-                post_commit($repo, $commit_hash, $message, $author, 0, 0, 0, $download_duration, $install_duration, $test_duration);
+                echo 'Test failed because tSuite could not load testbook\n';
+                post_commit($repo, $commit_hash, $message, $author, 1, 0, 0, $download_duration, $install_duration, $test_duration);
                 continue;
             }
 
