@@ -73,6 +73,7 @@
 
         public function handleAction($actions) {
             foreach($actions as $subaction => $subaction_array) {
+                echo "Handling `$subaction` action\n";
                 if($subaction == 'shell') {
                     $command_string = '';
                     foreach($subaction_array as $command) {
@@ -83,6 +84,7 @@
                     echo $output;
                 }
                 if($subaction == 'php') {
+                    echo "Handling `$subaction` action\n";
                     foreach($subaction as $php_file) {
                         $file = $php_file;
                         opcache_invalidate($file, true);
