@@ -22,17 +22,6 @@
 
         $test_location = $download_location . '/.tsuite';
 
-        $testbook_properties = get_testbook_properties($test_location);
-
-        if($testbook_properties == null) {
-            echo 'Could not load testbook';
-        } else {
-            echo 'Loaded testbook';
-            var_dump($testbook_properties);
-        }
-
-
-
         $repo_settings = do_curl('/api/v1/repo_setting', array('repo_id' => $iter_repo['id']), false);
         if($repo_settings == null || !isset($repo_settings['response'])) {
             echo "No response data /api/v1/repo_setting\n";
@@ -137,6 +126,16 @@
         
         echo "Checking if $commit_hash is new for $repo\n";
         if(is_commit_new($repo, $commit_hash)) {
+            
+            $testbook_properties = get_testbook_properties($test_location);
+
+            if($testbook_properties == null) {
+                echo 'Could not load testbook';
+            } else {
+                echo 'Loaded testbook';
+                var_dump($testbook_properties);
+            }
+
             echo "New commit detected: $commit_hash\n";
             $start_time_download = get_current_time_milliseconds();
             do_git_pull($repo, $branch, $download_location, $install_location, $items_to_install, $repo_user, $PAT);
