@@ -103,9 +103,11 @@
                             opcache_invalidate($file, true);
                             include $file;
     
-                            echo "$file\n";
-    
                             $functions = $this->get_functions_from_file($file);
+
+                            $count_functions = sizeof($functions);
+    
+                            echo "$file has $count_functions functions\n";
     
                             $response['files'][$file]['status'] = 'success';
                         
@@ -113,6 +115,7 @@
                             $properties['endpoint_url'] = $this->endpoint_url;
     
                             foreach ($functions as $function) {
+                                echo $function;
                                 try {
                                     call_user_func_array($function, array(&$properties));
                                     $response['files'][$file]['tests'][$function]['status'] = 'success';
