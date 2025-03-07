@@ -79,6 +79,9 @@
 
                 if($test_status == 0) $test_status = 'Passed';
                 if($test_status == 1) $test_status = 'Failed';
+                if($test_status == 2) $test_status = 'Could not load testbook';
+
+                $test_status_td = '<td>';
 
                 if($test_status == 'Passed') {
                     $test_status_td = '<td style="background-color:#d4edda;color:#155724;font-weight:bold">';
