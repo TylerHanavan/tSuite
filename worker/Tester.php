@@ -16,64 +16,17 @@
 
             $response['status'] = 'success';
 
-            $files = $this->scanDirectoryRecursively($this->tsuite_dir);
-
-            // Remove `.` and `..` from the list
-            $files = array_diff($files, ['.', '..']);
-
-            $pre_files_to_process = array();
-            $order_file = null;
-            $install_file = null;
-
             foreach($this->testbook_properties['stages'] as $stage_name => $stage) {
                 $stage_title = $stage['title'];
                 $stage_description = $stage['description'];
                 echo "Running $stage_title:\n";
                 echo "\t$stage_description\n";
 
+                var_dump($stage);
+
                 handleAction($stage['actions']);
 
             }
-
-            $files_to_process = array();
-
-            foreach($files_from_order_file as $file) {
-                $files_to_process[] = $file;
-            }
-
-            foreach($pre_files_to_process as $file) {
-                if(!in_array($file, $files_to_process)) {
-                    $files_to_process[] = $file;
-                }
-            }
-
-            /*foreach($files_to_process as $file) {
-
-                opcache_invalidate($file, true);
-                include $file;
-
-                echo "$file\n";
-
-                $functions = $this->get_functions_from_file($file);
-
-                $response['files'][$file]['status'] = 'success';
-            
-                $properties = array();
-                $properties['endpoint_url'] = $this->endpoint_url;
-
-                foreach ($functions as $function) {
-                    try {
-                        call_user_func_array($function, array(&$properties));
-                        $response['files'][$file]['tests'][$function]['status'] = 'success';
-                        $response['files'][$file]['status'] = 'success';
-                    } catch (Exception $e) {
-                        $response['status'] = 'failure';
-                        $response['files'][$file]['status'] = 'failure';
-                        $response['files'][$file]['tests'][$function]['status'] = 'failure';
-                        $response['files'][$file]['tests'][$function]['reason'] = $e->getMessage();
-                    }
-                }
-            }*/
 
             return $response;
 
