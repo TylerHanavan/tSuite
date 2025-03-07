@@ -22,8 +22,6 @@
                 echo "Running $stage_title:\n";
                 echo "\t$stage_description\n";
 
-                var_dump($stage);
-
                 $this->handleAction($stage['actions']);
 
             }
@@ -86,7 +84,6 @@
             foreach($actions as $action) {
                 foreach($action as $subaction => $subaction_array) {
                     echo "Handling `$subaction` action\n";
-                    var_dump($subaction_array);
                     if($subaction == 'shell') {
                         $command_string = $this->get_repo_settings_command_string();
                         foreach($subaction_array as $command) {
@@ -113,7 +110,6 @@
                             $properties['endpoint_url'] = $this->endpoint_url;
     
                             foreach ($functions as $function) {
-                                echo $function;
                                 try {
                                     call_user_func_array($function, array(&$properties));
                                     $response['files'][$file]['tests'][$function]['status'] = 'success';
