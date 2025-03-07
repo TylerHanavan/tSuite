@@ -25,7 +25,7 @@
             $order_file = null;
             $install_file = null;
 
-            foreach($this->testbook_properties['stages'] as $stage) {
+            foreach($this->testbook_properties['stages'] as $stage_name => $stage) {
                 $stage_title = $stage['title'];
                 $stage_description = $stage['description'];
                 echo "Running $stage_title:\n";
