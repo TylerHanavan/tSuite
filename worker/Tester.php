@@ -74,6 +74,7 @@
         public function handleAction($actions) {
             foreach($actions as $subaction => $subaction_array) {
                 echo "Handling `$subaction` action\n";
+                var_dump($subaction_array);
                 if($subaction == 'shell') {
                     $command_string = '';
                     foreach($subaction_array as $command) {
