@@ -93,8 +93,8 @@
 
             foreach($actions as $action) {
                 foreach($action as $subaction => $subaction_array) {
-                    echo "Handling `$subaction` action\n";
                     if($subaction == 'shell') {
+                        echo "Handling `$subaction` action\n";
                         $command_string = $this->get_repo_settings_command_string();
                         foreach($subaction_array as $command) {
                             $command_string = rtrim("$command_string;$command", ';');
