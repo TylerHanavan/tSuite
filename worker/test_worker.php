@@ -124,10 +124,9 @@
             $testbook_properties = get_testbook_properties($test_location);
 
             if($testbook_properties == null) {
-                echo 'Could not load testbook';
-            } else {
-                echo 'Loaded testbook';
-                var_dump($testbook_properties);
+                echo 'Test failed because tSuite could not load testbook';
+                post_commit($repo, $commit_hash, $message, $author, 0, 0, 0, $download_duration, $install_duration, $test_duration);
+                continue;
             }
 
             $start_time_test = get_current_time_milliseconds();
