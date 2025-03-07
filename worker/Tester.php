@@ -99,7 +99,7 @@
                     if($subaction == 'php') {
                         echo "Handling `$subaction` action\n";
                         foreach($subaction_array as $php_file) {
-                            $file = $php_file;
+                            $file = $this->tsuite_dir . '/' . $php_file;
     
                             $functions = $this->get_functions_from_file($file);
 
