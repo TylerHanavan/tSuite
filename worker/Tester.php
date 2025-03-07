@@ -24,7 +24,7 @@
 
                 var_dump($stage);
 
-                handleAction($stage['actions']);
+                $this->handleAction($stage['actions']);
 
             }
 
