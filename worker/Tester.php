@@ -27,7 +27,7 @@
 
                 if(!isset($action_response) || $action_response == null) continue;
 
-                if($action_response['status'] == 'failure') $response['status'] = 'failure';
+                if(isset($action_response['status']) && $action_response['status'] == 'failure') $response['status'] = 'failure';
 
                 foreach($action_response['files'] as $file => $data) {
                     $response['files'][$file] = $data;
