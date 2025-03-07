@@ -126,6 +126,12 @@
         
         echo "Checking if $commit_hash is new for $repo\n";
         if(is_commit_new($repo, $commit_hash)) {
+
+            echo "New commit detected: $commit_hash\n";
+            $start_time_download = get_current_time_milliseconds();
+            do_git_pull($repo, $branch, $download_location, $install_location, $items_to_install, $repo_user, $PAT);
+            $start_time_install = get_current_time_milliseconds();
+            do_install($download_location, $install_location, $items_to_install);
             
             $testbook_properties = get_testbook_properties($test_location);
 
@@ -135,12 +141,6 @@
                 echo 'Loaded testbook';
                 var_dump($testbook_properties);
             }
-
-            echo "New commit detected: $commit_hash\n";
-            $start_time_download = get_current_time_milliseconds();
-            do_git_pull($repo, $branch, $download_location, $install_location, $items_to_install, $repo_user, $PAT);
-            $start_time_install = get_current_time_milliseconds();
-            do_install($download_location, $install_location, $items_to_install);
 
             $start_time_test = get_current_time_milliseconds();
             $tester = new Tester($download_location . '/.tsuite', 'localhost:1347', $simplified_repo_settings);
