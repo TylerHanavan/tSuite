@@ -98,7 +98,7 @@
                     }
                     if($subaction == 'php') {
                         echo "Handling `$subaction` action\n";
-                        foreach($subaction as $php_file => $php_file_array) {
+                        foreach($subaction_array as $php_file => $php_file_array) {
                             var_dump($php_file_array);
                             $file = $php_file;
                             opcache_invalidate($file, true);
