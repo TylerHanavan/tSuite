@@ -163,6 +163,7 @@
 
                 if($test_status == 0) $test_status = 'Passed';
                 if($test_status == 1) $test_status = 'Failed';
+                if($test_status == 2) $test_status = 'Could not load testbook';
 
                 echo "<strong>Repo</strong>: <a href='/repo/$repo_name'>$repo_name</a><br />";
                 echo "<strong>Hash</strong>: $commit_hash<br />";
