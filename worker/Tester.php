@@ -86,7 +86,7 @@
                     if($subaction == 'shell') {
                         $command_string = $this->get_repo_settings_command_string() . ';';
                         foreach($subaction_array as $command) {
-                            $command_string = "$command_string;$command;";
+                            $command_string = "$command_string;$command";
                         }
                         echo "Running command string:\n$command_string\n\n";
                         $output = shell_exec($command_string);
