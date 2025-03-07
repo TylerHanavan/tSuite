@@ -88,7 +88,7 @@
             foreach($testbook_properties['stages'] as $stage) {
                 $stage_title = $stage['title'];
                 $stage_description = $stage['description'];
-                echo "Running $stage_title:"
+                echo "Running $stage_title:";
                 echo "\t$stage_description";
 
                 handleAction($stage['actions']);
