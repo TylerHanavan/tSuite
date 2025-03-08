@@ -44,6 +44,10 @@
                 $id = $commit['id'];
                 $date = $commit['date'];
                 $commit_hash = $commit['hash'];
+
+                if($commit_hash != null)
+                    $commit_hash = substr($commit_hash, 7);
+
                 $message = $commit['message'];
                 $author = $commit['author'];
                 $test_status = $commit['test_status'] ?? null;
@@ -136,6 +140,7 @@
 
                 $date = $commit['date'];
                 $commit_hash = $commit['hash'];
+
                 $message = $commit['message'];
                 $author = $commit['author'];
                 $test_status = $commit['test_status'] ?? null;
