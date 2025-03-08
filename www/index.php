@@ -100,6 +100,7 @@
     $lib_routes = array(
         'GET' => array(
             '/lib/js/{file}' => 'handle_lib_js_get',
+            '/lib/css/{file}' => 'handle_lib_css_get',
         ),
         'POST' => array(
         ),
@@ -168,11 +169,25 @@
     function render_default_header() {
         echo '<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>tSuite</title><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.4.1/dist/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
         <link rel="stylesheet" href="https://code.jquery.com/ui/1.13.2/themes/base/jquery-ui.css">
+        <link rel="stylesheet" href="/lib/css/main.css">
         <script src="/lib/js/main.js"></script></head><body>';
     }
 
+    function render_left_navbar() {
+        echo '    <!-- Sidebar -->
+    <div class="sidebar p-3">
+        <h4>Menu</h4>
+        <ul class="nav flex-column">
+            <li class="nav-item"><a class="nav-link" href="/">Home</a></li>
+            <li class="nav-item"><a class="nav-link" href="/settings/global">Global Settings</a></li>
+            <!--<li class="nav-item"><a class="nav-link" href="#">Settings</a></li>
+            <li class="nav-item"><a class="nav-link" href="#">Logout</a></li>-->
+        </ul>
+    </div>';
+    }
+
     function render_default_body_start() {
-        echo '<div style="margin: 0 auto; width: 80%;"><h1>tSuite</h1>';
+        echo '<div class="content"><h1>tSuite</h1>';
     }
 
     function render_default_body_end() {
