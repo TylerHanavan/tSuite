@@ -50,7 +50,7 @@
             $command_string = '';
             foreach($this->repo_settings as $key => $value) {
                 if(!isset($key) || $key == '' || $key === '' || $key == null) continue;
-                $command_string .= "$key=\"$value\";";
+                $command_string .= "export $key=\"$value\";";
             }
             return rtrim($command_string, ';');
         }
