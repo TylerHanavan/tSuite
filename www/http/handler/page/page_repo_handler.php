@@ -44,9 +44,7 @@
                 $id = $commit['id'];
                 $date = $commit['date'];
                 $commit_hash = $commit['hash'];
-
-                if($commit_hash != null)
-                    $commit_hash = substr($commit_hash, 7);
+                $short_commit_hash = substr($commit_hash, 0, 7);
 
                 $message = $commit['message'];
                 $author = $commit['author'];
@@ -94,7 +92,7 @@
                     $test_status_td = '<td style="background-color:#ffebeb;color:#d00;font-weight:bold">';
                 }
     
-                echo "<tr><td>$date</td><td><a href='/repo/$name/commit/$commit_hash'>$commit_hash</a></td><td>$message</td><td>$author</td>$test_status_td$test_status</td><td>$success_tests</td><td>$failed_tests</td><td>$download_duration</td><td>$install_duration</td><td>$test_duration</td><td>$total_duration</td><td><p><button class='btn-success commit-retest' commit-id='$id'>Retest</button></p></td></tr>";
+                echo "<tr><td>$date</td><td><a href='/repo/$name/commit/$commit_hash'>$short_commit_hash</a></td><td>$message</td><td>$author</td>$test_status_td$test_status</td><td>$success_tests</td><td>$failed_tests</td><td>$download_duration</td><td>$install_duration</td><td>$test_duration</td><td>$total_duration</td><td><p><button class='btn-success commit-retest' commit-id='$id'>Retest</button></p></td></tr>";
             }
             echo '</table>';
 
