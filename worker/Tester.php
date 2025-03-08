@@ -15,9 +15,8 @@
             $response = array();
 
             $response['status'] = 'success';
-            $response['files'] = array();
-
             $response['stages'] = array();
+            $response['files'] = array();
 
             foreach($this->testbook_properties['stages'] as $stage_name => $stage) {
                 $stage_title = $stage['title'];
@@ -25,13 +24,15 @@
                 echo "Running $stage_title:\n";
                 echo "\t$stage_description\n";
 
+                $response['stages'][$stage_name] = array();
+                $response['stages'][$stage_name]['status'] = 'success';
+
                 $action_response = $this->handleAction($stage['actions']);
 
                 if(!isset($action_response) || $action_response == null) continue;
 
                 if(isset($action_response['status']) && $action_response['status'] == 'failure') {
                     $response['status'] = 'failure';
-                    $response['stages'][$stage_name] = array();
                     $response['stages'][$stage_name]['status'] = 'failure';
                 }
 
