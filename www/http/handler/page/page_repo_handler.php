@@ -201,7 +201,7 @@
 
                 $files = $test_result['files'];
 
-                echo "<br /><strong>Test Results</strong>:<br /><br />";
+                echo "<br /><strong>Parsed Test Results</strong>:<br /><br />";
 
                 echo '<table style="width:100%;border-collapse:collapse;margin-top:10px"><tr><th>File</th><th>Test Name</th><th>Status</th><th>Reason</th></tr>';
 
@@ -225,6 +225,10 @@
                 }
                 
                 echo '</table>';
+
+                echo '<br /><strong>Raw Test Results (JSON)</strong><br />';
+
+                echo "<p>$test_result_json</p>";
 
             }
         }
