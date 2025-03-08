@@ -9,3 +9,8 @@
     margin-left: 250px; /* Same as sidebar width */
     padding: 20px;
 }
+.json-pretty-print {
+    background:#f8f9fa;
+    padding:10px;
+    border-radius:5px;
+}
