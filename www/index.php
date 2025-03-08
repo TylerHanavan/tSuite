@@ -133,6 +133,7 @@
         $lib_routed = route_request($lib_routes, $request_method, $uri_path, $uri_parts, $uri_args);
         if(!$lib_routed) {
             render_default_header();
+            render_left_navbar();
             render_default_body_start();
             $page_routed = route_request($page_routes, $request_method, $uri_path, $uri_parts, $uri_args);
             render_default_footer();
