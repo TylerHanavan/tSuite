@@ -12,6 +12,7 @@
     include 'http/handler/api/api_repo_setting_handler.php';
 
     include 'http/handler/lib/lib_js_handler.php';
+    include 'http/handler/lib/lib_css_handler.php';
 
     include 'http/handler/page/page_setting_handler.php';
     include 'http/handler/page/page_repo_handler.php';
