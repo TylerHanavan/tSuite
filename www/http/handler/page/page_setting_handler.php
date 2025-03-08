@@ -13,7 +13,6 @@
             header('Location: /settings/repo/' . $repo_props['name'] . '/');
             exit();
         }
-        echo '<a href="/">Home</a>';
         echo "<h1>Page Settings for <a href='/repo/$repo'>$repo</a></h1>";
 
         $query = 'SELECT * FROM repo_setting WHERE repo_id = :repo_id';
@@ -32,7 +31,6 @@
     }
 
     function handle_page_global_setting_get($uri_parts, $uri_args) {
-        echo '<a href="/">Home</a>';
         echo "<h1>Global Settings</h1>";
 
         $query = 'SELECT * FROM global_setting';
