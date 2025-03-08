@@ -1,0 +1,11 @@
+.sidebar {
+    height: 100vh; /* Full height */
+    position: fixed; /* Fix it on the left */
+    width: 250px;
+    background-color: #f8f9fa;
+    padding-top: 20px;
+}
+.content {
+    margin-left: 250px; /* Same as sidebar width */
+    padding: 20px;
+}
