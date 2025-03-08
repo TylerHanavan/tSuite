@@ -218,7 +218,6 @@
                         }
                         
                         $test_status_td = $status == 'Passed' ? '<td style="background-color:#d4edda;color:#155724;font-weight:bold">' : '<td style="background-color:#ffebeb;color:#d00;font-weight:bold">';
-    
 
                         echo "<tr><td>$file_name</td><td>$function</td>$test_status_td$status</td><td>$reason</td></tr>";
                     }
