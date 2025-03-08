@@ -230,6 +230,12 @@
 
                 echo "<p>$test_result_json</p>";
 
+                echo '<br /><strong>Pretty-Print Test Results (JSON)</strong><br />';
+
+                $json_pretty_print = json_encode($test_result, JSON_PRETTY_PRINT);
+
+                echo "<p>$json_pretty_print</p>";
+
             }
         }
     }
