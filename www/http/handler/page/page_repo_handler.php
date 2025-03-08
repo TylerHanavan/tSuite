@@ -226,15 +226,15 @@
                 
                 echo '</table>';
 
-                echo '<br /><strong>Raw Test Results (JSON)</strong><br />';
-
-                echo "<p>$test_result_json</p>";
-
                 echo '<br /><strong>Pretty-Print Test Results (JSON)</strong><br />';
 
                 $json_pretty_print = json_encode(json_decode($test_result_json), JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
 
                 echo "<pre class='json-pretty-print'>$json_pretty_print</pre>";
+
+                echo '<br /><strong>Raw Test Results (JSON)</strong><br />';
+
+                echo "<p>$test_result_json</p>";
 
             }
         }
