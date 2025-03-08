@@ -232,7 +232,7 @@
 
                 echo '<br /><strong>Pretty-Print Test Results (JSON)</strong><br />';
 
-                $json_pretty_print = json_encode($test_result, JSON_PRETTY_PRINT);
+                $json_pretty_print = json_encode(json_decode($test_result_json), JSON_PRETTY_PRINT);
 
                 echo "<p>$json_pretty_print</p>";
 
