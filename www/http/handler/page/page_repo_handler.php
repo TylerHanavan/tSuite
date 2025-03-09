@@ -206,6 +206,7 @@
                 echo '<table style="width:100%;border-collapse:collapse;margin-top:10px"><tr><th>File</th><th>Test Name</th><th>Status</th><th>Reason</th></tr>';
 
                 foreach($files as $file_name => $file_data) {
+                    if(!isset($file_data['tests'])) continue;
                     foreach($file_data['tests'] as $function => $data) {
                         $status = $data['status'];
                         $reason = $data['reason'] ?? '';
