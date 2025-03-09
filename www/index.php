@@ -213,7 +213,7 @@
         </ul>';
     
         foreach($additional_navbars as $navbar) {
-            echo $navbar_array_to_html($navbar);
+            echo navbar_array_to_html($navbar);
         }
 
     echo '</div>';
