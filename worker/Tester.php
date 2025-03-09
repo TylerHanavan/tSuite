@@ -36,6 +36,10 @@
                     $response['stages'][$stage_name]['status'] = 'failure';
                 }
 
+                if(isset($action_response['output'])) {
+                    $response['stages'][$stage_name]['output'] = $action_response['output'];
+                }
+
                 foreach($action_response['files'] as $file => $data) {
                     $response['files'][$file] = $data;
                 }
