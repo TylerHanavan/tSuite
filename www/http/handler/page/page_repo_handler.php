@@ -29,6 +29,8 @@
             $url = $repo['url'];
             $download_location = $repo['download_location'];
 
+            add_additional_navbar(array('title' => $name, 'elements' => array()));
+
             echo "<strong>Repo</strong>: <a href='/repo/$name'>$name</a><br />";
             echo "<strong>Repo URL</strong>: <a href='$url'>$url</a><br />";
             echo "<strong>Repo Settings URL</strong>: <a href='/settings/repo/$name'>Repo Settings</a><br />";

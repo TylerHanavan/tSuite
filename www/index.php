@@ -113,6 +113,8 @@
 
     $required_tables = array('commit', 'repo', 'global_setting', 'repo_setting');
 
+    $additional_navbars = array();
+
     foreach($required_tables as $table) {
         if(!in_array($table, $existing_tables)) {
             if($debug)
@@ -168,6 +170,27 @@
         exit();
     }
 
+    function add_additional_navbar($navbar) {
+        global $additional_navbars;
+
+        $additional_navbars[] = $navbar;
+    }
+
+    function navbar_array_to_html($navbar) {
+
+        $navbar_title = $navbar['title'];
+
+        $html = "        <h4>$navbar_title</h4>
+        <ul class='nav flex-column'>";
+
+        foreach($navbar['elements'] as $element => $data) {
+            $link = $data['link'];
+            $html .= "<li class='nav-item'><a class='nav-link' href='$link'>$element</a></li>"
+        }
+        $html .= '</ul>';
+
+    }
+
     function render_default_header() {
         echo '<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>tSuite</title><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.4.1/dist/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
         <link rel="stylesheet" href="https://code.jquery.com/ui/1.13.2/themes/base/jquery-ui.css">
@@ -176,6 +199,7 @@
     }
 
     function render_left_navbar() {
+        global $additional_navbars;
         echo '    <!-- Sidebar -->
     <div class="sidebar p-3">
         <h4>Menu</h4>
@@ -184,8 +208,13 @@
             <li class="nav-item"><a class="nav-link" href="/settings/global">Global Settings</a></li>
             <!--<li class="nav-item"><a class="nav-link" href="#">Settings</a></li>
             <li class="nav-item"><a class="nav-link" href="#">Logout</a></li>-->
-        </ul>
-    </div>';
+        </ul>';
+    
+        foreach($additional_navbars as $navbar) {
+            echo $navbar_array_to_html($navbar);
+        }
+
+    echo '</div>';
     }
 
     function render_default_body_start() {
