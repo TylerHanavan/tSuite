@@ -28,13 +28,11 @@
             $name = $repo['name'];
             $url = $repo['url'];
             $download_location = $repo['download_location'];
-            $install_location = $repo['install_location'];
 
             echo "<strong>Repo</strong>: <a href='/repo/$name'>$name</a><br />";
             echo "<strong>Repo URL</strong>: <a href='$url'>$url</a><br />";
             echo "<strong>Repo Settings URL</strong>: <a href='/settings/repo/$name'>Repo Settings</a><br />";
             echo "<strong>Download Location</strong>: $download_location<br />";
-            echo "<strong>Install Location</strong>: $install_location<br />";
             echo "<br /><strong>Recent commits</strong>:<br />";
 
             $commits = query('SELECT * FROM commit WHERE repo_id = :id ORDER BY id DESC LIMIT 25', array('id' => $id));
