@@ -17,7 +17,7 @@
         $repo = $iter_repo['name'];
         $repo_url = $iter_repo['url'];
         $download_location = $iter_repo['download_location'];
-        $install_location = $iter_repo['install_location'];
+        //$install_location = $iter_repo['install_location'];
 
         $test_location = $download_location . '/.tsuite';
 
@@ -30,6 +30,8 @@
         $repo_settings_arr = json_decode($repo_settings['response'], true);
 
         $simplified_repo_settings = array();
+
+        $simplified_repo_settings['DOWNLOAD_LOCATION'] = $download_location;
 
         foreach($repo_settings_arr as $setting) {
             $simplified_repo_settings[$setting['name']] = $setting['value'];
