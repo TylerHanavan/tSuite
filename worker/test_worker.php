@@ -17,7 +17,6 @@
         $repo = $iter_repo['name'];
         $repo_url = $iter_repo['url'];
         $download_location = $iter_repo['download_location'];
-        $install_location = $iter_repo['install_location'];
 
         $test_location = $download_location . '/.tsuite';
 
@@ -39,7 +38,6 @@
         
         $branch = null;
         $PAT = null;
-        $items_to_install = null;
         $repo_user = null;
         $test_result_location = null;
 
@@ -48,8 +46,6 @@
                 $branch = $setting['value'];
             } else if($setting['name'] == 'PAT') {
                 $PAT = $setting['value'];
-            } else if($setting['name'] == 'ITEMS_TO_INSTALL') {
-                $items_to_install = $setting['value'];
             } else if($setting['name'] == 'REPO_USER') {
                 $repo_user = $setting['value'];
             } else if($setting['name'] == 'TEST_RESULT_LOCATION') {
@@ -64,11 +60,6 @@
 
         if($PAT == null) {
             echo "Unable to get PAT for $repo from /api/v1/repo_setting\n";
-            continue;
-        }
-
-        if($items_to_install == null) {
-            echo "Unable to get items to install for $repo from /api/v1/repo_setting\n";
             continue;
         }
 
@@ -119,9 +110,8 @@
 
             echo "New commit detected: $commit_hash\n";
             $start_time_download = get_current_time_milliseconds();
-            do_git_pull($repo, $branch, $download_location, $install_location, $items_to_install, $repo_user, $PAT);
+            do_git_pull($repo, $branch, $download_location, $repo_user, $PAT);
             $start_time_install = get_current_time_milliseconds();
-            //do_install($download_location, $install_location, $items_to_install);
             
             $testbook_properties = get_testbook_properties($test_location);
 
@@ -256,7 +246,7 @@
         return true;
     }
 
-    function do_git_pull($repo, $branch, $download_location, $install_location, $items_to_install, $username, $token) {
+    function do_git_pull($repo, $branch, $download_location, $username, $token) {
         
         $git_url = "https://$username:$token@github.com/$username/$repo.git";
 
