@@ -40,8 +40,10 @@
                     $response['stages'][$stage_name]['output'] = $action_response['output'];
                 }
 
-                foreach($action_response['files'] as $file => $data) {
-                    $response['files'][$file] = $data;
+                if(isset($action_response['files'])) {
+                    foreach($action_response['files'] as $file => $data) {
+                        $response['files'][$file] = $data;
+                    }
                 }
 
             }
