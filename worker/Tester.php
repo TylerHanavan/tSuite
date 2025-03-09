@@ -109,6 +109,8 @@
                         echo "Running command string:\n$command_string\n\n";
                         $output = shell_exec($command_string);
                         echo $output;
+                        $response['output'] = array();
+                        $response['output'][0] = $output;
                     }
                     if($subaction == 'php') {
                         foreach($subaction_array as $php_file) {
