@@ -185,7 +185,7 @@
 
         foreach($navbar['elements'] as $element => $data) {
             $link = $data['link'];
-            $html .= "<li class='nav-item'><a class='nav-link' href='$link'>$element</a></li>"
+            $html .= "<li class='nav-item'><a class='nav-link' href='$link'>$element</a></li>";
         }
         $html .= '</ul>';
 
