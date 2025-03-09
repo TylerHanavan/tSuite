@@ -3,14 +3,13 @@
     function handle_page_home_get($uri_parts, $uri_args) {
 
         $repos = query('SELECT * FROM repo');
-        echo '<table><tr><th>Name</th><th>URL</th><th>Download Location</th><th>Install Location</th></tr>';
+        echo '<table><tr><th>Name</th><th>URL</th><th>Download Location</th></tr>';
         foreach($repos as $repo) {
             $name = $repo['name'];
             $url = $repo['url'];
             $download_location = $repo['download_location'];
-            $install_location = $repo['install_location'];
 
-            echo "<tr><td><a href='/repo/$name'>$name</a></td><td><a href='$url'>$url</a></td><td>$download_location</td><td>$install_location</td></tr>";
+            echo "<tr><td><a href='/repo/$name'>$name</a></td><td><a href='$url'>$url</a></td><td>$download_location</td></tr>";
         }
         echo '</table>';
 
