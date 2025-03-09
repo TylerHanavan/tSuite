@@ -189,6 +189,8 @@
         }
         $html .= '</ul>';
 
+        return $html;
+
     }
 
     function render_default_header() {
