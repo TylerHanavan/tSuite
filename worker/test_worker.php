@@ -17,7 +17,7 @@
         $repo = $iter_repo['name'];
         $repo_url = $iter_repo['url'];
         $download_location = $iter_repo['download_location'];
-        //$install_location = $iter_repo['install_location'];
+        $install_location = $iter_repo['install_location'];
 
         $test_location = $download_location . '/.tsuite';
 
@@ -121,7 +121,7 @@
             $start_time_download = get_current_time_milliseconds();
             do_git_pull($repo, $branch, $download_location, $install_location, $items_to_install, $repo_user, $PAT);
             $start_time_install = get_current_time_milliseconds();
-            do_install($download_location, $install_location, $items_to_install);
+            //do_install($download_location, $install_location, $items_to_install);
             
             $testbook_properties = get_testbook_properties($test_location);
 
@@ -266,18 +266,6 @@
         $cmd = "cd $download_location && git pull $git_url $branch 2>&1";
         $output = shell_exec($cmd);
         echo $output;
-    }
-
-    function do_install($download_location, $install_location, $items_to_install) {
-        if($items_to_install != null) {
-            $items = explode(',', $items_to_install);
-            foreach($items as $item) {
-                $cmd = "rm -r $install_location/* ; rsync -a $download_location/$item $install_location";
-                echo "COMMAND: $cmd\n";
-                $output = shell_exec($cmd);
-                echo $output;
-            }
-        }
     }
 
     function get_repo_id_from_name($repo) {
