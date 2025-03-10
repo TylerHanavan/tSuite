@@ -111,12 +111,12 @@
                         $settings_string = $this->get_repo_settings_command_string();
                         foreach($subaction_array as $command) {
                             $command_string = rtrim("$settings_string;$command", ';');
-                            echo "Running command string:\n$command_string\n\n";
+                            echo "Running command string:\n$command\n\n";
                             $output = shell_exec($command_string);
-                            echo $output;
                             if(!isset($response['output']))
                                 $response['output'] = array();
-                            $response['output'][] = $output;
+                            if($output != null && $output != '')
+                                $response['output'][] = $output;
                         }
                     }
                     if($subaction == 'php') {
@@ -151,7 +151,9 @@
 
                             if(!isset($response['output']))
                                 $response['output'] = array();
-                            $response['output'][] = ob_get_contents();
+                            $output = ob_get_contents();
+                            if($output != null && $output != '')
+                                $response['output'][] = $output;
 
                             ob_flush();
                         }
