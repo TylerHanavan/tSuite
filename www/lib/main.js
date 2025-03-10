@@ -16,7 +16,7 @@ document.addEventListener('DOMContentLoaded', function(){
         });
     });
     function checkAndHideReasons() {
-        let allEmpty = $('.reason-td, .reason-th').filter(function () {
+        let allEmpty = $('.reason-td').filter(function () {
             return $(this).text().trim() !== '';
         }).length === 0;
 
