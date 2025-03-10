@@ -114,7 +114,8 @@
                             echo "Running command string:\n$command_string\n\n";
                             $output = shell_exec($command_string);
                             echo $output;
-                            $response['output'] = array();
+                            if(!isset($response['output']))
+                                $response['output'] = array();
                             $response['output'][] = $output;
                         }
                     }
@@ -148,7 +149,8 @@
                                 }
                             }
 
-                            $response['output'] = array();
+                            if(!isset($response['output']))
+                                $response['output'] = array();
                             $response['output'][] = ob_get_contents();
 
                             ob_flush();
