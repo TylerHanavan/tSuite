@@ -232,6 +232,22 @@
 
                 echo "<pre class='json-pretty-print'>$json_pretty_print</pre>";
 
+                echo '<br /><strong>Stage Output</strong><br />';
+
+                $stages = $test_result['stages'];
+
+                $stage_output = '';
+
+                foreach($stages as $stage => $stage_data) {
+                    if(!isset($stage_data['output'])) continue;
+                    $stage_output .= "<strong>$stage</strong>";
+                    foreach($stage_data['output'] as $output_line) {
+                        $stage_output .= nl2br($output_line);
+                    }
+                }
+
+                echo "<pre class='json-pretty-print'>$stage_output</pre>";
+
                 echo '<br /><strong>Raw Test Results (JSON)</strong><br />';
 
                 echo "<p>$test_result_json</p>";
