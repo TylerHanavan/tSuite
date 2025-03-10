@@ -203,7 +203,7 @@
 
                 echo "<br /><strong>Parsed Test Results</strong>:<br /><br />";
 
-                echo '<table style="width:100%;border-collapse:collapse;margin-top:10px"><tr><th>File</th><th>Test Name</th><th>Status</th><th>Reason</th></tr>';
+                echo '<table style="width:100%;border-collapse:collapse;margin-top:10px"><tr><th>File</th><th>Test Name</th><th>Status</th><th class="reason-th">Reason</th></tr>';
 
                 foreach($files as $file_name => $file_data) {
                     if(!isset($file_data['tests'])) continue;
@@ -220,7 +220,7 @@
                         
                         $test_status_td = $status == 'Passed' ? '<td style="background-color:#d4edda;color:#155724;font-weight:bold">' : '<td style="background-color:#ffebeb;color:#d00;font-weight:bold">';
 
-                        echo "<tr><td>$file_name</td><td>$function</td>$test_status_td$status</td><td>$reason</td></tr>";
+                        echo "<tr><td>$file_name</td><td>$function</td>$test_status_td$status</td><td class=\"reason-td\">$reason</td></tr>";
                     }
                 }
                 

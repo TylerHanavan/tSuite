@@ -15,4 +15,14 @@ document.addEventListener('DOMContentLoaded', function(){
             }
         });
     });
+    function checkAndHideReasons() {
+        let allEmpty = $('.reason-td, .reason-th').filter(function () {
+            return $(this).text().trim() !== '';
+        }).length === 0;
+
+        if (allEmpty) {
+            $('.reason-td, .reason-th').hide();
+        }
+    }
+    checkAndHideReasons();
 });
