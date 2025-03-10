@@ -209,7 +209,20 @@
     }
 
     function get_gh_branches($repo, $repo_user, $PAT) {
-        return do_github_curl("https://$PAT:@api.github.com/repos/$repo_user/$repo/branches", array(), false, $repo_user);
+        $response = do_github_curl("https://$PAT:@api.github.com/repos/$repo_user/$repo/branches", array(), false, $repo_user);
+
+        if(isset($response['response'])) $response = $response['response'];
+
+        $branches = array();
+
+        foreach($response as $branch_arr) {
+            $branch = array();
+            $branch['name'] = $branch_arr['name'];
+            $branch['hash'] = $branch_arr['sha'];
+            $branches[] = $branch;
+        }
+
+        return $branches;
     }
 
     function get_testbook_properties($test_location) {
