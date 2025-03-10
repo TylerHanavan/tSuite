@@ -218,7 +218,7 @@
         foreach(json_decode($response, true) as $branch_arr) {
             $branch = array();
             $branch['name'] = $branch_arr['name'];
-            $branch['hash'] = $branch_arr['sha'];
+            $branch['hash'] = $branch_arr['commit']['sha'];
             $branches[] = $branch;
         }
 
