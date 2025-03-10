@@ -2,6 +2,7 @@ CREATE TABLE commit (
     id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
     repo_id INT NOT NULL,
     hash VARCHAR(40) NOT NULL,
+    branch VARCHAR(244) NOT NULL,
     date DATETIME NOT NULL,
     author VARCHAR(100) NOT NULL,
     message TEXT NOT NULL,
