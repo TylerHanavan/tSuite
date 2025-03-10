@@ -240,7 +240,7 @@
 
                 foreach($stages as $stage => $stage_data) {
                     if(!isset($stage_data['output'])) continue;
-                    $stage_output .= "<strong>$stage</strong>";
+                    $stage_output .= "<strong>$stage</strong><br />";
                     foreach($stage_data['output'] as $output_line) {
                         $stage_output .= nl2br($output_line);
                     }
