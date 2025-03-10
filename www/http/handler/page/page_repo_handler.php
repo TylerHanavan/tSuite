@@ -226,12 +226,6 @@
                 
                 echo '</table>';
 
-                echo '<br /><strong>Pretty-Print Test Results (JSON)</strong><br />';
-
-                $json_pretty_print = json_encode(json_decode($test_result_json), JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
-
-                echo "<pre class='json-pretty-print'>$json_pretty_print</pre>";
-
                 echo '<br /><strong>Stage Output</strong><br />';
 
                 $stages = $test_result['stages'];
@@ -247,6 +241,12 @@
                 }
 
                 echo "<pre class='json-pretty-print'>$stage_output</pre>";
+
+                echo '<br /><strong>Pretty-Print Test Results (JSON)</strong><br />';
+
+                $json_pretty_print = json_encode(json_decode($test_result_json), JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
+
+                echo "<pre class='json-pretty-print'>$json_pretty_print</pre>";
 
                 echo '<br /><strong>Raw Test Results (JSON)</strong><br />';
 
