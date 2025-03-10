@@ -68,6 +68,10 @@
             continue;
         }
 
+        echo "Found branches:\n";
+
+        echo get_gh_branches($repo, $repo_user, $PAT);
+
         echo "($repo_user/$repo, Branch: $branch)\n";
         
         $git_metadata = pull_git_info($repo, $repo_user, $branch, $PAT);
@@ -202,6 +206,10 @@
         } else {
             echo "The latest commit is already in the system: $commit_hash\n";
         }
+    }
+
+    function get_gh_branches($repo, $repo_user, $PAT) {
+        return curl_exec("https://$PAT:@api.github.com/repos/$repo_user/$repo/branches");
     }
 
     function get_testbook_properties($test_location) {
