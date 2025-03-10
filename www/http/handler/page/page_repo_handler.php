@@ -38,7 +38,7 @@
             echo "<br /><strong>Recent commits</strong>:<br />";
 
             $commits = query('SELECT * FROM commit WHERE repo_id = :id ORDER BY id DESC LIMIT 25', array('id' => $id));
-            echo '<table style="width:100%;border-collapse:collapse;margin-top:10px"><tr><th>date</th><th>hash</th><th>message</th><th>author</th><th>Test Status</th><th>Tests Passing</th><th>Tests Failing</th><th>Download Duration</th><th>Install Duration</th><th>Test Duration</th><th>Total Duration</th><th>Actions</th></tr>';
+            echo '<table style="width:100%;border-collapse:collapse;margin-top:10px"><tr><th>date</th><th>hash</th><th>branch</th><th>message</th><th>author</th><th>Test Status</th><th>Tests Passing</th><th>Tests Failing</th><th>Download Duration</th><th>Install Duration</th><th>Test Duration</th><th>Total Duration</th><th>Actions</th></tr>';
             foreach($commits as $commit) {
 
                 $id = $commit['id'];
@@ -48,6 +48,7 @@
 
                 $message = $commit['message'];
                 $author = $commit['author'];
+                $branch = $commit['branch'];
                 $test_status = $commit['test_status'] ?? null;
                 $success_tests = $commit['success_tests'] ?? 'Unknown';
                 $failed_tests = $commit['failed_tests'] ?? 'Unknown';
@@ -92,7 +93,7 @@
                     $test_status_td = '<td style="background-color:#ffebeb;color:#d00;font-weight:bold">';
                 }
     
-                echo "<tr><td>$date</td><td><a href='/repo/$name/commit/$commit_hash'>$short_commit_hash</a></td><td>$message</td><td>$author</td>$test_status_td$test_status</td><td>$success_tests</td><td>$failed_tests</td><td>$download_duration</td><td>$install_duration</td><td>$test_duration</td><td>$total_duration</td><td><p><button class='btn-success commit-retest' commit-id='$id'>Retest</button></p></td></tr>";
+                echo "<tr><td>$date</td><td><a href='/repo/$name/commit/$commit_hash'>$short_commit_hash</a></td><td>$branch</td><td>$message</td><td>$author</td>$test_status_td$test_status</td><td>$success_tests</td><td>$failed_tests</td><td>$download_duration</td><td>$install_duration</td><td>$test_duration</td><td>$total_duration</td><td><p><button class='btn-success commit-retest' commit-id='$id'>Retest</button></p></td></tr>";
             }
             echo '</table>';
 

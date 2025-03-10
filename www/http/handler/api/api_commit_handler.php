@@ -76,6 +76,11 @@
                 json_error_and_exit("No hash provided for entity $counter");
             }
 
+            $branch = $entity['branch'] ?? null;
+            if($branch == null) {
+                json_error_and_exit("No branch provided for entity $counter");
+            }
+
             $date = $entity['date'] ?? null;
             if($date == null) {
                 json_error_and_exit("No date provided for entity $counter");
@@ -100,11 +105,12 @@
             $install_duration = $entity['install_duration'] ?? -1;
             $test_duration = $entity['test_duration'] ?? -1;
 
-            $insert_query = "INSERT INTO commit (repo_id, hash, date, message, author, test_status, success_tests, failed_tests, download_duration, install_duration, test_duration) VALUES (:repo_id, :hash, :date, :message, :author, :test_status, :success_tests, :failed_tests, :download_duration, :install_duration, :test_duration)";
+            $insert_query = "INSERT INTO commit (repo_id, hash, branch, date, message, author, test_status, success_tests, failed_tests, download_duration, install_duration, test_duration) VALUES (:repo_id, :hash, :date, :message, :author, :test_status, :success_tests, :failed_tests, :download_duration, :install_duration, :test_duration)";
 
             $insert_vals = array(
                 'repo_id' => $repo,
                 'hash' => $commit_hash,
+                'branch' => $branch,
                 'date' => $date,
                 'message' => $message,
                 'author' => $author,
