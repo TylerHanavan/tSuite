@@ -119,7 +119,7 @@
 
             if($testbook_properties == null) {
                 echo "Test failed because tSuite could not load testbook\n";
-                post_commit($repo, $commit_hash, $message, $author, 2, 0, 0, $start_time_install - $start_time_download, $end_time_install - $start_time_install, ($start_time_install - $start_time_download) + ($end_time_install - $start_time_install));
+                post_commit($repo, $commit_hash, $branch, $message, $author, 2, 0, 0, $start_time_install - $start_time_download, $end_time_install - $start_time_install, ($start_time_install - $start_time_download) + ($end_time_install - $start_time_install));
                 continue;
             }
 
@@ -164,7 +164,7 @@
                         echo "$file is passing all tests\n";
                     }
                 }
-                post_commit($repo, $commit_hash, $message, $author, 1, $total_tests_passed, $total_tests_failed, $download_duration, $install_duration, $test_duration);
+                post_commit($repo, $commit_hash, $branch, $message, $author, 1, $total_tests_passed, $total_tests_failed, $download_duration, $install_duration, $test_duration);
             } else {
                 echo "$commit_hash is passing all tests\n";
                 foreach($test_response['files'] as $file => $file_data) {
@@ -194,7 +194,7 @@
                         echo "$file is passing all tests\n";
                     }
                 }
-                post_commit($repo, $commit_hash, $message, $author, 0, $total_tests_passed, $total_tests_failed, $download_duration, $install_duration, $test_duration);
+                post_commit($repo, $commit_hash, $branch, $message, $author, 0, $total_tests_passed, $total_tests_failed, $download_duration, $install_duration, $test_duration);
             }
 
             write_to_file($test_result_location . '/' . $commit_hash . '.json', json_encode($test_response, JSON_PRETTY_PRINT), true);
@@ -280,7 +280,7 @@
         return null;
     }
 
-    function post_commit($repo, $commit_hash, $message, $author, $test_status, $success_tests, $failed_tests, $download_duration, $install_duration, $test_duration) {
+    function post_commit($repo, $commit_hash, $branch, $message, $author, $test_status, $success_tests, $failed_tests, $download_duration, $install_duration, $test_duration) {
         $data = array();
         $repo_id = get_repo_id_from_name($repo);
         if($repo_id == null) {
@@ -288,7 +288,7 @@
             echo "Could not get repo_id for $repo\n";
             return null;
         }
-        $data[0] = array('repo_id' => $repo_id, 'hash' => $commit_hash, 'message' => $message, 'author' => $author, 'date' => date('Y-m-d H:i:s'), 'test_status' => $test_status, 'success_tests' => $success_tests, 'failed_tests' => $failed_tests, 'download_duration' => $download_duration, 'install_duration' => $install_duration, 'test_duration' => $test_duration);
+        $data[0] = array('repo_id' => $repo_id, 'hash' => $commit_hash, 'branch' => $branch, 'message' => $message, 'author' => $author, 'date' => date('Y-m-d H:i:s'), 'test_status' => $test_status, 'success_tests' => $success_tests, 'failed_tests' => $failed_tests, 'download_duration' => $download_duration, 'install_duration' => $install_duration, 'test_duration' => $test_duration);
         $response = do_curl('/api/v1/commit', $data);
 
         if($response['http_code'] != 200) {
