@@ -153,7 +153,7 @@
                                 $response['output'] = array();
                             $output = ob_get_contents();
                             if($output != null && $output != '')
-                                $response['output'][] = $output;
+                                $response['output'][] = "$output\n";
 
                             ob_flush();
                         }
