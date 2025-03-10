@@ -209,7 +209,7 @@
     }
 
     function get_gh_branches($repo, $repo_user, $PAT) {
-        return do_github_curl("https://$PAT:@api.github.com/repos/$repo_user/$repo/branches", array());
+        return do_github_curl("https://$PAT:@api.github.com/repos/$repo_user/$repo/branches", array(), false, $repo_user);
     }
 
     function get_testbook_properties($test_location) {
