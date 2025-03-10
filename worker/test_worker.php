@@ -70,7 +70,7 @@
 
         echo "Found branches:\n";
 
-        echo get_gh_branches($repo, $repo_user, $PAT);
+        var_dump(get_gh_branches($repo, $repo_user, $PAT));
 
         echo "($repo_user/$repo, Branch: $branch)\n";
         
