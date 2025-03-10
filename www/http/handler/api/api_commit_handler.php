@@ -105,7 +105,7 @@
             $install_duration = $entity['install_duration'] ?? -1;
             $test_duration = $entity['test_duration'] ?? -1;
 
-            $insert_query = "INSERT INTO commit (repo_id, hash, branch, date, message, author, test_status, success_tests, failed_tests, download_duration, install_duration, test_duration) VALUES (:repo_id, :hash, :date, :message, :author, :test_status, :success_tests, :failed_tests, :download_duration, :install_duration, :test_duration)";
+            $insert_query = "INSERT INTO commit (repo_id, hash, branch, date, message, author, test_status, success_tests, failed_tests, download_duration, install_duration, test_duration) VALUES (:repo_id, :hash, :branch, :date, :message, :author, :test_status, :success_tests, :failed_tests, :download_duration, :install_duration, :test_duration)";
 
             $insert_vals = array(
                 'repo_id' => $repo,
