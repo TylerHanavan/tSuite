@@ -108,9 +108,9 @@
                 foreach($action as $subaction => $subaction_array) {
                     echo "Handling `$subaction` action\n";
                     if($subaction == 'shell') {
-                        $command_string = $this->get_repo_settings_command_string();
+                        $settings_string = $this->get_repo_settings_command_string();
                         foreach($subaction_array as $command) {
-                            $command_string = rtrim("$command_string;$command", ';');
+                            $command_string = rtrim("$settings_string;$command", ';');
                             echo "Running command string:\n$command_string\n\n";
                             $output = shell_exec($command_string);
                             echo $output;
@@ -132,6 +132,8 @@
                         
                             $properties = array();
                             $properties['endpoint_url'] = $this->endpoint_url;
+
+                            ob_start();
     
                             foreach ($functions as $function) {
                                 try {
@@ -145,6 +147,11 @@
                                     $response['files'][$file]['tests'][$function]['reason'] = $e->getMessage();
                                 }
                             }
+
+                            $response['output'] = array();
+                            $response['output'][] = ob_get_contents();
+
+                            ob_flush();
                         }
                     }
                 }
