@@ -36,26 +36,18 @@
             $simplified_repo_settings[$setting['name']] = $setting['value'];
         }
         
-        $branch = null;
         $PAT = null;
         $repo_user = null;
         $test_result_location = null;
 
         foreach($repo_settings_arr as $setting) {
-            if($setting['name'] == 'BRANCH') {
-                $branch = $setting['value'];
-            } else if($setting['name'] == 'PAT') {
+            if($setting['name'] == 'PAT') {
                 $PAT = $setting['value'];
             } else if($setting['name'] == 'REPO_USER') {
                 $repo_user = $setting['value'];
             } else if($setting['name'] == 'TEST_RESULT_LOCATION') {
                 $test_result_location = $setting['value'];
             }
-        }
-
-        if($branch == null) {
-            echo "Unable to get branch for $repo from /api/v1/repo_setting\n";
-            continue;
         }
 
         if($PAT == null) {
@@ -68,143 +60,144 @@
             continue;
         }
 
-        echo "Found branches:\n";
+        $branches = get_gh_branches($repo, $repo_user, $PAT);
 
-        var_dump(get_gh_branches($repo, $repo_user, $PAT));
-
-        echo "($repo_user/$repo, Branch: $branch)\n";
-        
-        $git_metadata = pull_git_info($repo, $repo_user, $branch, $PAT);
-
-        $git_metadata = json_decode($git_metadata['response'], true);
-
-        if($git_metadata == null) {
-            echo "Unable to pull git metadata\n";
-            continue;
-        }
-        $commit_hash = $git_metadata['sha'] ?? null;
-        if($commit_hash == null) {
-            echo "Unable to get commit hash\n";
-            var_dump($git_metadata);
-            continue;
-        }
-        $commit_data = $git_metadata['commit'] ?? null;
-        if($commit_data == null) {
-            echo "Unable to get nested commit data\n";
-            continue;
-        }
-        $message = $commit_data['message'] ?? null;
-        if($message == null) {
-            echo "Unable to get commit message\n";
-            continue;
-        }
-        $commit_author_data = $commit_data['author'] ?? null;
-        if($commit_author_data == null) {
-            echo "Unable to get nested commit author data\n";
-            continue;
-        }
-        $author = $commit_author_data['name'] ?? null;
-        if($author == null) {
-            echo "Unable to get commit author\n";
-            continue;
-        }
-        
-        echo "Checking if $commit_hash is new for $repo\n";
-        if(is_commit_new($repo, $commit_hash)) {
-
-            echo "New commit detected: $commit_hash\n";
-            $start_time_download = get_current_time_milliseconds();
-            do_git_pull($repo, $branch, $download_location, $repo_user, $PAT);
-            $start_time_install = get_current_time_milliseconds();
+        foreach($branches as $branch) {
             
-            $testbook_properties = get_testbook_properties($test_location);
+            echo "Checking if $commit_hash is new for $repo\n";
+            if(is_commit_new($repo, $branch, $commit_hash)) {
+            
+                $git_metadata = pull_git_info($repo, $repo_user, $branch, $PAT);
 
-            $end_time_install = get_current_time_milliseconds();
+                $git_metadata = json_decode($git_metadata['response'], true);
 
-            if($testbook_properties == null) {
-                echo "Test failed because tSuite could not load testbook\n";
-                post_commit($repo, $commit_hash, $branch, $message, $author, 2, 0, 0, $start_time_install - $start_time_download, $end_time_install - $start_time_install, ($start_time_install - $start_time_download) + ($end_time_install - $start_time_install));
-                continue;
-            }
-
-            $start_time_test = get_current_time_milliseconds();
-            $tester = new Tester($download_location . '/.tsuite', 'localhost:1347', $simplified_repo_settings, $testbook_properties);
-            $test_response = $tester->run_tests();
-            $end_time_test = get_current_time_milliseconds();
-
-            $download_duration = $start_time_install - $start_time_download;
-            $install_duration = $start_time_test - $start_time_install;
-            $test_duration = $end_time_test - $start_time_test;
-
-            $total_tests_passed = 0;
-            $total_tests_failed = 0;
-
-            if($test_response['status'] == 'failure') {
-                echo "$commit_hash failed its tests\n";
-                foreach($test_response['files'] as $file => $file_data) {
-                    if($file_data['status'] == 'failure') {
-                        echo "$file failed its tests\n";
-                        foreach($file_data['tests'] as $test_name => $test_data) {
-                            if($test_data['status'] == 'failure') {
-                                echo "Test failed: $test_name\n";
-                                echo "Reason: " . $test_data['reason'] . "\n";
-                                $total_tests_failed++;
-                            } else {
-                                echo "Test passed: $test_name\n";
-                                $total_tests_passed++;
-                            }
-                        }
-                    } else {
-                        foreach($file_data['tests'] as $test_name => $test_data) {
-                            if($test_data['status'] == 'failure') {
-                                echo "Test failed: $test_name\n";
-                                echo "Reason: " . $test_data['reason'] . "\n";
-                                $total_tests_failed++;
-                            } else {
-                                echo "Test passed: $test_name\n";
-                                $total_tests_passed++;
-                            }
-                        }
-                        echo "$file is passing all tests\n";
-                    }
+                if($git_metadata == null) {
+                    echo "Unable to pull git metadata\n";
+                    continue;
                 }
-                post_commit($repo, $commit_hash, $branch, $message, $author, 1, $total_tests_passed, $total_tests_failed, $download_duration, $install_duration, $test_duration);
+                $commit_hash = $git_metadata['sha'] ?? null;
+                if($commit_hash == null) {
+                    echo "Unable to get commit hash\n";
+                    var_dump($git_metadata);
+                    continue;
+                }
+                $commit_data = $git_metadata['commit'] ?? null;
+                if($commit_data == null) {
+                    echo "Unable to get nested commit data\n";
+                    continue;
+                }
+                $message = $commit_data['message'] ?? null;
+                if($message == null) {
+                    echo "Unable to get commit message\n";
+                    continue;
+                }
+                $commit_author_data = $commit_data['author'] ?? null;
+                if($commit_author_data == null) {
+                    echo "Unable to get nested commit author data\n";
+                    continue;
+                }
+                $author = $commit_author_data['name'] ?? null;
+                if($author == null) {
+                    echo "Unable to get commit author\n";
+                    continue;
+                }
+
+                echo "New commit detected: $commit_hash\n";
+                $start_time_download = get_current_time_milliseconds();
+                do_git_pull($repo, $branch, $download_location, $repo_user, $PAT);
+                $start_time_install = get_current_time_milliseconds();
+                
+                $testbook_properties = get_testbook_properties($test_location);
+
+                $end_time_install = get_current_time_milliseconds();
+
+                if($testbook_properties == null) {
+                    echo "Test failed because tSuite could not load testbook\n";
+                    post_commit($repo, $commit_hash, $branch, $message, $author, 2, 0, 0, $start_time_install - $start_time_download, $end_time_install - $start_time_install, ($start_time_install - $start_time_download) + ($end_time_install - $start_time_install));
+                    continue;
+                }
+
+                $start_time_test = get_current_time_milliseconds();
+                $tester = new Tester($download_location . '/.tsuite', 'localhost:1347', $simplified_repo_settings, $testbook_properties);
+                $test_response = $tester->run_tests();
+                $end_time_test = get_current_time_milliseconds();
+
+                $download_duration = $start_time_install - $start_time_download;
+                $install_duration = $start_time_test - $start_time_install;
+                $test_duration = $end_time_test - $start_time_test;
+
+                $total_tests_passed = 0;
+                $total_tests_failed = 0;
+
+                if($test_response['status'] == 'failure') {
+                    echo "$commit_hash failed its tests\n";
+                    foreach($test_response['files'] as $file => $file_data) {
+                        if($file_data['status'] == 'failure') {
+                            echo "$file failed its tests\n";
+                            foreach($file_data['tests'] as $test_name => $test_data) {
+                                if($test_data['status'] == 'failure') {
+                                    echo "Test failed: $test_name\n";
+                                    echo "Reason: " . $test_data['reason'] . "\n";
+                                    $total_tests_failed++;
+                                } else {
+                                    echo "Test passed: $test_name\n";
+                                    $total_tests_passed++;
+                                }
+                            }
+                        } else {
+                            foreach($file_data['tests'] as $test_name => $test_data) {
+                                if($test_data['status'] == 'failure') {
+                                    echo "Test failed: $test_name\n";
+                                    echo "Reason: " . $test_data['reason'] . "\n";
+                                    $total_tests_failed++;
+                                } else {
+                                    echo "Test passed: $test_name\n";
+                                    $total_tests_passed++;
+                                }
+                            }
+                            echo "$file is passing all tests\n";
+                        }
+                    }
+                    post_commit($repo, $commit_hash, $branch, $message, $author, 1, $total_tests_passed, $total_tests_failed, $download_duration, $install_duration, $test_duration);
+                } else {
+                    echo "$commit_hash is passing all tests\n";
+                    foreach($test_response['files'] as $file => $file_data) {
+                        if($file_data['status'] == 'failure') {
+                            echo "$file failed its tests\n";
+                            foreach($file_data['tests'] as $test_name => $test_data) {
+                                if($test_data['status'] == 'failure') {
+                                    echo "Test failed: $test_name\n";
+                                    echo "Reason: " . $test_data['reason'] . "\n";
+                                    $total_tests_failed++;
+                                } else {
+                                    echo "Test passed: $test_name\n";
+                                    $total_tests_passed++;
+                                }
+                            }
+                        } else {
+                            foreach($file_data['tests'] as $test_name => $test_data) {
+                                if($test_data['status'] == 'failure') {
+                                    echo "Test failed: $test_name\n";
+                                    echo "Reason: " . $test_data['reason'] . "\n";
+                                    $total_tests_failed++;
+                                } else {
+                                    echo "Test passed: $test_name\n";
+                                    $total_tests_passed++;
+                                }
+                            }
+                            echo "$file is passing all tests\n";
+                        }
+                    }
+                    post_commit($repo, $commit_hash, $branch, $message, $author, 0, $total_tests_passed, $total_tests_failed, $download_duration, $install_duration, $test_duration);
+                }
+
+                write_to_file($test_result_location . '/' . $commit_hash . '.json', json_encode($test_response, JSON_PRETTY_PRINT), true);
+
+                exit();
+
             } else {
-                echo "$commit_hash is passing all tests\n";
-                foreach($test_response['files'] as $file => $file_data) {
-                    if($file_data['status'] == 'failure') {
-                        echo "$file failed its tests\n";
-                        foreach($file_data['tests'] as $test_name => $test_data) {
-                            if($test_data['status'] == 'failure') {
-                                echo "Test failed: $test_name\n";
-                                echo "Reason: " . $test_data['reason'] . "\n";
-                                $total_tests_failed++;
-                            } else {
-                                echo "Test passed: $test_name\n";
-                                $total_tests_passed++;
-                            }
-                        }
-                    } else {
-                        foreach($file_data['tests'] as $test_name => $test_data) {
-                            if($test_data['status'] == 'failure') {
-                                echo "Test failed: $test_name\n";
-                                echo "Reason: " . $test_data['reason'] . "\n";
-                                $total_tests_failed++;
-                            } else {
-                                echo "Test passed: $test_name\n";
-                                $total_tests_passed++;
-                            }
-                        }
-                        echo "$file is passing all tests\n";
-                    }
-                }
-                post_commit($repo, $commit_hash, $branch, $message, $author, 0, $total_tests_passed, $total_tests_failed, $download_duration, $install_duration, $test_duration);
+                echo "The $branch latest commit is already in the system: $branch/$commit_hash\n";
             }
-
-            write_to_file($test_result_location . '/' . $commit_hash . '.json', json_encode($test_response, JSON_PRETTY_PRINT), true);
-
-        } else {
-            echo "The latest commit is already in the system: $commit_hash\n";
         }
     }
 
@@ -243,7 +236,7 @@
         return $git_metadata;
     }
 
-    function is_commit_new($repo, $commit_hash) {
+    function is_commit_new($repo, $branch, $commit_hash) {
         $repo_id = get_repo_id_from_name($repo);
         if($repo_id == null) {
             echo "Could not get repo_id for $repo\n";
@@ -260,7 +253,7 @@
             return true;
         }
         foreach($commits_arr as $commit) {
-            if($commit['hash'] == $commit_hash) {
+            if($commit['hash'] == $commit_hash && $commit['branch'] == $branch) {
                 return false;
             }
         }
