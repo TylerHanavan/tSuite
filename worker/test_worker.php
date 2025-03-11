@@ -62,7 +62,10 @@
 
         $branches = get_gh_branches($repo, $repo_user, $PAT);
 
-        foreach($branches as $branch) {
+        foreach($branches as $branch_arr) {
+
+            $branch = $branch_arr['name'];
+            $commit_hash = $branch_arr['hash'];
             
             echo "Checking if $commit_hash is new for $repo\n";
             if(is_commit_new($repo, $branch, $commit_hash)) {
