@@ -270,7 +270,7 @@
         echo $git_url .'\n';
 
         // Change directory and pull from the repository
-        $cmd = "cd $download_location && git pull $git_url $branch 2>&1";
+        $cmd = "cd $download_location && git fetch $git_url && git reset --hard $git_url/$branch 2>&1";
         $output = shell_exec($cmd);
         echo $output;
     }
