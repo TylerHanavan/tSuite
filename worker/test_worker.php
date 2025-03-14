@@ -267,12 +267,12 @@
         
         $git_url = "https://$username:$token@github.com/$username/$repo.git";
 
-        echo $git_url .'\n';
+        echo "Git URL: $git_url\n";
 
         // Change directory and pull from the repository
         $cmd = "cd $download_location && git fetch $git_url && git reset --hard $git_url/$branch 2>&1";
         $output = shell_exec($cmd);
-        echo $output;
+        echo "$output\n";
     }
 
     function get_repo_id_from_name($repo) {
