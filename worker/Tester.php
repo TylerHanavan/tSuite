@@ -112,11 +112,17 @@
                         foreach($subaction_array as $command) {
                             $command_string = rtrim("$settings_string;$command", ';');
                             echo "Running command string:\n$command\n\n";
+                            ob_start();
                             $output = shell_exec($command_string);
                             if(!isset($response['output']))
                                 $response['output'] = array();
                             if($output != null && $output != '')
                                 $response['output'][] = $output;
+                            if(!isset($response['stderr']))
+                                $response['stderr'] = array();
+                            $stderr = ob_get_contents();
+                            $response['stderr'][] = $stderr;
+                            ob_flush();
                         }
                     }
                     if($subaction == 'php') {
