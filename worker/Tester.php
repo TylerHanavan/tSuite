@@ -40,6 +40,10 @@
                     $response['stages'][$stage_name]['output'] = $action_response['output'];
                 }
 
+                if(isset($action_response['stderr'])) {
+                    $response['stages'][$stage_name]['stderr'] = $action_response['stderr'];
+                }
+
                 if(isset($action_response['files'])) {
                     foreach($action_response['files'] as $file => $data) {
                         $response['files'][$file] = $data;
