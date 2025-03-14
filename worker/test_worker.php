@@ -270,7 +270,7 @@
         echo "Git URL: $git_url, BRANCH: $branch\n";
 
         // Change directory and pull from the repository
-        $cmd = "cd $download_location && git config --add safe.directory /opt/tsuite/downloads/vRec && git fetch $git_url && git reset --hard origin/$branch 2>&1";
+        $cmd = "cd $download_location && git config --add safe.directory /opt/tsuite/downloads/vRec && git fetch $git_url && git checkout $branch && git pull origin $branch 2>&1";
         $output = shell_exec($cmd);
         echo "$output\n";
     }
