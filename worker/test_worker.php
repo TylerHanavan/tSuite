@@ -2,7 +2,7 @@
 
     include 'Tester.php';
 
-    $ppid = $argv[0];
+    $ppid = $argv[1];
 
     $repos = do_curl('/api/v1/repo', array(), false);
     if($repos == null || !isset($repos['response'])) {
