@@ -68,16 +68,18 @@
 
             $branch = $branch_arr['name'];
             $commit_hash = $branch_arr['hash'];
+
+            $lock_file = "$test_result_location/$commit_hash.$ppid.lock";
             
             echo "Checking if $commit_hash is new for $repo\n";
             if(is_commit_new($repo, $branch, $commit_hash)) {
 
-                if(file_exists($test_result_location . '/' . $commit_hash . ".$ppid" . '.lock')) {
+                if(file_exists($lock_file)) {
                     echo "This commit hash $commit_hash under parent pid $ppid is already being processed... skipping\n";
                     continue;
                 }
 
-                write_to_file($test_result_location . '/' . $commit_hash . ".$ppid" . '.lock', 'locked', true);
+                write_to_file($lock_file, 'locked', true);
             
                 $git_metadata = pull_git_info($repo, $repo_user, $branch, $PAT);
 
@@ -205,7 +207,7 @@
 
                 write_to_file($test_result_location . '/' . $commit_hash . '.json', json_encode($test_response, JSON_PRETTY_PRINT), true);
 
-                unlink($test_result_location . '/' . $commit_hash . ".$ppid" . '.lock');
+                unlink($lock_file);
 
                 exit();
 
