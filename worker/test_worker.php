@@ -1,5 +1,7 @@
 <?php
 
+    require __DIR__ . '/vendor/autoload.php';
+
     include 'Tester.php';
 
     $ppid = $argv[1];
