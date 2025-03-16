@@ -207,17 +207,19 @@
                                 }
                             }
                         } else {
-                            foreach($file_data['tests'] as $test_name => $test_data) {
-                                if($test_data['status'] == 'failure') {
-                                    echo "Test failed: $test_name\n";
-                                    echo "Reason: " . $test_data['reason'] . "\n";
-                                    $total_tests_failed++;
-                                } else {
-                                    echo "Test passed: $test_name\n";
-                                    $total_tests_passed++;
+                            if(isset($file_data) && $file_data['tests'] != null) {
+                                foreach($file_data['tests'] as $test_name => $test_data) {
+                                    if($test_data['status'] == 'failure') {
+                                        echo "Test failed: $test_name\n";
+                                        echo "Reason: " . $test_data['reason'] . "\n";
+                                        $total_tests_failed++;
+                                    } else {
+                                        echo "Test passed: $test_name\n";
+                                        $total_tests_passed++;
+                                    }
                                 }
+                                echo "$file is passing all tests\n";
                             }
-                            echo "$file is passing all tests\n";
                         }
                     }
                     post_commit($repo, $commit_hash, $branch, $message, $author, 0, $total_tests_passed, $total_tests_failed, $download_duration, $install_duration, $test_duration);
