@@ -22,6 +22,10 @@
             if(isset($this->selenium_driver))
                 return $this->selenium_driver;
 
+            use Facebook\WebDriver\Chrome\ChromeOptions;
+            use Facebook\WebDriver\Remote\RemoteWebDriver;
+            use Facebook\WebDriver\Remote\DesiredCapabilities;
+
             $host = 'http://localhost:4444'; // Selenium server URL
             $capabilities = DesiredCapabilities::chrome();
             $chromeOptions = new ChromeOptions();
