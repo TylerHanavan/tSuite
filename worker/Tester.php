@@ -209,7 +209,7 @@
                                     $response['files'][$file]['status'] = 'failure';
                                     $response['files'][$file]['tests'][$function]['status'] = 'failure';
                                     $response['files'][$file]['tests'][$function]['reason'] = $e->getMessage();
-                                    echo "Unable to call function $function\n";
+                                    echo "Unable to call function $function\n" . $e->getMessage() . "\n";
                                 }
                             }
 
