@@ -28,7 +28,7 @@
                 $capabilities = Facebook\WebDriver\Remote\DesiredCapabilities::chrome();
                 $chromeOptions = new Facebook\WebDriver\Chrome\ChromeOptions();
     
-                $chromeOptions->addArguments(['--headless', '--disable-gpu', '--ignore-certificate-errors']); // Added proper arguments
+                $chromeOptions->addArguments(['--disable-gpu', '--ignore-certificate-errors']); // Added proper arguments
     
                 $capabilities->setCapability(Facebook\WebDriver\Chrome\ChromeOptions::CAPABILITY_W3C, $chromeOptions);
     
