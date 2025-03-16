@@ -76,6 +76,8 @@
 
                 if(file_exists($lock_file)) {
                     echo "This commit hash $commit_hash under parent pid $ppid is already being processed... skipping\n";
+
+                    unlink($lock_file);
                     continue;
                 }
 
@@ -87,32 +89,44 @@
 
                 if($git_metadata == null) {
                     echo "Unable to pull git metadata\n";
+
+                    unlink($lock_file);
                     continue;
                 }
                 $commit_hash = $git_metadata['sha'] ?? null;
                 if($commit_hash == null) {
                     echo "Unable to get commit hash\n";
+
+                    unlink($lock_file);
                     var_dump($git_metadata);
                     continue;
                 }
                 $commit_data = $git_metadata['commit'] ?? null;
                 if($commit_data == null) {
                     echo "Unable to get nested commit data\n";
+
+                    unlink($lock_file);
                     continue;
                 }
                 $message = $commit_data['message'] ?? null;
                 if($message == null) {
                     echo "Unable to get commit message\n";
+
+                    unlink($lock_file);
                     continue;
                 }
                 $commit_author_data = $commit_data['author'] ?? null;
                 if($commit_author_data == null) {
                     echo "Unable to get nested commit author data\n";
+
+                    unlink($lock_file);
                     continue;
                 }
                 $author = $commit_author_data['name'] ?? null;
                 if($author == null) {
                     echo "Unable to get commit author\n";
+
+                    unlink($lock_file);
                     continue;
                 }
 
@@ -128,6 +142,8 @@
                 if($testbook_properties == null) {
                     echo "Test failed because tSuite could not load testbook\n";
                     post_commit($repo, $commit_hash, $branch, $message, $author, 2, 0, 0, $start_time_install - $start_time_download, $end_time_install - $start_time_install, ($start_time_install - $start_time_download) + ($end_time_install - $start_time_install));
+
+                    unlink($lock_file);
                     continue;
                 }
 

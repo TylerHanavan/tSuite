@@ -12,8 +12,10 @@
 
         public function get_selenium_driver() {
 
-            if(!is_selenium_loaded())
+            if(!is_selenium_loaded()) {
+                echo "Selenium classes are not loaded\n";
                 return null;
+            }
 
             if(isset($this->selenium_driver))
                 return $this->selenium_driver;
