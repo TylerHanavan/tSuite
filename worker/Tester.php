@@ -22,23 +22,29 @@
             if(isset($this->selenium_driver))
                 return $this->selenium_driver;
 
-            $host = 'http://localhost:4444'; // Selenium server URL
-            $capabilities = Facebook\WebDriver\Remote\DesiredCapabilities::chrome();
-            $chromeOptions = new Facebook\WebDriver\Chrome\ChromeOptions();
+            try {
 
-            $chromeOptions->addArguments(['--headless', '--disable-gpu']); // Added proper arguments
-
-            $capabilities->setCapability(Facebook\WebDriver\Chrome\ChromeOptions::CAPABILITY_W3C, $chromeOptions);
-
-            // Increase timeouts
-            $driver = Facebook\WebDriver\Remote\RemoteWebDriver::create(
-                $host, 
-                $capabilities, 
-                500000, // connection timeout in ms
-                500000  // request timeout in ms
-            );
-
-            $this->selenium_driver = $driver;
+                $host = 'http://localhost:4444'; // Selenium server URL
+                $capabilities = Facebook\WebDriver\Remote\DesiredCapabilities::chrome();
+                $chromeOptions = new Facebook\WebDriver\Chrome\ChromeOptions();
+    
+                $chromeOptions->addArguments(['--headless', '--disable-gpu']); // Added proper arguments
+    
+                $capabilities->setCapability(Facebook\WebDriver\Chrome\ChromeOptions::CAPABILITY_W3C, $chromeOptions);
+    
+                // Increase timeouts
+                $driver = Facebook\WebDriver\Remote\RemoteWebDriver::create(
+                    $host, 
+                    $capabilities, 
+                    5 * 1000, // connection timeout in ms
+                    15 * 1000  // request timeout in ms
+                );
+    
+                $this->selenium_driver = $driver;
+            } catch (Exception $e) {
+                echo "Could not start Selenium WebDriver\n";
+                return null;
+            }
 
             return $this->selenium_driver;
 
