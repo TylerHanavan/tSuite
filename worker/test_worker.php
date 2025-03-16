@@ -2,6 +2,8 @@
 
     include 'Tester.php';
 
+    $ppid = $argv[0];
+
     $repos = do_curl('/api/v1/repo', array(), false);
     if($repos == null || !isset($repos['response'])) {
         echo "No response data /api/repo\n";
@@ -69,6 +71,13 @@
             
             echo "Checking if $commit_hash is new for $repo\n";
             if(is_commit_new($repo, $branch, $commit_hash)) {
+
+                if(file_exists($test_result_location . '/' . $commit_hash . ".$ppid" . '.lock')) {
+                    echo "This commit hash $commit_hash under parent pid $ppid is already being processed... skipping\n";
+                    continue;
+                }
+
+                write_to_file($test_result_location . '/' . $commit_hash . ".$ppid" . '.lock', 'locked', true);
             
                 $git_metadata = pull_git_info($repo, $repo_user, $branch, $PAT);
 
@@ -195,6 +204,8 @@
                 }
 
                 write_to_file($test_result_location . '/' . $commit_hash . '.json', json_encode($test_response, JSON_PRETTY_PRINT), true);
+
+                unlink($test_result_location . '/' . $commit_hash . ".$ppid" . '.lock');
 
                 exit();
 
