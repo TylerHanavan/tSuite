@@ -36,8 +36,8 @@
                 $driver = Facebook\WebDriver\Remote\RemoteWebDriver::create(
                     $host, 
                     $capabilities, 
-                    5 * 1000, // connection timeout in ms
-                    15 * 1000  // request timeout in ms
+                    120 * 1000, // connection timeout in ms
+                    150 * 1000  // request timeout in ms
                 );
     
                 $this->selenium_driver = $driver;
