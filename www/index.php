@@ -4,6 +4,8 @@
     ini_set('display_startup_errors', '1');
     error_reporting(E_ALL);
 
+    require __DIR__ . '/vendor/autoload.php';
+
     include 'sql_helper.php';
 
     include 'http/handler/api/api_commit_handler.php';

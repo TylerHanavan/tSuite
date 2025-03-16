@@ -1,0 +1,12 @@
+{
+    "autoload": {
+        "psr-4": {
+            "tSuite\\": ["www/", "worker/"]
+        }
+    },
+    "require-dev": {
+        "phpunit/phpunit": "^9.6",
+        "mockery/mockery": "^1.6",
+        "php-webdriver/webdriver": "1.15.2"
+    }
+}

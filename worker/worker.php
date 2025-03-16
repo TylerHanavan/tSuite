@@ -1,5 +1,7 @@
 <?php
 
+    require __DIR__ . '/vendor/autoload.php';
+
     $tick = 0;
 
     echo $path = dirname(__FILE__);
