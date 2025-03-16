@@ -286,7 +286,7 @@
     }
 
     function is_selenium_loaded() {
-        return class_exists(\Facebook\WebDriver\Chrome\ChromeOptions::class) && class_exists(\Facebook\WebDriver\Chrome\RemoteWebDriver::class) && class_exists(\Facebook\WebDriver\Chrome\DesiredCapabilities::class);
+        return class_exists(\Facebook\WebDriver\Chrome\ChromeOptions::class) && class_exists(\Facebook\WebDriver\Remote\RemoteWebDriver::class) && class_exists(\Facebook\WebDriver\Remote\DesiredCapabilities::class);
     }
 
 ?>
