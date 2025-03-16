@@ -102,24 +102,40 @@
         }
 
         public function get_functions_from_file($file) {
-            // Include the file
-            include_once $file;
-    
-            // Get all user-defined functions
-            $all_functions = get_defined_functions()['user'];
-            
             $functions = [];
             
+            // Check if the file exists and can be included
+            if (!file_exists($file)) {
+                echo "File does not exist: $file\n";
+                return $functions;  // Return an empty array if file doesn't exist
+            }
+        
+            // Try to include the file
+            try {
+                include_once $file;
+            } catch (Throwable $e) {
+                echo "Error including file: " . $e->getMessage() . "\n";
+                return $functions;
+            }
+        
+            // Get all user-defined functions
+            $all_functions = get_defined_functions()['user'];
+        
             // Use Reflection to check the file where each function is defined
             foreach ($all_functions as $function) {
-                $ref = new ReflectionFunction($function);
-                if ($ref->getFileName() === realpath($file)) {
-                    $functions[] = $function;
+                try {
+                    $ref = new ReflectionFunction($function);
+                    if ($ref->getFileName() === realpath($file)) {
+                        $functions[] = $function;
+                    }
+                } catch (ReflectionException $e) {
+                    // Handle reflection error if function is invalid
+                    echo "Reflection failed for function: $function. Error: " . $e->getMessage() . "\n";
                 }
             }
-    
+        
             return $functions;
-        }
+        }        
 
         public function scanDirectoryRecursively($dir) {
             $files = [];

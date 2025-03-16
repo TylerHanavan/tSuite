@@ -227,8 +227,6 @@
 
                 unlink($lock_file);
 
-                exit();
-
             } else {
                 echo "The $branch latest commit is already in the system: $branch/$commit_hash\n";
             }
