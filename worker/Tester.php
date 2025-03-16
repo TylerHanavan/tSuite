@@ -82,6 +82,8 @@
 
             }
 
+            if($this->get_selenium_driver() != null) $this->get_selenium_driver()->quit();
+
             return $response;
 
         }
