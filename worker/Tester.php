@@ -10,6 +10,36 @@
 
         }
 
+        public function get_selenium_driver() {
+
+            if(!is_selenium_loaded())
+                return null;
+
+            if(isset($this->selenium_driver))
+                return $this->selenium_driver;
+
+            $host = 'http://localhost:4444'; // Selenium server URL
+            $capabilities = DesiredCapabilities::chrome();
+            $chromeOptions = new ChromeOptions();
+
+            $chromeOptions->addArguments(['--headless', '--disable-gpu']); // Added proper arguments
+
+            $capabilities->setCapability(ChromeOptions::CAPABILITY_W3C, $chromeOptions);
+
+            // Increase timeouts
+            $driver = RemoteWebDriver::create(
+                $host, 
+                $capabilities, 
+                500000, // connection timeout in ms
+                500000  // request timeout in ms
+            );
+
+            $this->selenium_driver = $driver;
+
+            return $this->selenium_driver;
+
+        }
+
         public function run_tests() {
             
             $response = array();
@@ -137,6 +167,7 @@
                         
                             $properties = array();
                             $properties['endpoint_url'] = $this->endpoint_url;
+                            $properties['selenium'] = $this->get_selenium_driver();
 
                             ob_start();
     
@@ -246,6 +277,10 @@
         if (!in_array($needle, $haystack)) {
             throw new Exception("$message / Expected array to contain $needle but it didn't");
         }
+    }
+
+    function is_selenium_loaded() {
+        return class_exists(\Facebook\WebDriver\Chrome\ChromeOptions::class) && class_exists(\Facebook\WebDriver\Chrome\RemoteWebDriver::class) && class_exists(\Facebook\WebDriver\Chrome\DesiredCapabilities::class);
     }
 
 ?>
