@@ -1,5 +1,7 @@
 <?php
 
+    require __DIR__ . '/vendor/autoload.php';
+
     class Tester {
         public function __construct($tsuite_dir, $endpoint_url, $repo_settings, $testbook_properties) {
 
