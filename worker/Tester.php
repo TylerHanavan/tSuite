@@ -151,8 +151,8 @@
                 echo "Error including file: " . $e->getMessage() . "\n";
                 return $functions;
             } finally {
-                echo "Quitting driver from Tester::get_functions_from_file; first try-catch-finally\n";
-                $this->quit_driver();
+                //echo "Quitting driver from Tester::get_functions_from_file ($file); first try-catch-finally\n";
+                //$this->quit_driver();
             }
         
             // Get all user-defined functions
@@ -169,8 +169,8 @@
                     // Handle reflection error if function is invalid
                     echo "Reflection failed for function: $function. Error: " . $e->getMessage() . "\n";
                 } finally {
-                    echo "Quitting driver from Tester::get_functions_from_file; second try-catch-finally\n";
-                    $this->quit_driver();
+                    //echo "Quitting driver from Tester::get_functions_from_file ($file); second try-catch-finally\n";
+                    //$this->quit_driver();
                 }
             }
         
@@ -252,9 +252,6 @@
                                         $response['files'][$file]['tests'][$function]['status'] = 'failure';
                                         $response['files'][$file]['tests'][$function]['reason'] = $e->getMessage();
                                         echo "Unable to call function $function\n" . $e->getMessage() . "\n";
-                                        if(isset($e->trace)) {
-                                            echo "trace size " . count($e->trace) . "\n";
-                                        }
                                     }
                                 }
 
