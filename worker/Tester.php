@@ -127,7 +127,7 @@
             if (strpos($syntax_check, 'No syntax errors detected') === false) {
                 echo "Syntax error in file: $file\n";
                 echo $syntax_check;  // Output the error message from the syntax check
-                return $functions;  // Skip this file if there is a syntax error
+                return false;  // Skip this file if there is a syntax error
             }
         
             // Try to include the file
@@ -209,40 +209,49 @@
     
                             $functions = $this->get_functions_from_file($file);
 
-                            $count_functions = sizeof($functions);
-    
-                            echo "$file has $count_functions functions\n";
-    
-                            $response['files'][$file]['status'] = 'success';
-                        
-                            $properties = array();
-                            $properties['endpoint_url'] = $this->endpoint_url;
-                            $properties['selenium'] = $this->get_selenium_driver();
+                            if($functions === false) {
+                                $response['status'] = 'failure';
+                                $response['files'][$file]['status'] = 'failure';
+                                $response['files'][$file]['tests'][$function]['status'] = 'failure';
+                                $response['files'][$file]['tests'][$function]['reason'] = "Syntax error in file $file";
+                            } else {
 
-                            ob_start();
-    
-                            foreach ($functions as $function) {
-                                try {
-                                    call_user_func_array($function, array(&$properties));
-                                    $response['files'][$file]['tests'][$function]['status'] = 'success';
-                                    $response['files'][$file]['status'] = 'success';
-                                } catch (Exception $e) {
-                                    $response['status'] = 'failure';
-                                    $response['files'][$file]['status'] = 'failure';
-                                    $response['files'][$file]['tests'][$function]['status'] = 'failure';
-                                    $response['files'][$file]['tests'][$function]['reason'] = $e->getMessage();
-                                    echo "Unable to call function $function\n" . $e->getMessage() . "\n";
-                                    var_dump($e);
+                                $count_functions = sizeof($functions);
+        
+                                echo "$file has $count_functions functions\n";
+        
+                                $response['files'][$file]['status'] = 'success';
+                            
+                                $properties = array();
+                                $properties['endpoint_url'] = $this->endpoint_url;
+                                $properties['selenium'] = $this->get_selenium_driver();
+
+                                ob_start();
+        
+                                foreach ($functions as $function) {
+                                    try {
+                                        call_user_func_array($function, array(&$properties));
+                                        $response['files'][$file]['tests'][$function]['status'] = 'success';
+                                        $response['files'][$file]['status'] = 'success';
+                                    } catch (Exception $e) {
+                                        $response['status'] = 'failure';
+                                        $response['files'][$file]['status'] = 'failure';
+                                        $response['files'][$file]['tests'][$function]['status'] = 'failure';
+                                        $response['files'][$file]['tests'][$function]['reason'] = $e->getMessage();
+                                        echo "Unable to call function $function\n" . $e->getMessage() . "\n";
+                                        var_dump($e);
+                                    }
                                 }
+
+                                if(!isset($response['output']))
+                                    $response['output'] = array();
+                                $output = ob_get_contents();
+                                if($output != null && $output != '')
+                                    $response['output'][] = "$output\n";
+
+                                ob_flush();
+                                    
                             }
-
-                            if(!isset($response['output']))
-                                $response['output'] = array();
-                            $output = ob_get_contents();
-                            if($output != null && $output != '')
-                                $response['output'][] = "$output\n";
-
-                            ob_flush();
                         }
                     }
                 }
