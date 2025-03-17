@@ -239,8 +239,8 @@
                                         $response['files'][$file]['tests'][$function]['status'] = 'failure';
                                         $response['files'][$file]['tests'][$function]['reason'] = $e->getMessage();
                                         echo "Unable to call function $function\n" . $e->getMessage() . "\n";
-                                        if(isset($e['trace'])) {
-                                            echo "trace size " . count($e['trace']) . "\n";
+                                        if(isset($e->trace)) {
+                                            echo "trace size " . count($e->trace) . "\n";
                                         }
                                     }
                                 }
