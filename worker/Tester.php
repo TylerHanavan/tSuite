@@ -58,41 +58,47 @@
             $response['stages'] = array();
             $response['files'] = array();
 
-            foreach($this->testbook_properties['stages'] as $stage_name => $stage) {
-                $stage_title = $stage['title'];
-                $stage_description = $stage['description'];
-                echo "Running $stage_title:\n";
-                echo "\t$stage_description\n";
+            try {
+                foreach($this->testbook_properties['stages'] as $stage_name => $stage) {
+                    $stage_title = $stage['title'];
+                    $stage_description = $stage['description'];
+                    echo "Running $stage_title:\n";
+                    echo "\t$stage_description\n";
 
-                $response['stages'][$stage_name] = array();
-                $response['stages'][$stage_name]['status'] = 'success';
+                    $response['stages'][$stage_name] = array();
+                    $response['stages'][$stage_name]['status'] = 'success';
 
-                $action_response = $this->handleAction($stage['actions']);
+                    $action_response = $this->handleAction($stage['actions']);
 
-                if(!isset($action_response) || $action_response == null) continue;
+                    if(!isset($action_response) || $action_response == null) continue;
 
-                if(isset($action_response['status']) && $action_response['status'] == 'failure') {
-                    $response['status'] = 'failure';
-                    $response['stages'][$stage_name]['status'] = 'failure';
-                }
-
-                if(isset($action_response['output'])) {
-                    $response['stages'][$stage_name]['output'] = $action_response['output'];
-                }
-
-                if(isset($action_response['stderr'])) {
-                    $response['stages'][$stage_name]['stderr'] = $action_response['stderr'];
-                }
-
-                if(isset($action_response['files'])) {
-                    foreach($action_response['files'] as $file => $data) {
-                        $response['files'][$file] = $data;
+                    if(isset($action_response['status']) && $action_response['status'] == 'failure') {
+                        $response['status'] = 'failure';
+                        $response['stages'][$stage_name]['status'] = 'failure';
                     }
+
+                    if(isset($action_response['output'])) {
+                        $response['stages'][$stage_name]['output'] = $action_response['output'];
+                    }
+
+                    if(isset($action_response['stderr'])) {
+                        $response['stages'][$stage_name]['stderr'] = $action_response['stderr'];
+                    }
+
+                    if(isset($action_response['files'])) {
+                        foreach($action_response['files'] as $file => $data) {
+                            $response['files'][$file] = $data;
+                        }
+                    }
+
                 }
-
+            } catch (Exception $e) {
+                echo "Error while running Tester::run_tests\n";
+                echo $e->getMessage() . "\n";
+                return $response;
+            } finally {
+                if($this->get_selenium_driver() != null) $this->get_selenium_driver()->quit();
             }
-
-            if($this->get_selenium_driver() != null) $this->get_selenium_driver()->quit();
 
             return $response;
 
