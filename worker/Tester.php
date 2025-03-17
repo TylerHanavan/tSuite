@@ -128,6 +128,8 @@
             } catch (Throwable $e) {
                 echo "Error including file: " . $e->getMessage() . "\n";
                 return $functions;
+            } finally {
+                if($this->get_selenium_driver() != null) $this->get_selenium_driver()->quit();
             }
         
             // Get all user-defined functions
@@ -143,6 +145,8 @@
                 } catch (ReflectionException $e) {
                     // Handle reflection error if function is invalid
                     echo "Reflection failed for function: $function. Error: " . $e->getMessage() . "\n";
+                } finally {
+                    if($this->get_selenium_driver() != null) $this->get_selenium_driver()->quit();
                 }
             }
         
