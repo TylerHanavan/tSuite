@@ -9,6 +9,7 @@
             $this->endpoint_url = $endpoint_url;
             $this->repo_settings = $repo_settings;
             $this->testbook_properties = $testbook_properties;
+            $this->driver_quit_bool = false;
 
         }
 
@@ -48,6 +49,18 @@
 
             return $this->selenium_driver;
 
+        }
+
+        public function has_driver_quit() {
+            return $this->driver_quit_bool;
+        }
+
+        public function quit_driver() {
+            if($this->driver_quit_bool) return;
+
+            echo "Driver has been quit\n";
+            if($this->get_selenium_driver() != null) $this->get_selenium_driver()->quit();
+            $this->driver_quit_bool = true;
         }
 
         public function run_tests() {
@@ -97,7 +110,7 @@
                 echo $e->getMessage() . "\n";
                 return $response;
             } finally {
-                if($this->get_selenium_driver() != null) $this->get_selenium_driver()->quit();
+                $this->quit_driver();
             }
 
             return $response;
@@ -137,9 +150,7 @@
                 echo "Error including file: " . $e->getMessage() . "\n";
                 return $functions;
             } finally {
-                if($this->get_selenium_driver() != null) {
-                    $this->get_selenium_driver()->quit();
-                } 
+                $this->quit_driver();
             }
         
             // Get all user-defined functions
@@ -156,9 +167,7 @@
                     // Handle reflection error if function is invalid
                     echo "Reflection failed for function: $function. Error: " . $e->getMessage() . "\n";
                 } finally {
-                    if($this->get_selenium_driver() != null) {
-                        $this->get_selenium_driver()->quit();
-                    } 
+                    $this->quit_driver();
                 }
             }
         
@@ -225,6 +234,7 @@
                                 $properties = array();
                                 $properties['endpoint_url'] = $this->endpoint_url;
                                 $properties['selenium'] = $this->get_selenium_driver();
+                                $properties['tester'] = $this;
 
                                 ob_start();
         
