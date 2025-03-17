@@ -110,6 +110,7 @@
                 echo $e->getMessage() . "\n";
                 return $response;
             } finally {
+                echo "Quitting driver from Tester::run_tests\n";
                 $this->quit_driver();
             }
 
@@ -150,6 +151,7 @@
                 echo "Error including file: " . $e->getMessage() . "\n";
                 return $functions;
             } finally {
+                echo "Quitting driver from Tester::get_functions_from_file; first try-catch-finally\n";
                 $this->quit_driver();
             }
         
@@ -167,6 +169,7 @@
                     // Handle reflection error if function is invalid
                     echo "Reflection failed for function: $function. Error: " . $e->getMessage() . "\n";
                 } finally {
+                    echo "Quitting driver from Tester::get_functions_from_file; second try-catch-finally\n";
                     $this->quit_driver();
                 }
             }
