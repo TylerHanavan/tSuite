@@ -63,7 +63,7 @@
                     $stage_title = $stage['title'];
                     $stage_description = $stage['description'];
                     echo "Running $stage_title:\n";
-                    echo "\t$stage_description\n";
+                    //echo "\t$stage_description\n";
 
                     $response['stages'][$stage_name] = array();
                     $response['stages'][$stage_name]['status'] = 'success';
@@ -190,12 +190,12 @@
 
             foreach($actions as $action) {
                 foreach($action as $subaction => $subaction_array) {
-                    echo "Handling `$subaction` action\n";
+                    //echo "Handling `$subaction` action\n";
                     if($subaction == 'shell') {
                         $settings_string = $this->get_repo_settings_command_string();
                         foreach($subaction_array as $command) {
                             $command_string = rtrim("$settings_string;$command", ';');
-                            echo "Running command string:\n$command\n\n";
+                            //echo "Running command string:\n$command\n\n";
                             $output = shell_exec($command_string);
                             if(!isset($response['output']))
                                 $response['output'] = array();
