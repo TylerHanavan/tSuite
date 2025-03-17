@@ -129,7 +129,10 @@
                 echo "Error including file: " . $e->getMessage() . "\n";
                 return $functions;
             } finally {
-                if($this->get_selenium_driver() != null) $this->get_selenium_driver()->quit();
+                if($this->get_selenium_driver() != null) {
+                    echo "Quitting webdriver from get_functions_from_file, 1st finally\n";
+                    $this->get_selenium_driver()->quit();
+                } 
             }
         
             // Get all user-defined functions
@@ -146,7 +149,10 @@
                     // Handle reflection error if function is invalid
                     echo "Reflection failed for function: $function. Error: " . $e->getMessage() . "\n";
                 } finally {
-                    if($this->get_selenium_driver() != null) $this->get_selenium_driver()->quit();
+                    if($this->get_selenium_driver() != null) {
+                        echo "Quitting webdriver from get_functions_from_file, 2nd finally\n";
+                        $this->get_selenium_driver()->quit();
+                    } 
                 }
             }
         
