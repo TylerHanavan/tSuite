@@ -121,6 +121,14 @@
                 echo "File does not exist: $file\n";
                 return $functions;  // Return an empty array if file doesn't exist
             }
+
+            // Check if the file has syntax errors
+            $syntax_check = shell_exec("php -l " . escapeshellarg($file));
+            if (strpos($syntax_check, 'No syntax errors detected') === false) {
+                echo "Syntax error in file: $file\n";
+                echo $syntax_check;  // Output the error message from the syntax check
+                return $functions;  // Skip this file if there is a syntax error
+            }
         
             // Try to include the file
             try {
@@ -130,7 +138,6 @@
                 return $functions;
             } finally {
                 if($this->get_selenium_driver() != null) {
-                    echo "Quitting webdriver from get_functions_from_file, 1st finally\n";
                     $this->get_selenium_driver()->quit();
                 } 
             }
@@ -150,14 +157,13 @@
                     echo "Reflection failed for function: $function. Error: " . $e->getMessage() . "\n";
                 } finally {
                     if($this->get_selenium_driver() != null) {
-                        echo "Quitting webdriver from get_functions_from_file, 2nd finally\n";
                         $this->get_selenium_driver()->quit();
                     } 
                 }
             }
         
             return $functions;
-        }        
+        }
 
         public function scanDirectoryRecursively($dir) {
             $files = [];
