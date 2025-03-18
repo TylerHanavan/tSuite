@@ -3,8 +3,14 @@
     require __DIR__ . '/vendor/autoload.php';
 
     include 'Tester.php';
+    include 'Action.php';
+    include 'Stage.php';
+
+    $curtime = date('Ymd H:i:s');
 
     $ppid = $argv[1];
+
+    echo "\n$curtime - Starting test_worker.php from $ppid\n";
 
     $repos = do_curl('/api/v1/repo', array(), false);
     if($repos == null || !isset($repos['response'])) {
@@ -70,16 +76,19 @@
 
             $branch = $branch_arr['name'];
             $commit_hash = $branch_arr['hash'];
+            $tiny_hash = substr($commit_hash, 0, 7);
 
             $lock_file = "$test_result_location/$commit_hash.$ppid.lock";
+
+            $log_prefix = "[$repo/$branch $tiny_hash]";
             
-            echo "Checking if $commit_hash is new for $repo\n";
+            echo "$log_prefix pre is_commit_new\n";
+
             if(is_commit_new($repo, $branch, $commit_hash)) {
 
                 if(file_exists($lock_file)) {
-                    echo "This commit hash $commit_hash under parent pid $ppid is already being processed... skipping\n";
+                    echo "$log_prefix is locked for $ppid, skipping...\n";
 
-                    unlink($lock_file);
                     continue;
                 }
 
@@ -132,7 +141,7 @@
                     continue;
                 }
 
-                echo "New commit detected: $commit_hash\n";
+                echo "$log_prefix new commit, proceeding to git pull\n";
                 $start_time_download = get_current_time_milliseconds();
                 do_git_pull($repo, $branch, $download_location, $repo_user, $PAT);
                 $start_time_install = get_current_time_milliseconds();
@@ -143,94 +152,27 @@
 
                 if($testbook_properties == null) {
                     echo "Test failed because tSuite could not load testbook\n";
-                    post_commit($repo, $commit_hash, $branch, $message, $author, 2, 0, 0, $start_time_install - $start_time_download, $end_time_install - $start_time_install, ($start_time_install - $start_time_download) + ($end_time_install - $start_time_install));
+                    //post_commit($repo, $commit_hash, $branch, $message, $author, 2, 0, 0, $start_time_install - $start_time_download, $end_time_install - $start_time_install, ($start_time_install - $start_time_download) + ($end_time_install - $start_time_install));
 
                     unlink($lock_file);
                     continue;
                 }
 
+                $commit_data = [];
+
+                $commit_data['repo'] = $repo;
+                $commit_data['commit_hash'] = $commit_hash;
+                $commit_data['branch'] = $branch;
+                $commit_data['message'] = $message;
+                $commit_data['author'] = $author;
+                $commit_data['test_result_location'] = $test_result_location;
+
                 $start_time_test = get_current_time_milliseconds();
-                $tester = new Tester($download_location . '/.tsuite', 'localhost:1347', $simplified_repo_settings, $testbook_properties);
+                $tester = new Tester($download_location . '/.tsuite', 'localhost:1347', $simplified_repo_settings, $testbook_properties, $lock_file, $commit_data);
                 $test_response = $tester->run_tests();
-                $end_time_test = get_current_time_milliseconds();
-
-                $download_duration = $start_time_install - $start_time_download;
-                $install_duration = $start_time_test - $start_time_install;
-                $test_duration = $end_time_test - $start_time_test;
-
-                $total_tests_passed = 0;
-                $total_tests_failed = 0;
-
-                if($test_response['status'] == 'failure') {
-                    echo "$commit_hash failed its tests\n";
-                    foreach($test_response['files'] as $file => $file_data) {
-                        if($file_data['status'] == 'failure') {
-                            echo "$file failed its tests\n";
-                            foreach($file_data['tests'] as $test_name => $test_data) {
-                                if($test_data['status'] == 'failure') {
-                                    echo "Test failed: $test_name\n";
-                                    echo "Reason: " . $test_data['reason'] . "\n";
-                                    $total_tests_failed++;
-                                } else {
-                                    echo "Test passed: $test_name\n";
-                                    $total_tests_passed++;
-                                }
-                            }
-                        } else {
-                            foreach($file_data['tests'] as $test_name => $test_data) {
-                                if($test_data['status'] == 'failure') {
-                                    echo "Test failed: $test_name\n";
-                                    echo "Reason: " . $test_data['reason'] . "\n";
-                                    $total_tests_failed++;
-                                } else {
-                                    echo "Test passed: $test_name\n";
-                                    $total_tests_passed++;
-                                }
-                            }
-                            echo "$file is passing all tests\n";
-                        }
-                    }
-                    post_commit($repo, $commit_hash, $branch, $message, $author, 1, $total_tests_passed, $total_tests_failed, $download_duration, $install_duration, $test_duration);
-                } else {
-                    echo "$commit_hash is passing all tests\n";
-                    foreach($test_response['files'] as $file => $file_data) {
-                        if($file_data['status'] == 'failure') {
-                            echo "$file failed its tests\n";
-                            foreach($file_data['tests'] as $test_name => $test_data) {
-                                if($test_data['status'] == 'failure') {
-                                    echo "Test failed: $test_name\n";
-                                    echo "Reason: " . $test_data['reason'] . "\n";
-                                    $total_tests_failed++;
-                                } else {
-                                    echo "Test passed: $test_name\n";
-                                    $total_tests_passed++;
-                                }
-                            }
-                        } else {
-                            if(isset($file_data) && $file_data['tests'] != null) {
-                                foreach($file_data['tests'] as $test_name => $test_data) {
-                                    if($test_data['status'] == 'failure') {
-                                        echo "Test failed: $test_name\n";
-                                        echo "Reason: " . $test_data['reason'] . "\n";
-                                        $total_tests_failed++;
-                                    } else {
-                                        echo "Test passed: $test_name\n";
-                                        $total_tests_passed++;
-                                    }
-                                }
-                                echo "$file is passing all tests\n";
-                            }
-                        }
-                    }
-                    post_commit($repo, $commit_hash, $branch, $message, $author, 0, $total_tests_passed, $total_tests_failed, $download_duration, $install_duration, $test_duration);
-                }
-
-                write_to_file($test_result_location . '/' . $commit_hash . '.json', json_encode($test_response, JSON_PRETTY_PRINT), true);
-
-                unlink($lock_file);
 
             } else {
-                echo "The $branch latest commit is already in the system: $branch/$commit_hash\n";
+                echo "$log_prefix the commit is already in the system, skipping...\n";
             }
         }
     }
@@ -297,8 +239,6 @@
     function do_git_pull($repo, $branch, $download_location, $username, $token) {
         
         $git_url = "https://$username:$token@github.com/$username/$repo.git";
-
-        echo "Git URL: $git_url, BRANCH: $branch\n";
 
         // Change directory and pull from the repository
         $cmd = "cd $download_location && git fetch $git_url && git reset --hard origin/$branch && git checkout $branch && git config --global --add safe.directory $download_location/$repo && git pull origin $branch 2>&1";
