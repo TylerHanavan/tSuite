@@ -121,6 +121,8 @@
 
             $this->save_execution_data();
 
+            unlink($this->lock_file);
+
         }
 
         public function write_test_results($commit_hash, $test_results) {
@@ -128,7 +130,7 @@
         }
 
         public function save_execution_data() {
-            $end_time_test = get_current_time_milliseconds();
+            $end_time_test = 0;//get_current_time_milliseconds();
 
             $start_time_install = 0;
             $start_time_download = 0;
@@ -150,6 +152,20 @@
                 $stage_array_to_add = [];
 
                 $stage_array_to_add['status'] = $stage->is_errored() ? 'failure' : 'success';
+                $stage_array_to_add['output'] = $stage->get_output();
+                $stage_array_to_add['runtime_start'] = $stage->get_runtime_start();
+                $stage_array_to_add['runtime_end'] = $stage->get_runtime_end();
+                
+                foreach($stage->get_file_results() as $file_name => $file_result) {
+                    $test_results['files'][$file_name] = $file_result;
+                    foreach($file_result['tests'] as $function => $function_results) {
+                        if(isset($function_results['status'])) {
+                            $status = $function_results['status'];
+                            if($status === 'success') $total_tests_passed++;
+                            if($status === 'failure') $total_tests_failed++;
+                        }
+                    }
+                }
 
                 $test_results['stages'][$stage->get_slug()] = $stage_array_to_add;
             }
@@ -162,7 +178,7 @@
                 $this->commit_data['branch'], 
                 $this->commit_data['message'], 
                 $this->commit_data['author'], 
-                0, 
+                $test_results['status'] == 'failure' ? 1 : 0, 
                 $total_tests_passed, 
                 $total_tests_failed, 
                 $download_duration, 
@@ -171,72 +187,6 @@
             );
 
             $this->quit_driver();
-
-            /*if($test_response['status'] == 'failure') {
-                echo "$commit_hash failed its tests\n";
-                foreach($test_response['files'] as $file => $file_data) {
-                    if($file_data['status'] == 'failure') {
-                        echo "$file failed its tests\n";
-                        foreach($file_data['tests'] as $test_name => $test_data) {
-                            if($test_data['status'] == 'failure') {
-                                echo "Test failed: $test_name\n";
-                                echo "Reason: " . $test_data['reason'] . "\n";
-                                $total_tests_failed++;
-                            } else {
-                                echo "Test passed: $test_name\n";
-                                $total_tests_passed++;
-                            }
-                        }
-                    } else {
-                        foreach($file_data['tests'] as $test_name => $test_data) {
-                            if($test_data['status'] == 'failure') {
-                                echo "Test failed: $test_name\n";
-                                echo "Reason: " . $test_data['reason'] . "\n";
-                                $total_tests_failed++;
-                            } else {
-                                echo "Test passed: $test_name\n";
-                                $total_tests_passed++;
-                            }
-                        }
-                        echo "$file is passing all tests\n";
-                    }
-                }
-                post_commit($repo, $commit_hash, $branch, $message, $author, 1, $total_tests_passed, $total_tests_failed, $download_duration, $install_duration, $test_duration);
-            } else {
-                echo "$commit_hash is passing all tests\n";
-                foreach($test_response['files'] as $file => $file_data) {
-                    if($file_data['status'] == 'failure') {
-                        echo "$file failed its tests\n";
-                        foreach($file_data['tests'] as $test_name => $test_data) {
-                            if($test_data['status'] == 'failure') {
-                                echo "Test failed: $test_name\n";
-                                echo "Reason: " . $test_data['reason'] . "\n";
-                                $total_tests_failed++;
-                            } else {
-                                echo "Test passed: $test_name\n";
-                                $total_tests_passed++;
-                            }
-                        }
-                    } else {
-                        if(isset($file_data) && $file_data['tests'] != null) {
-                            foreach($file_data['tests'] as $test_name => $test_data) {
-                                if($test_data['status'] == 'failure') {
-                                    echo "Test failed: $test_name\n";
-                                    echo "Reason: " . $test_data['reason'] . "\n";
-                                    $total_tests_failed++;
-                                } else {
-                                    echo "Test passed: $test_name\n";
-                                    $total_tests_passed++;
-                                }
-                            }
-                            echo "$file is passing all tests\n";
-                        }
-                    }
-                }
-                post_commit($repo, $commit_hash, $branch, $message, $author, 0, $total_tests_passed, $total_tests_failed, $download_duration, $install_duration, $test_duration);
-            }
-
-            write_to_file($test_result_location . '/' . $commit_hash . '.json', json_encode($test_response, JSON_PRETTY_PRINT), true);*/
         }
 
         public function execute_stage($stage) {
@@ -252,9 +202,13 @@
 
             $stage_response = [];
 
+            $stage->set_runtime_start(get_current_time_milliseconds());
+
             foreach($stage->get_actions() as $action) {
                 $stage_response[$action->get_type()] = $this->execute_action($action);
             }
+
+            $stage->set_runtime_end(get_current_time_milliseconds());
 
             return $stage_response;
 
@@ -303,8 +257,10 @@
                 $output = shell_exec($command_string);
                 if(!isset($response['output']))
                     $response['output'] = array();
-                if($output != null && $output != '')
+                if($output != null && $output != '') {
                     $action_response[] = $output;
+                    $action->get_stage()->add_output($output);
+                }
             }
 
             return $action_response;
@@ -330,8 +286,6 @@
 
                     $count_functions = sizeof($functions);
 
-                    echo "$file has $count_functions functions\n";
-
                     $action_response['files'][$file]['status'] = 'success';
                 
                     $properties = array();
@@ -341,33 +295,47 @@
 
                     ob_start();
 
+                    $test_file_results = [];
+                    $all_tests_passing = true;
+
                     foreach ($functions as $function) {
+                        $handled = false;
+                        if(!isset($test_file_results[$function])) $test_file_results[$function] = [];
                         try {
                             call_user_func_array($function, array(&$properties));
-                            $action_response['files'][$file]['tests'][$function]['status'] = 'success';
-                            $action_response['files'][$file]['status'] = 'success';
+                            $test_file_results[$function]['status'] = 'success';
                             if(!$action->get_stage()->is_errored())
                                 $action->get_stage()->set_successful(true);
+                            $handled = true;
                         } catch (Exception $e) {
+                            $all_test_passing = false;
                             $action->get_stage()->set_errored(true);
                             $action->get_stage()->set_successful(false);
-                            $action_response['status'] = 'failure';
-                            $action_response['files'][$file]['status'] = 'failure';
-                            $action_response['files'][$file]['tests'][$function]['status'] = 'failure';
-                            $action_response['files'][$file]['tests'][$function]['reason'] = $e->getMessage();
+                            $test_file_results[$function]['status'] = 'failure';
+                            $test_file_results[$function]['reason'] = $e->getMessage();
                             echo "Unable to call function $function\n" . $e->getMessage() . "\n";
+                            $handled = true;
                         } finally {
-                            echo "Finished calling $function\n";
+                            //echo "Finished calling $function\n";
+                            if($handled) {
+                                $action->get_stage()->add_file_result($file, ['status' => $all_tests_passing == true ? 'success' : 'failure', 'tests' => $test_file_results]);
+                            } else {
+                                $test_file_results[$function]['status'] = 'failure';
+                                $test_file_results[$function]['reason'] = 'Fatal error unable to be caught';
+                                $action->get_stage()->add_file_result($file, ['status' => 'failure', 'tests' => $test_file_results]);
+                            }
                         }
                     }
-                        
+
                 }
 
                 if(!isset($action_response['output']))
                     $action_response['output'] = array();
                 $output = ob_get_contents();
-                if($output != null && $output != '')
+                if($output != null && $output != '') {
                     $action_response['output'][] = "$output\n";
+                    $action->get_stage()->add_output($output);
+                }
 
                 ob_flush();
 
@@ -429,7 +397,6 @@
             $stages = [];
             
             foreach($testbook_properties['stages'] as $stage_name => $stage_data) {
-                echo "Tester::generate_stages: found $stage_name\n";
                 $stage_title = $stage_data['title'];
                 $stage_description = $stage_data['description'];
 
@@ -440,54 +407,6 @@
             }
 
             return $stages;
-
-            /*foreach($this->testbook_properties['stages'] as $stage_name => $stage) {
-                $stage_title = $stage['title'];
-                $stage_description = $stage['description'];
-                echo "Running $stage_title:\n";
-                //echo "\t$stage_description\n";
-
-                $response['stages'][$stage_name] = array();
-                $response['stages'][$stage_name]['status'] = 'success';
-
-                $action_response = null;
-
-                try {
-                    $action_response = $this->handleAction($stage['actions']);
-                } catch (Exception $e) {
-                    echo "Error running stage $stage_name\n";
-                    $response['stages'][$stage_name]['status'] = 'failure';
-                    continue;
-                }
-
-                if(!isset($action_response) || $action_response == null) continue;
-
-                if(isset($action_response['status']) && $action_response['status'] == 'failure') {
-                    $response['status'] = 'failure';
-                    $response['stages'][$stage_name]['status'] = 'failure';
-                }
-
-                if(isset($action_response['output'])) {
-                    $response['stages'][$stage_name]['output'] = $action_response['output'];
-                }
-
-                if(isset($action_response['stderr'])) {
-                    $response['stages'][$stage_name]['stderr'] = $action_response['stderr'];
-                }
-
-                if(isset($action_response['files'])) {
-                    foreach($action_response['files'] as $file => $data) {
-                        $response['files'][$file] = $data;
-                    }
-                }
-
-            }
-
-            ob_flush();
-
-            $this->quit_driver();*/
-
-            //return $response;
 
         }
 
@@ -627,7 +546,7 @@
                                         $response['files'][$file]['tests'][$function]['reason'] = $e->getMessage();
                                         echo "Unable to call function $function\n" . $e->getMessage() . "\n";
                                     } finally {
-                                        echo "Finished calling $function\n";
+                                        //echo "Finished calling $function\n";
                                     }
                                 }
                                     
