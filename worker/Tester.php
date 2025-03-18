@@ -3,14 +3,51 @@
     require __DIR__ . '/vendor/autoload.php';
 
     class Tester {
-        public function __construct($tsuite_dir, $endpoint_url, $repo_settings, $testbook_properties) {
+
+        private $tsuite_dir;
+        private $endpoint_url;
+        private $repo_settings;
+        private $testbook_properties;
+        private $driver_quit_bool;
+        private $lock_file;
+        private $commit_data;
+        private $running_stage;
+        private $stages;
+
+        public function __construct($tsuite_dir, $endpoint_url, $repo_settings, $testbook_properties, $lock_file, $commit_data) {
 
             $this->tsuite_dir = rtrim($tsuite_dir, '/');
             $this->endpoint_url = $endpoint_url;
             $this->repo_settings = $repo_settings;
             $this->testbook_properties = $testbook_properties;
             $this->driver_quit_bool = false;
+            $this->lock_file = $lock_file;
 
+            $this->running_stage = null;
+
+            $this->commit_data = $commit_data;
+
+            $this->stages = null;
+
+            register_shutdown_function(array($this, 'registerShutdown'));
+
+        }
+
+        public function registerShutdown() {
+            $error = error_get_last();
+            if ($error !== null) {
+                // Handle fatal errors here
+                echo "Fatal error: {$error['message']} in {$error['file']} on line {$error['line']}\n";
+
+                if($this->running_stage != null) {
+                    $this->running_stage->set_errored(true);
+                    $this->run_tests();
+                }
+
+                //post_commit($repo, $commit_hash, $branch, $message, $author, 1, $total_tests_passed, $total_tests_failed, $download_duration, $install_duration, $test_duration);
+
+                // Log the fatal error if necessary
+            }
         }
 
         public function get_selenium_driver() {
@@ -64,57 +101,393 @@
         }
 
         public function run_tests() {
-            
-            $response = array();
-
-            $response['status'] = 'success';
-            $response['stages'] = array();
-            $response['files'] = array();
-
-            try {
-                foreach($this->testbook_properties['stages'] as $stage_name => $stage) {
-                    $stage_title = $stage['title'];
-                    $stage_description = $stage['description'];
-                    echo "Running $stage_title:\n";
-                    //echo "\t$stage_description\n";
-
-                    $response['stages'][$stage_name] = array();
-                    $response['stages'][$stage_name]['status'] = 'success';
-
-                    $action_response = $this->handleAction($stage['actions']);
-
-                    if(!isset($action_response) || $action_response == null) continue;
-
-                    if(isset($action_response['status']) && $action_response['status'] == 'failure') {
-                        $response['status'] = 'failure';
-                        $response['stages'][$stage_name]['status'] = 'failure';
-                    }
-
-                    if(isset($action_response['output'])) {
-                        $response['stages'][$stage_name]['output'] = $action_response['output'];
-                    }
-
-                    if(isset($action_response['stderr'])) {
-                        $response['stages'][$stage_name]['stderr'] = $action_response['stderr'];
-                    }
-
-                    if(isset($action_response['files'])) {
-                        foreach($action_response['files'] as $file => $data) {
-                            $response['files'][$file] = $data;
-                        }
-                    }
-
+            if($this->stages == null) {
+                $this->stages = $this->generate_stages($this->testbook_properties);
+    
+                if($this->stages == null || count($this->stages) == 0) {
+                    return false;
                 }
-            } catch (Exception $e) {
-                echo "Error while running Tester::run_tests\n";
-                echo $e->getMessage() . "\n";
-                return $response;
-            } finally {
-                echo "Quitting driver from Tester::run_tests\n";
-                $this->quit_driver();
             }
 
-            return $response;
+            foreach($this->stages as $stage) {
+                if($stage->is_finished()) continue;
+                echo "Executing stage: " . $stage->get_name() . "\n";
+                $this->running_stage = $stage;
+                $stage_response = $this->execute_stage($stage);
+                $stage->set_response($stage_response);
+            }
+
+            echo "Finished running all tests\n";
+
+            $this->save_execution_data();
+
+        }
+
+        public function write_test_results($commit_hash, $test_results) {
+            write_to_file($this->commit_data['test_result_location'] . '/' . $commit_hash . '.json', json_encode($test_results, JSON_PRETTY_PRINT), true);
+        }
+
+        public function save_execution_data() {
+            $end_time_test = get_current_time_milliseconds();
+
+            $start_time_install = 0;
+            $start_time_download = 0;
+            $start_time_test = 0;
+
+            $download_duration = $start_time_install - $start_time_download;
+            $install_duration = $start_time_test - $start_time_install;
+            $test_duration = $end_time_test - $start_time_test;
+
+            $total_tests_passed = 0;
+            $total_tests_failed = 0;
+
+            $test_results = [];
+            $test_results['status'] = 'failure';
+            $test_results['stages'] = [];
+            $test_results['files'] = [];
+
+            foreach($this->stages as $stage) {
+                $stage_array_to_add = [];
+
+                $stage_array_to_add['status'] = $stage->is_errored() ? 'failure' : 'success';
+
+                $test_results['stages'][$stage->get_slug()] = $stage_array_to_add;
+            }
+
+            $this->write_test_results($this->commit_data['commit_hash'], $test_results);
+
+            post_commit(
+                $this->commit_data['repo'], 
+                $this->commit_data['commit_hash'], 
+                $this->commit_data['branch'], 
+                $this->commit_data['message'], 
+                $this->commit_data['author'], 
+                0, 
+                $total_tests_passed, 
+                $total_tests_failed, 
+                $download_duration, 
+                $install_duration, 
+                $test_duration
+            );
+
+            $this->quit_driver();
+
+            /*if($test_response['status'] == 'failure') {
+                echo "$commit_hash failed its tests\n";
+                foreach($test_response['files'] as $file => $file_data) {
+                    if($file_data['status'] == 'failure') {
+                        echo "$file failed its tests\n";
+                        foreach($file_data['tests'] as $test_name => $test_data) {
+                            if($test_data['status'] == 'failure') {
+                                echo "Test failed: $test_name\n";
+                                echo "Reason: " . $test_data['reason'] . "\n";
+                                $total_tests_failed++;
+                            } else {
+                                echo "Test passed: $test_name\n";
+                                $total_tests_passed++;
+                            }
+                        }
+                    } else {
+                        foreach($file_data['tests'] as $test_name => $test_data) {
+                            if($test_data['status'] == 'failure') {
+                                echo "Test failed: $test_name\n";
+                                echo "Reason: " . $test_data['reason'] . "\n";
+                                $total_tests_failed++;
+                            } else {
+                                echo "Test passed: $test_name\n";
+                                $total_tests_passed++;
+                            }
+                        }
+                        echo "$file is passing all tests\n";
+                    }
+                }
+                post_commit($repo, $commit_hash, $branch, $message, $author, 1, $total_tests_passed, $total_tests_failed, $download_duration, $install_duration, $test_duration);
+            } else {
+                echo "$commit_hash is passing all tests\n";
+                foreach($test_response['files'] as $file => $file_data) {
+                    if($file_data['status'] == 'failure') {
+                        echo "$file failed its tests\n";
+                        foreach($file_data['tests'] as $test_name => $test_data) {
+                            if($test_data['status'] == 'failure') {
+                                echo "Test failed: $test_name\n";
+                                echo "Reason: " . $test_data['reason'] . "\n";
+                                $total_tests_failed++;
+                            } else {
+                                echo "Test passed: $test_name\n";
+                                $total_tests_passed++;
+                            }
+                        }
+                    } else {
+                        if(isset($file_data) && $file_data['tests'] != null) {
+                            foreach($file_data['tests'] as $test_name => $test_data) {
+                                if($test_data['status'] == 'failure') {
+                                    echo "Test failed: $test_name\n";
+                                    echo "Reason: " . $test_data['reason'] . "\n";
+                                    $total_tests_failed++;
+                                } else {
+                                    echo "Test passed: $test_name\n";
+                                    $total_tests_passed++;
+                                }
+                            }
+                            echo "$file is passing all tests\n";
+                        }
+                    }
+                }
+                post_commit($repo, $commit_hash, $branch, $message, $author, 0, $total_tests_passed, $total_tests_failed, $download_duration, $install_duration, $test_duration);
+            }
+
+            write_to_file($test_result_location . '/' . $commit_hash . '.json', json_encode($test_response, JSON_PRETTY_PRINT), true);*/
+        }
+
+        public function execute_stage($stage) {
+            if($stage == null) {
+                echo "Tester::execute_stage: stage was null\n";
+                return null;
+            }
+
+            if($stage->get_actions() == null) {
+                echo "Tester::execute_stage: stage get_actions was null\n";
+                return null;
+            }
+
+            $stage_response = [];
+
+            foreach($stage->get_actions() as $action) {
+                $stage_response[$action->get_type()] = $this->execute_action($action);
+            }
+
+            return $stage_response;
+
+        }
+
+        public function execute_action($action) {
+            if($action == null) {
+                echo "Tester::execute_action action is null\n";
+                return null;
+            } 
+
+            $type = $action->get_type();
+            $subactions = $action->get_subactions();
+
+            if($subactions == null) {
+                echo "Tester::execute_action subactions is null\n";
+                return [];
+            }
+            if($type == null) {
+                echo "Tester::execute_action type is null\n";
+                return [];
+            }
+
+            if($type === 'shell') {
+                echo "Executing shell action\n";
+                return $this->execute_shell_action($action);
+            }
+            
+            if($type === 'php') {
+                echo "Executing php action\n";
+                return $this->execute_php_action($action);
+            }
+
+            echo "Action type `$type` not recognized\n";
+
+            return null;
+        }
+
+        public function execute_shell_action($action) {
+            $action_response = [];
+
+            $settings_string = $this->get_repo_settings_command_string();
+            foreach($action->get_subactions() as $command) {
+                $command_string = rtrim("$settings_string;$command", ';');
+                //echo "Running command string:\n$command\n\n";
+                $output = shell_exec($command_string);
+                if(!isset($response['output']))
+                    $response['output'] = array();
+                if($output != null && $output != '')
+                    $action_response[] = $output;
+            }
+
+            return $action_response;
+        }
+
+        public function execute_php_action($action) {
+            $action_response = [];
+
+            foreach($action->get_subactions() as $php_file) {
+                $file = $this->tsuite_dir . '/' . $php_file;
+
+                echo "Time to run $file\n";
+
+                $functions = $this->get_functions_from_file($file);
+
+                if($functions === false) {
+                    $action_response['status'] = 'failure';
+                    $action_response['files'][$file]['status'] = 'failure';
+                    $action_response['files'][$file]['tests'][$function]['status'] = 'failure';
+                    $action_response['files'][$file]['tests'][$function]['reason'] = "Syntax error in file $file";
+                    echo "Syntax error in file $file\n";
+                } else {
+
+                    $count_functions = sizeof($functions);
+
+                    echo "$file has $count_functions functions\n";
+
+                    $action_response['files'][$file]['status'] = 'success';
+                
+                    $properties = array();
+                    $properties['endpoint_url'] = $this->endpoint_url;
+                    $properties['selenium'] = $this->get_selenium_driver();
+                    $properties['tester'] = $this;
+
+                    ob_start();
+
+                    foreach ($functions as $function) {
+                        try {
+                            call_user_func_array($function, array(&$properties));
+                            $action_response['files'][$file]['tests'][$function]['status'] = 'success';
+                            $action_response['files'][$file]['status'] = 'success';
+                            if(!$action->get_stage()->is_errored())
+                                $action->get_stage()->set_successful(true);
+                        } catch (Exception $e) {
+                            $action->get_stage()->set_errored(true);
+                            $action->get_stage()->set_successful(false);
+                            $action_response['status'] = 'failure';
+                            $action_response['files'][$file]['status'] = 'failure';
+                            $action_response['files'][$file]['tests'][$function]['status'] = 'failure';
+                            $action_response['files'][$file]['tests'][$function]['reason'] = $e->getMessage();
+                            echo "Unable to call function $function\n" . $e->getMessage() . "\n";
+                        } finally {
+                            echo "Finished calling $function\n";
+                        }
+                    }
+                        
+                }
+
+                if(!isset($action_response['output']))
+                    $action_response['output'] = array();
+                $output = ob_get_contents();
+                if($output != null && $output != '')
+                    $action_response['output'][] = "$output\n";
+
+                ob_flush();
+
+            }
+
+            return $action_response;
+        }
+
+        public function generate_actions($stage_data) {
+            $return_actions = [];
+
+            if(!isset($stage_data['actions']) || $stage_data['actions'] == null) {
+                echo "Tester::generate_actions: stage_data['actions'] is not set or null\n";
+                return null;
+            }
+
+            $actions = $stage_data['actions'];
+
+            for($x = 0; $x < count($actions); $x++) {
+                foreach($actions[$x] as $action_type => $subactions) {
+    
+                    $action = new Action($action_type, $subactions);
+                    $return_actions[] = $action;
+                }
+            }
+
+            return $return_actions;
+        }
+
+        public function generate_stage($slug, $stage_title, $stage_data) {
+
+            //TODO: Better handling
+            if(!isset($stage_data['actions']) || $stage_data == null)
+                return new Stage($slug, $stage_title, []);
+
+            $actions = $this->generate_actions($stage_data);
+
+            $return_stage = new Stage($slug, $stage_title, $actions);
+
+            foreach($actions as $action)
+                $action->set_stage($return_stage);
+
+            return $return_stage;
+
+        }
+
+        public function generate_stages($testbook_properties) {
+
+            if($testbook_properties == null) {
+                echo "Testbook is null\n";
+                return [];
+            }
+
+            if(!isset($testbook_properties['stages']) || $testbook_properties['stages'] == null) {
+                echo "Testbook stages is null or not set\n";
+                return null;
+            }
+
+            $stages = [];
+            
+            foreach($testbook_properties['stages'] as $stage_name => $stage_data) {
+                echo "Tester::generate_stages: found $stage_name\n";
+                $stage_title = $stage_data['title'];
+                $stage_description = $stage_data['description'];
+
+                $stage = $this->generate_stage($stage_name, $stage_title, $stage_data);
+
+                $stages[] = $stage;
+
+            }
+
+            return $stages;
+
+            /*foreach($this->testbook_properties['stages'] as $stage_name => $stage) {
+                $stage_title = $stage['title'];
+                $stage_description = $stage['description'];
+                echo "Running $stage_title:\n";
+                //echo "\t$stage_description\n";
+
+                $response['stages'][$stage_name] = array();
+                $response['stages'][$stage_name]['status'] = 'success';
+
+                $action_response = null;
+
+                try {
+                    $action_response = $this->handleAction($stage['actions']);
+                } catch (Exception $e) {
+                    echo "Error running stage $stage_name\n";
+                    $response['stages'][$stage_name]['status'] = 'failure';
+                    continue;
+                }
+
+                if(!isset($action_response) || $action_response == null) continue;
+
+                if(isset($action_response['status']) && $action_response['status'] == 'failure') {
+                    $response['status'] = 'failure';
+                    $response['stages'][$stage_name]['status'] = 'failure';
+                }
+
+                if(isset($action_response['output'])) {
+                    $response['stages'][$stage_name]['output'] = $action_response['output'];
+                }
+
+                if(isset($action_response['stderr'])) {
+                    $response['stages'][$stage_name]['stderr'] = $action_response['stderr'];
+                }
+
+                if(isset($action_response['files'])) {
+                    foreach($action_response['files'] as $file => $data) {
+                        $response['files'][$file] = $data;
+                    }
+                }
+
+            }
+
+            ob_flush();
+
+            $this->quit_driver();*/
+
+            //return $response;
 
         }
 
@@ -226,6 +599,7 @@
                                 $response['files'][$file]['status'] = 'failure';
                                 $response['files'][$file]['tests'][$function]['status'] = 'failure';
                                 $response['files'][$file]['tests'][$function]['reason'] = "Syntax error in file $file";
+                                echo "Syntax error in file $file\n";
                             } else {
 
                                 $count_functions = sizeof($functions);
@@ -252,18 +626,21 @@
                                         $response['files'][$file]['tests'][$function]['status'] = 'failure';
                                         $response['files'][$file]['tests'][$function]['reason'] = $e->getMessage();
                                         echo "Unable to call function $function\n" . $e->getMessage() . "\n";
+                                    } finally {
+                                        echo "Finished calling $function\n";
                                     }
                                 }
-
-                                if(!isset($response['output']))
-                                    $response['output'] = array();
-                                $output = ob_get_contents();
-                                if($output != null && $output != '')
-                                    $response['output'][] = "$output\n";
-
-                                ob_flush();
                                     
                             }
+
+                            if(!isset($response['output']))
+                                $response['output'] = array();
+                            $output = ob_get_contents();
+                            if($output != null && $output != '')
+                                $response['output'][] = "$output\n";
+
+                            ob_flush();
+
                         }
                     }
                 }
