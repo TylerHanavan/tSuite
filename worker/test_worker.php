@@ -218,7 +218,7 @@
             echo "Could not get repo_id for $repo\n";
             return false;
         }
-        $commits = do_curl('/api/v1/commit', array('repo_id' => $repo_id, 'do_retest_flag' => false), false);
+        $commits = do_curl('/api/v1/commit', array('repo_id' => $repo_id, 'hash' => $commit_hash), false);
         if($commits == null || !isset($commits['response'])) {
             echo "No response data $repo /api/commit\n";
             return false;
@@ -228,12 +228,23 @@
             echo "No commits returned for $repo /api/v1/commit\n";
             return true;
         }
+        $most_recent_commit = null;
+        $most_recent_commit_timestamp = null;
         foreach($commits_arr as $commit) {
             if($commit['hash'] == $commit_hash && $commit['branch'] == $branch) {
-                return false;
+                if(isset($commit['date']) && $commit['date'] != null) {
+                    $timestamp = strtotime($commit['date']);
+                    if($most_recent_commit == null || $timestamp > $most_recent_commit_timestamp) {
+                        $most_recent_commit = $commit;
+                        $most_recent_commit_timestamp = $timestamp;
+                    }
+                }
             }
         }
-        return true;
+        if($most_recent_commit['do_retest_flag'] === 1) {
+            return true;
+        }
+        return false;
     }
 
     function do_git_pull($repo, $branch, $download_location, $username, $token) {
