@@ -13,6 +13,7 @@
         private $commit_data;
         private $running_stage;
         private $stages;
+        private $saved_execution_data;
 
         public function __construct($tsuite_dir, $endpoint_url, $repo_settings, $testbook_properties, $lock_file, $commit_data) {
 
@@ -28,6 +29,8 @@
             $this->commit_data = $commit_data;
 
             $this->stages = null;
+
+            $this->saved_execution_data = false;
 
             register_shutdown_function(array($this, 'registerShutdown'));
 
@@ -130,6 +133,11 @@
         }
 
         public function save_execution_data() {
+            if($this->saved_execution_data === true) {
+                echo "Already saved execution data, skipping...\n";
+                return;
+            }
+            $this->saved_execution_data = true;
             $end_time_test = 0;//get_current_time_milliseconds();
 
             $start_time_install = 0;
@@ -144,7 +152,7 @@
             $total_tests_failed = 0;
 
             $test_results = [];
-            $test_results['status'] = 'failure';
+            $test_results['status'] = 'success';
             $test_results['stages'] = [];
             $test_results['files'] = [];
 
@@ -162,7 +170,10 @@
                         if(isset($function_results['status'])) {
                             $status = $function_results['status'];
                             if($status === 'success') $total_tests_passed++;
-                            if($status === 'failure') $total_tests_failed++;
+                            if($status === 'failure') {
+                                $total_tests_failed++;
+                                $test_results['status'] = 'failure';
+                            }
                         }
                     }
                 }
