@@ -241,7 +241,7 @@
                 }
             }
         }
-        if($most_recent_commit['do_retest_flag'] === 1) {
+        if($most_recent_commit == null || $most_recent_commit['do_retest_flag'] === 1) {
             return true;
         }
         return false;
