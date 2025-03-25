@@ -82,7 +82,7 @@
 
             $log_prefix = "[$repo/$branch $tiny_hash]";
             
-            echo "$log_prefix pre is_commit_new\n";
+            echo "$log_prefix before is_commit_new\n";
 
             if(is_commit_new($repo, $branch, $commit_hash)) {
 
