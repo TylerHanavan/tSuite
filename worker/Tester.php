@@ -5,7 +5,6 @@
     class Tester {
 
         private $tsuite_dir;
-        private $endpoint_url;
         private $repo_settings;
         private $testbook_properties;
         private $driver_quit_bool;
@@ -16,10 +15,9 @@
         private $saved_execution_data;
         private $selenium_driver;
 
-        public function __construct($tsuite_dir, $endpoint_url, $repo_settings, $testbook_properties, $lock_file, $commit_data) {
+        public function __construct($tsuite_dir, $repo_settings, $testbook_properties, $lock_file, $commit_data) {
 
             $this->tsuite_dir = rtrim($tsuite_dir, '/');
-            $this->endpoint_url = $endpoint_url;
             $this->repo_settings = $repo_settings;
             $this->testbook_properties = $testbook_properties;
             $this->driver_quit_bool = false;
@@ -306,7 +304,11 @@
                     $action_response['files'][$file]['status'] = 'success';
                 
                     $properties = array();
-                    $properties['endpoint_url'] = $this->endpoint_url;
+                    
+                    foreach($this->repo_settings as $key => $value) {
+                        $properties[$key] = $value;
+                    }
+
                     $properties['selenium'] = $this->get_selenium_driver();
                     $properties['tester'] = $this;
 

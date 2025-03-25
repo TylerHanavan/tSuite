@@ -168,7 +168,7 @@
                 $commit_data['test_result_location'] = $test_result_location;
 
                 $start_time_test = get_current_time_milliseconds();
-                $tester = new Tester($download_location . '/.tsuite', 'localhost:1347', $simplified_repo_settings, $testbook_properties, $lock_file, $commit_data);
+                $tester = new Tester($download_location . '/.tsuite', $simplified_repo_settings, $testbook_properties, $lock_file, $commit_data);
                 $test_response = $tester->run_tests();
 
             } else {
