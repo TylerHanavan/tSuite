@@ -184,6 +184,10 @@
 
         $branches = array();
 
+        $branches_json = json_decode($response, true);
+
+        if($branches_json == null) return [];
+
         foreach(json_decode($response, true) as $branch_arr) {
             $branch = array();
             $branch['name'] = $branch_arr['name'];
