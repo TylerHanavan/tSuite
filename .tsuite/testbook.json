@@ -1,0 +1,45 @@
+{
+    "stages": {
+      "build":
+      {
+        "title": "Build tSuite with Composer",
+        "description": "Builds",
+        "actions": [
+          {
+            "shell": [
+              "cd ${DOWNLOAD_LOCATION} && composer update 2>&1 && composer install 2>&1 && composer dump-autoload 2>&1"
+            ]
+          }
+        ]
+      },
+      "install": {
+        "title": "Install tSuite",
+        "description": "Copies the files to the install location",
+        "actions": [
+          {
+            "shell": [
+              "cp -r ${DOWNLOAD_LOCATION}/src/* ${INSTALL_LOCATION} && echo \"No errors while copying from ${DOWNLOAD_LOCATION}/src/* to ${INSTALL_LOCATION}\" || \"There was a problem copying the files from ${DOWNLOAD_LOCATION}/src/* to ${INSTALL_LOCATION}\"",
+              "mkdir ${INSTALL_LOCATION}/vendor; cp -r ${DOWNLOAD_LOCATION}/vendor/* ${INSTALL_LOCATION}/vendor && echo \"No errors while copying from ${DOWNLOAD_LOCATION}/vendor/* to ${INSTALL_LOCATION}/vendor\" || \"There was a problem copying the files from ${DOWNLOAD_LOCATION}/vendor/* to ${INSTALL_LOCATION}/vendor\""
+            ]
+          }
+        ]
+      },
+      "setupDB": {
+        "title": "Setup MySQL Database",
+        "description": "This test drops the MySQL database if it exists, creates a new database, creates the user and grants the permissions to the user.",
+        "actions": [
+          {
+            "shell": [
+              "echo \"Dropping database ${DB_NAME}\"",
+              "mysql -u ${DB_USER} -e \"DROP DATABASE ${DB_NAME}\"",
+              "echo \"Creating database ${DB_NAME}\"",
+              "mysql -u ${DB_USER} -e \"CREATE DATABASE ${DB_NAME}\"",
+              "echo \"TODO: Recreate user\"",
+              "echo \"Granting privileges to ${DB_USER} on ${DB_NAME}\"",
+              "mysql -u ${DB_USER} -e \"GRANT ALL PRIVILEGES ON ${DB_NAME}.* TO '${DB_USER}';\""
+            ]
+          }
+        ]
+      }
+    }
+  }
