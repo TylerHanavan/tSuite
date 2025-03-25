@@ -211,6 +211,7 @@
                     foreach($file_data['tests'] as $function => $data) {
                         $status = $data['status'];
                         $reason = $data['reason'] ?? '';
+                        $reason = htmlentities($reason);
 
                         if($status == 'success') {
                             $status = 'Passed';
