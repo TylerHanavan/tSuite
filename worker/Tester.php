@@ -156,6 +156,7 @@
 
             $test_results = [];
             $test_results['status'] = 'success';
+            $test_results['total_runtime'] = 0;
             $test_results['stages'] = [];
             $test_results['files'] = [];
 
@@ -166,7 +167,9 @@
                 $stage_array_to_add['output'] = $stage->get_output();
                 $stage_array_to_add['runtime_start'] = $stage->get_runtime_start();
                 $stage_array_to_add['runtime_end'] = $stage->get_runtime_end();
-                
+                $stage_array_to_add['runtime_duration'] = $stage->get_runtime_end() - $stage->get_runtime_start();
+                $test_results['total_runtime'] += $stage_array_to_add['runtime_duration'];
+
                 foreach($stage->get_file_results() as $file_name => $file_result) {
                     $test_results['files'][$file_name] = $file_result;
                     foreach($file_result['tests'] as $function => $function_results) {
