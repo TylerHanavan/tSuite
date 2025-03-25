@@ -14,6 +14,7 @@
         private $running_stage;
         private $stages;
         private $saved_execution_data;
+        private $selenium_driver;
 
         public function __construct($tsuite_dir, $endpoint_url, $repo_settings, $testbook_properties, $lock_file, $commit_data) {
 
@@ -31,6 +32,8 @@
             $this->stages = null;
 
             $this->saved_execution_data = false;
+
+            $this->selenium_driver = null;
 
             register_shutdown_function(array($this, 'registerShutdown'));
 
