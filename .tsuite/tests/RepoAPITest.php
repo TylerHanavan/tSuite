@@ -7,7 +7,7 @@
 
     function test_repo_post_1($properties) {
         $uri = "/api/v1/repo";
-        $response = test_curl($properties['endpoint_url'] . "/$uri", [], false);
+        $response = test_curl($properties['endpoint_url'] . "/$uri", [], true);
         assertEquals(400, $response['http_code'], "$uri http code mismatch");
 
         assertEquals($response['response'] === 'Provided payload is empty', "$uri did not trigger error for empty payload");
