@@ -196,7 +196,7 @@
                 return true;
             }
 
-            return $stmt->fetchAll();
+            return $stmt->fetchAll(PDO::FETCH_ASSOC);
 
         } catch (Exception $e) {
             //echo $e->getMessage();
