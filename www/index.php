@@ -80,6 +80,7 @@
         ),
         'POST' => array(
             '/api/v1/commit' => 'handle_api_commit_post',
+            '/api/v1/repo' => 'handle_api_repo_post',
             '/api/v1/repo_setting' => 'handle_api_repo_setting_post',
             '/api/v1/global_setting' => 'handle_api_global_setting_post'
         ),
