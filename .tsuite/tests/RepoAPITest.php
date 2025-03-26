@@ -60,6 +60,14 @@
         $response = test_curl($properties['endpoint_url'] . "/$uri", ['name' => 'tSuite', 'download_location' => '/opt/tsuite/downloads/tSuite', 'url' => 'example.com'], true);
         assertEquals(200, $response['http_code'], "$uri http code mismatch");
         assertEquals('{"status":"success"}', $response['response'], "$uri did not return success response on success");
+
+        $uri = "/api/v1/repo";
+
+        $response = test_curl($properties['endpoint_url'] . "/$uri", [], false);
+        assertEquals(200, $response['http_code'], "$uri http code mismatch");
+        assertEquals('{"name":"tSuite","url":"example.com","download_location":"/opt/tsuite/downloads/tSuite"}', $response['response'], "$uri did not return success response on success");
+
+        echo "Concluded testing POST $uri (successful third run)\n";
     }
 
 ?>
