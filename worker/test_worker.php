@@ -51,6 +51,7 @@
         $test_result_location = null;
 
         foreach($repo_settings_arr as $setting) {
+            if($iter_repo['id'] != $setting['repo_id']) continue;
             if($setting['name'] == 'PAT') {
                 $PAT = $setting['value'];
             } else if($setting['name'] == 'REPO_USER') {
