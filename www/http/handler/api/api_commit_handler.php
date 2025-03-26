@@ -128,12 +128,12 @@
                 $failures++;
                 if(!isset($response['failure']))
                     $response['failure'] = array();
-                $response['failure'][] = array('position' => $counter, 'entity' => $entity);
+                $response['failure'][] = array('position' => $counter, 'entity' => $entity, 'result' => $result);
             } else {
                 $successes++;
                 if(!isset($response['success']))
                     $response['success'] = array();
-                $response['success'][] = array('position' => $counter, 'entity' => $entity);
+                $response['success'][] = array('position' => $counter, 'entity' => $entity, 'result' => $result);
             }
 
             $counter++;
