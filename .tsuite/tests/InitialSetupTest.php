@@ -1,7 +1,7 @@
 <?php
 
     function test_setup_1($properties) {
-        $response = test_curl($properties['endpoint_url'] . '/api/v1/commit', [], true);
+        $response = test_curl($properties['endpoint_url'] . '/api/v1/commit', [], false);
         assertEquals(200, $response['http_code'], 'http code mismatch');
         $html_response = $response['response'];
 
