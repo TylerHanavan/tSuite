@@ -192,6 +192,10 @@
                 return $stmt->rowCount(); // Return the number of affected rows for UPDATE queries
             }
 
+            if (preg_match('/^\s*(CREATE|ALTER|DROP)\s+/i', $query)) {
+                return true;
+            }
+
             return $stmt->fetchAll();
 
         } catch (Exception $e) {
