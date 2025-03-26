@@ -59,7 +59,7 @@
 
         $response = test_curl($properties['endpoint_url'] . "/$uri", ['name' => 'tSuite', 'download_location' => '/opt/tsuite/downloads/tSuite', 'url' => 'example.com'], true);
         assertEquals(200, $response['http_code'], "$uri http code mismatch");
-        assertEquals($response['response'], '{"status":"success"}', "$uri did not return success response on success");
+        assertEquals('{"status":"success"}', $response['response'], "$uri did not return success response on success");
     }
 
 ?>
