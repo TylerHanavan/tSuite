@@ -43,6 +43,13 @@
 
         $result = query($insert_query, $insert_vals);
 
+        if($result === true || (is_array($result) && count($result) != 0)) {
+            $response['status'] = 'success';
+        } else {
+            $response['status'] = 'failure';
+            $response['reason'] = 'Unable to insert';
+        }
+
         echo json_encode($response);
         exit();
     }

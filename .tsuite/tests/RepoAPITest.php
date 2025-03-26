@@ -54,4 +54,12 @@
         echo "Concluded testing POST $uri (errored second run)\n";
     }
 
+    function test_repo_post_2($properties) {
+        $uri = "/api/v1/repo";
+
+        $response = test_curl($properties['endpoint_url'] . "/$uri", ['name' => 'tSuite', 'download_location' => '/opt/tsuite/downloads/tSuite', 'url' => 'example.com'], true);
+        assertEquals(200, $response['http_code'], "$uri http code mismatch");
+        assertEquals($response['response'], '{"status":"success"}', "$uri did not return success response on success");
+    }
+
 ?>
