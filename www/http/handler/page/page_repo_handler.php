@@ -93,7 +93,7 @@
                     $test_status_td = '<td style="background-color:#ffebeb;color:#d00;font-weight:bold">';
                 }
     
-                echo "<tr><td>$date</td><td><a href='/repo/$name/commit/$commit_hash'>$short_commit_hash</a></td><td>$branch</td><td>$message</td><td>$author</td>$test_status_td$test_status</td><td>$success_tests</td><td>$failed_tests</td><td>$download_duration</td><td>$install_duration</td><td>$test_duration</td><td>$total_duration</td><td><p><button class='btn-success commit-retest' commit-id='$id'>Retest</button></p></td></tr>";
+                echo "<tr><td>$date</td><td><a href='/repo/$name/commit/$commit_hash/$id'>$short_commit_hash</a></td><td>$branch</td><td>$message</td><td>$author</td>$test_status_td$test_status</td><td>$success_tests</td><td>$failed_tests</td><td>$download_duration</td><td>$install_duration</td><td>$test_duration</td><td>$total_duration</td><td><p><button class='btn-success commit-retest' commit-id='$id'>Retest</button></p></td></tr>";
             }
             echo '</table>';
 
@@ -101,9 +101,9 @@
         
     }
 
-    function handle_page_repo_commit_get($repo, $hash, $uri_parts, $uri_args) {
-        if(isset($uri_parts[1]) && sizeof($uri_parts) == 4) {
-            // /repos/REPO_NAME/commit/COMMIT_HASH
+    function handle_page_repo_commit_get($repo, $hash, $id, $uri_parts, $uri_args) {
+        if(isset($uri_parts[1]) && sizeof($uri_parts) == 5) {
+            // /repos/REPO_NAME/commit/COMMIT_HASH/ID
 
             if($uri_parts[2] == 'commit') {
                 $repo_name = $uri_parts[1];
@@ -119,8 +119,8 @@
                 $repo_id = $repo['id'];
                 $repo_download_path = $repo['download_location'];
 
-                $commit = query('SELECT * FROM commit WHERE repo_id = :repo_id AND hash = :hash ORDER BY test_status DESC', array('repo_id' => $repo_id, 'hash' => $commit_hash));
-                if(sizeof($commit) == 0) {
+                $commit = query('SELECT * FROM commit WHERE repo_id = :repo_id AND hash = :hash AND id = :id', array('repo_id' => $repo_id, 'hash' => $hash, 'id' => $id));
+                if($commit !== false && sizeof($commit) == 0) {
                     echo "Commit not found!<br />";
                     return;
                 }
@@ -190,7 +190,7 @@
                 echo "<strong>Test Duration</strong>: $test_duration<br />";
                 echo "<strong>Total Duration</strong>: $total_duration<br />";
 
-                $test_result_file = $test_result_location . "/$commit_hash.json";
+                $test_result_file = $test_result_location . "/$commit_hash.$id.json";
 
                 try {
                     $test_result_json = read_flat_file($test_result_file);
