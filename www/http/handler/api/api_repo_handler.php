@@ -18,6 +18,21 @@
             json_error_and_exit('Provided payload is not an array');
         }
 
+        if(count($entity) == 0) {
+            json_error_and_exit("Provided payload is empty");
+        }
+
+        $required_fields = ['name', 'url', 'download_location'];
+
+        foreach($required_fields as $field) {
+            if(!isset($entity[$field])) {
+                json_error_and_exit("Required field `$field` is not provided in the payload");
+            }
+            if($entity[$field] === '' || $entity[$field] == null) {
+                json_error_and_exit("Required field `$field` is empty or null");
+            }
+        }
+
         $insert_query = "INSERT INTO commit (repo_id, hash, branch, date, message, author, test_status, success_tests, failed_tests, download_duration, install_duration, test_duration) VALUES (:repo_id, :hash, :branch, :date, :message, :author, :test_status, :success_tests, :failed_tests, :download_duration, :install_duration, :test_duration)";
 
         $insert_vals = array(
