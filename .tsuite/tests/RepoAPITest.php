@@ -65,7 +65,7 @@
 
         $response = test_curl($properties['endpoint_url'] . "/$uri", [], false);
         assertEquals(200, $response['http_code'], "$uri http code mismatch");
-        assertEquals('{"name":"tSuite","url":"example.com","download_location":"/opt/tsuite/downloads/tSuite"}', $response['response'], "$uri did not return success response on success");
+        assertEquals('{"name":"tSuite","url":"example.com","download_location":"\/opt\/tsuite\/downloads\/tSuite"}', $response['response'], "$uri did not return success response on success");
 
         echo "Concluded testing POST $uri (successful third run)\n";
     }
