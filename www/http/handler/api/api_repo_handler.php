@@ -43,9 +43,7 @@
 
         $result = query($insert_query, $insert_vals);
 
-        var_dump($result);
-
-        if($result === true || (is_array($result) && count($result) != 0)) {
+        if($result === 1) {
             $response['status'] = 'success';
         } else {
             $response['status'] = 'failure';
