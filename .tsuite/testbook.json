@@ -40,6 +40,17 @@
             ]
           }
         ]
+      },
+      "apiTests": {
+        "title": "Run API Tests",
+        "description": "This runs the tSuite API tests.",
+        "actions": [
+          {
+            "php": [
+              "tests/InitialSetupTest.php"
+            ]
+          }
+        ]
       }
     }
   }
