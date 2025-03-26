@@ -48,7 +48,8 @@
           {
             "php": [
               "tests/InitialSetupTest.php",
-              "tests/APITestGetEndpointsWhileEmpty.php"
+              "tests/APITestGetEndpointsWhileEmpty.php",
+              "tests/RepoAPITest.php"
             ]
           }
         ]
