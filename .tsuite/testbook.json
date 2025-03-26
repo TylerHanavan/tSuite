@@ -47,7 +47,8 @@
         "actions": [
           {
             "php": [
-              "tests/InitialSetupTest.php"
+              "tests/InitialSetupTest.php",
+              "tests/APITestGetEndpointsWhileEmpty.php"
             ]
           }
         ]
