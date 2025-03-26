@@ -96,7 +96,7 @@
             '/settings/global' => 'handle_page_global_setting_get',
             '/' => 'handle_page_home_get',
             '/repo/{repo}' => 'handle_page_repo_get',
-            '/repo/{repo}/commit/{hash}' => 'handle_page_repo_commit_get'
+            '/repo/{repo}/commit/{hash}/{id}' => 'handle_page_repo_commit_get'
         )
     );
 
