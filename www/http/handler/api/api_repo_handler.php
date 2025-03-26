@@ -33,21 +33,12 @@
             }
         }
 
-        $insert_query = "INSERT INTO commit (repo_id, hash, branch, date, message, author, test_status, success_tests, failed_tests, download_duration, install_duration, test_duration) VALUES (:repo_id, :hash, :branch, :date, :message, :author, :test_status, :success_tests, :failed_tests, :download_duration, :install_duration, :test_duration)";
+        $insert_query = "INSERT INTO repo (name, url, download_location) VALUES (:name, :url, :download_location)";
 
         $insert_vals = array(
-            'repo_id' => $repo,
-            'hash' => $commit_hash,
-            'branch' => $branch,
-            'date' => $date,
-            'message' => $message,
-            'author' => $author,
-            'test_status' => $test_status,
-            'success_tests' => $success_tests,
-            'failed_tests' => $failed_tests,
-            'download_duration' => $download_duration,
-            'install_duration' => $install_duration,
-            'test_duration' => $test_duration
+            'name' => $entity['name'],
+            'url' => $entity['url'],
+            'download_location' => $entity['download_location'],
         );
 
         $result = query($insert_query, $insert_vals);
