@@ -61,11 +61,17 @@
         assertEquals(200, $response['http_code'], "$uri http code mismatch");
         assertEquals('{"status":"success"}', $response['response'], "$uri did not return success response on success");
 
-        $uri = "/api/v1/repo";
-
         $response = test_curl($properties['endpoint_url'] . "/$uri", [], false);
         assertEquals(200, $response['http_code'], "$uri http code mismatch");
         assertEquals('[{"id":1,"name":"tSuite","url":"example.com","download_location":"\/opt\/tsuite\/downloads\/tSuite"}]', $response['response'], "$uri did not return success response on success");
+
+        $response = test_curl($properties['endpoint_url'] . "/$uri", ['name' => 'vRec', 'download_location' => '/opt/tsuite/downloads/vRec', 'url' => 'vrec.com'], true);
+        assertEquals(200, $response['http_code'], "$uri http code mismatch");
+        assertEquals('{"status":"success"}', $response['response'], "$uri did not return success response on success");
+
+        $response = test_curl($properties['endpoint_url'] . "/$uri", [], false);
+        assertEquals(200, $response['http_code'], "$uri http code mismatch");
+        assertEquals('[{"id":1,"name":"tSuite","url":"example.com","download_location":"\/opt\/tsuite\/downloads\/tSuite"},{"id":2,"name":"vRec","url":"vrec.com","download_location":"\/opt\/tsuite\/downloads\/vRec"}]', $response['response'], "$uri did not return success response on success");
 
         echo "Concluded testing POST $uri (successful third run)\n";
     }
