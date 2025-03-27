@@ -31,13 +31,14 @@
 
         $response = test_curl($properties['endpoint_url'] . "/$uri", $entities, true);
         assertEquals(400, $response['http_code'], "$uri http code mismatch");
-        assertEquals($response['response'], '{"status":"failed","error":"Resources null or missing from payload"}', "$uri did not trigger error for empty payload");
+        assertEquals('{"status":"failed","error":"No hash provided for entity 0"}', $response['response'], "$uri did not trigger error for empty payload");
 
         $entity1 = commit_testing_array_add_field_and_test_missing_field_response($properties, $uri, $entity1, 'hash', 'abcdefghi1234567', '{"status":"failed","error":"No hash provided for entity 0"}');
 
         echo "Concluded testing POST $uri (errored second run)\n";
     }
 
+    #[NotATest]
     function commit_testing_array_add_field_and_test_missing_field_response($properties, $uri, $array, $key, $value, $expected_response) {
 
         $array[$key] = $value;

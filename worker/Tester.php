@@ -491,7 +491,7 @@
             foreach ($all_functions as $function) {
                 try {
                     $ref = new ReflectionFunction($function);
-                    if ($ref->getFileName() === realpath($file)) {
+                    if ($ref->getFileName() === realpath($file) && !$ref->getAttributes(NotATest::class)) {
                         $functions[] = $function;
                     }
                 } catch (ReflectionException $e) {
@@ -606,6 +606,9 @@
         }
 
     }
+
+    #[Attribute]
+    class NotATest {}
 
     function test_curl($uri, $data, $post = true, $session_cookie = null) {
 
