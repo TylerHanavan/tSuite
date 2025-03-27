@@ -43,11 +43,11 @@
 
         $result = query($insert_query, $insert_vals);
 
-        if(is_int($result) && $result > 0) {
-            $response['status'] = 'success';
-        } else {
+        if($result == null || $result === false || (is_array($result) && count($result) == 0)) {
             $response['status'] = 'failure';
             $response['reason'] = 'Unable to insert';
+        } else {
+            $response['status'] = 'success';
         }
 
         echo json_encode($response);
