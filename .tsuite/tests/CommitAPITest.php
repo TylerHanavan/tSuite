@@ -2,6 +2,7 @@
 
     /** TODO:
      * Multiple commits in single POST
+     * Test PUT
      */
 
     function test_commit_post_1($properties) {
