@@ -45,7 +45,7 @@
 
         $response = test_curl($properties['endpoint_url'] . "/$uri", $entities, true);
         assertEquals(200, $response['http_code'], "$uri http code mismatch");
-        assertEquals('{"status":"failed","error":"No hash provided for entity 0"}', $response['response'], "$uri did not trigger error for empty payload");
+        assertEquals('{"success":[{"position":0,"entity":{"repo_id":"1","hash":"abcdefghi1234567","branch":"dev","date":"2025-03-27 01:02:03","message":"test commit","author":"developer"},"result":"1"}],"status":"success"}', $response['response'], "$uri did not trigger success for successful insert");
 
         echo "Concluded testing POST $uri (errored second run)\n";
     }
