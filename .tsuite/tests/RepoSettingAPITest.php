@@ -16,6 +16,11 @@
         $response = test_curl($properties['endpoint_url'] . "/$uri", ['setting_name' => 'test'], true);
         assertEquals(400, $response['http_code'], "$uri http code mismatch");
         assertEquals($response['response'], '{"status":"failed","error":"Missing setting_value"}', "$uri did not trigger error for missing setting_value");
+
+        // Test missing setting_name
+        $response = test_curl($properties['endpoint_url'] . "/$uri", ['setting_value' => 'test'], true);
+        assertEquals(400, $response['http_code'], "$uri http code mismatch");
+        assertEquals($response['response'], '{"status":"failed","error":"Missing setting_name"}', "$uri did not trigger error for missing setting_name");
     }
 
 ?>
