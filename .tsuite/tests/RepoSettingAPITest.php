@@ -31,13 +31,42 @@
         $response = test_curl($properties['endpoint_url'] . "/$uri", ['setting_value' => 'test', 'setting_name' => 'test1', 'repo_id' => 3], true);
         assertEquals(400, $response['http_code'], "$uri http code mismatch");
         assertEquals('{"status":"failed","error":"repo_id does not exist"}', $response['response'], "$uri did not trigger error for bad repo_id");
-
         
+        echo "Concluded testing POST $uri (errored first run)\n";
 
         // Test bad repo_id (not exists in repo table)
         $response = test_curl($properties['endpoint_url'] . "/$uri", ['setting_value' => 'test', 'setting_name' => 'test1', 'repo_id' => 2], true);
         assertEquals(200, $response['http_code'], "$uri http code mismatch");
-        assertEquals('{"status":"failed","error":"repo_id does not exist"}', $response['response'], "$uri did not get inserted");
+        assertEquals('[{"id":1,"repo_id":2,"name":"test1","value":"test"}]', $response['response'], "$uri did not get inserted");
+
+        echo "Concluded testing POST $uri (successful second run)\n";
+    }
+
+    function test_repo_setting_get_1($properties) {
+        $uri = '/api/v1/repo_setting';
+
+        // Test bad repo_id (not exists in repo table)
+        $response = test_curl($properties['endpoint_url'] . "/$uri", [], true);
+        assertEquals(200, $response['http_code'], "$uri http code mismatch");
+        assertEquals('[{"id":1,"repo_id":2,"name":"test1","value":"test"}]', $response['response'], "$uri did not return the right entity");
+
+        echo "Concluded testing GET $uri (successful first run)\n";
+    }
+
+    function test_repo_setting_post_2($properties) {
+        $uri = '/api/v1/repo_setting';
+
+        // Test bad repo_id (not exists in repo table)
+        $response = test_curl($properties['endpoint_url'] . "/$uri", ['setting_value' => 'test', 'setting_name' => 'test1', 'repo_id' => 2], true);
+        assertEquals(400, $response['http_code'], "$uri http code mismatch");
+        assertEquals('{"status":"failed","error":"repo_id does not exist"}', $response['response'], "$uri did not trigger error for repo_setting already exists");
+        
+        echo "Concluded testing POST $uri (errored third run)\n";
+
+
+
+
+        echo "Concluded testing POST $uri (successful fourth run)\n";
     }
 
 ?>
