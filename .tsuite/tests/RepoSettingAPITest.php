@@ -66,7 +66,7 @@
 
         $response = test_curl($properties['endpoint_url'] . "/$uri", ['setting_value' => 'TENten12!@#$%^&*()-_+={[}];:\'",<.>/?\\|~`1234567890', 'setting_name' => 'Alpha_test-3', 'repo_id' => 1], true);
         assertEquals(200, $response['http_code'], "$uri http code mismatch");
-        assertEquals('[{"id":3,"repo_id":1,"name":"test2Alpha_test-3","value":"TENten12!@#$%^&*()-_+={[}];:\'\",<.>\/?\\|~`1234567890"}]', $response['response'], "$uri did not get inserted");
+        assertEquals('[{"id":3,"repo_id":1,"name":"test2Alpha_test-3","value":"TENten12!@#$%^&*()-_+={[}];:\'\",<.>\/?\\\|~`1234567890"}]', $response['response'], "$uri did not get inserted");
 
         echo "Concluded testing POST $uri (successful fourth run)\n";
     }
