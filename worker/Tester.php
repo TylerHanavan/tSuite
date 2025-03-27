@@ -129,8 +129,10 @@
 
         }
 
-        public function write_test_results($commit_hash, $test_results) {
-            write_to_file($this->commit_data['test_result_location'] . '/' . $commit_hash . '.json', json_encode($test_results, JSON_PRETTY_PRINT), true);
+        public function write_test_results($commit_hash, $test_results, $commit_id) {
+            $file = $this->commit_data['test_result_location'] . "/$commit_hash.$commit_id.json";
+            write_to_file($file, json_encode($test_results, JSON_PRETTY_PRINT), true);
+            echo "Writing test results to: ", $file ,"\n";
         }
 
         public function save_execution_data() {
@@ -185,9 +187,7 @@
                 $test_results['stages'][$stage->get_slug()] = $stage_array_to_add;
             }
 
-            $this->write_test_results($this->commit_data['commit_hash'], $test_results);
-
-            post_commit(
+            $commit_response = post_commit(
                 $this->commit_data['repo'], 
                 $this->commit_data['commit_hash'], 
                 $this->commit_data['branch'], 
@@ -200,6 +200,24 @@
                 $install_duration, 
                 $test_duration
             );
+
+            if($commit_response == null || !isset($commit_response['response'])) {
+                echo "No commit_response returned, unable to write to test_results file\n";
+            } else {
+                $commit_response = json_decode($commit_response['response'], true);
+                if(isset($commit_response['success']) && count($commit_response['success']) > 0) {
+                    $commit_response = $commit_response['success'][0];
+                    if(isset($commit_response) && $commit_response != null && isset($commit_response['result']) && $commit_response['result'] != null) {
+                        $commit_id = $commit_response['result'];
+        
+                        $this->write_test_results($this->commit_data['commit_hash'], $test_results, $commit_id);
+                    } else {
+                        echo "post_commit did not return new commit_id, unable to write to test_results file\n";
+                    }
+                } else {
+                    echo "post_commit failed to insert the new row; unable to write to test_results file\n";
+                }
+            }
 
             $this->quit_driver();
         }
@@ -473,7 +491,7 @@
             foreach ($all_functions as $function) {
                 try {
                     $ref = new ReflectionFunction($function);
-                    if ($ref->getFileName() === realpath($file)) {
+                    if ($ref->getFileName() === realpath($file) && !$ref->getAttributes(NotATest::class)) {
                         $functions[] = $function;
                     }
                 } catch (ReflectionException $e) {
@@ -588,6 +606,9 @@
         }
 
     }
+
+    #[Attribute]
+    class NotATest {}
 
     function test_curl($uri, $data, $post = true, $session_cookie = null) {
 

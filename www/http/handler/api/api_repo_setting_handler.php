@@ -1,6 +1,7 @@
 <?php
 
     function handle_api_repo_setting_get($uri_parts, $uri_args) {
+        //TODO: Add arguments
         $repos = query('SELECT * FROM repo_setting');
         echo json_encode($repos);
         exit();

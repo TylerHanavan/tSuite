@@ -80,6 +80,7 @@
         ),
         'POST' => array(
             '/api/v1/commit' => 'handle_api_commit_post',
+            '/api/v1/repo' => 'handle_api_repo_post',
             '/api/v1/repo_setting' => 'handle_api_repo_setting_post',
             '/api/v1/global_setting' => 'handle_api_global_setting_post'
         ),
@@ -96,7 +97,7 @@
             '/settings/global' => 'handle_page_global_setting_get',
             '/' => 'handle_page_home_get',
             '/repo/{repo}' => 'handle_page_repo_get',
-            '/repo/{repo}/commit/{hash}' => 'handle_page_repo_commit_get'
+            '/repo/{repo}/commit/{hash}/{id}' => 'handle_page_repo_commit_get'
         )
     );
 

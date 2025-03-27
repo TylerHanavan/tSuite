@@ -18,8 +18,8 @@
         "actions": [
           {
             "shell": [
-              "cp -r ${DOWNLOAD_LOCATION}/src/* ${INSTALL_LOCATION} && echo \"No errors while copying from ${DOWNLOAD_LOCATION}/src/* to ${INSTALL_LOCATION}\" || \"There was a problem copying the files from ${DOWNLOAD_LOCATION}/src/* to ${INSTALL_LOCATION}\"",
-              "mkdir ${INSTALL_LOCATION}/vendor; cp -r ${DOWNLOAD_LOCATION}/vendor/* ${INSTALL_LOCATION}/vendor && echo \"No errors while copying from ${DOWNLOAD_LOCATION}/vendor/* to ${INSTALL_LOCATION}/vendor\" || \"There was a problem copying the files from ${DOWNLOAD_LOCATION}/vendor/* to ${INSTALL_LOCATION}/vendor\""
+              "cp -r ${DOWNLOAD_LOCATION}/www/* ${INSTALL_LOCATION_WWW} && echo \"No errors while copying from ${DOWNLOAD_LOCATION}/www/* to ${INSTALL_LOCATION_WWW}\" || \"There was a problem copying the files from ${DOWNLOAD_LOCATION}/www/* to ${INSTALL_LOCATION_WWW}\"",
+              "mkdir ${INSTALL_LOCATION_WWW}/vendor; cp -r ${DOWNLOAD_LOCATION}/vendor/* ${INSTALL_LOCATION_WWW}/vendor && echo \"No errors while copying from ${DOWNLOAD_LOCATION}/vendor/* to ${INSTALL_LOCATION_WWW}/vendor\" || \"There was a problem copying the files from ${DOWNLOAD_LOCATION}/vendor/* to ${INSTALL_LOCATION_WWW}/vendor\""
             ]
           }
         ]
@@ -37,6 +37,20 @@
               "echo \"TODO: Recreate user\"",
               "echo \"Granting privileges to ${DB_USER} on ${DB_NAME}\"",
               "mysql -u ${DB_USER} -e \"GRANT ALL PRIVILEGES ON ${DB_NAME}.* TO '${DB_USER}';\""
+            ]
+          }
+        ]
+      },
+      "apiTests": {
+        "title": "Run API Tests",
+        "description": "This runs the tSuite API tests.",
+        "actions": [
+          {
+            "php": [
+              "tests/InitialSetupTest.php",
+              "tests/APITestGetEndpointsWhileEmpty.php",
+              "tests/RepoAPITest.php",
+              "tests/CommitAPITest.php"
             ]
           }
         ]

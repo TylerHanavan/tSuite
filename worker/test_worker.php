@@ -42,15 +42,16 @@
 
         $simplified_repo_settings['DOWNLOAD_LOCATION'] = $download_location;
 
-        foreach($repo_settings_arr as $setting) {
-            $simplified_repo_settings[$setting['name']] = $setting['value'];
-        }
+        foreach($repo_settings_arr as $setting)
+            if($iter_repo['id'] == $setting['repo_id'])
+                $simplified_repo_settings[$setting['name']] = $setting['value'];
         
         $PAT = null;
         $repo_user = null;
         $test_result_location = null;
 
         foreach($repo_settings_arr as $setting) {
+            if($iter_repo['id'] != $setting['repo_id']) continue;
             if($setting['name'] == 'PAT') {
                 $PAT = $setting['value'];
             } else if($setting['name'] == 'REPO_USER') {
