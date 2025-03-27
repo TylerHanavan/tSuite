@@ -54,7 +54,7 @@
     function test_commit_get_1($properties) {
         $uri = '/api/v1/commit';
 
-        $response = test_curl($properties['endpoint_url'] . "/$uri", $entities, false);
+        $response = test_curl($properties['endpoint_url'] . "/$uri", [], false);
         assertEquals(200, $response['http_code'], "$uri http code mismatch");
         assertEquals('[{"repo_id":"1","hash":"abcdefghi1234567","branch":"dev","date":"2025-03-27 01:02:03","message":"test commit","author":"developer"}]', $response['response'], "$uri did not trigger success for successful insert");
 
