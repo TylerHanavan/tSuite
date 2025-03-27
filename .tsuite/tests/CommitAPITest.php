@@ -35,7 +35,17 @@
 
         $entity1 = commit_testing_array_add_field_and_test_missing_field_response($properties, $uri, $entity1, 'hash', 'abcdefghi1234567', '{"status":"failed","error":"No branch provided for entity 0"}');
         $entity1 = commit_testing_array_add_field_and_test_missing_field_response($properties, $uri, $entity1, 'branch', 'dev', '{"status":"failed","error":"No date provided for entity 0"}');
-        $entity1 = commit_testing_array_add_field_and_test_missing_field_response($properties, $date, $entity1, 'date', '2025-03-27 01:02:03', '{"status":"failed","error":"No message provided for entity 0"}');
+        $entity1 = commit_testing_array_add_field_and_test_missing_field_response($properties, $uri, $entity1, 'date', '2025-03-27 01:02:03', '{"status":"failed","error":"No message provided for entity 0"}');
+        $entity1 = commit_testing_array_add_field_and_test_missing_field_response($properties, $uri, $entity1, 'message', 'test commit', '{"status":"failed","error":"No author provided for entity 0"}');
+
+        $entity1['author'] = 'developer';
+
+        $entities = [];
+        $entities[] = $entity1;
+
+        $response = test_curl($properties['endpoint_url'] . "/$uri", $entities, true);
+        assertEquals(200, $response['http_code'], "$uri http code mismatch");
+        assertEquals('{"status":"failed","error":"No hash provided for entity 0"}', $response['response'], "$uri did not trigger error for empty payload");
 
         echo "Concluded testing POST $uri (errored second run)\n";
     }
