@@ -31,6 +31,13 @@
         $response = test_curl($properties['endpoint_url'] . "/$uri", ['setting_value' => 'test', 'setting_name' => 'test1', 'repo_id' => 3], true);
         assertEquals(400, $response['http_code'], "$uri http code mismatch");
         assertEquals('{"status":"failed","error":"repo_id does not exist"}', $response['response'], "$uri did not trigger error for bad repo_id");
+
+        
+
+        // Test bad repo_id (not exists in repo table)
+        $response = test_curl($properties['endpoint_url'] . "/$uri", ['setting_value' => 'test', 'setting_name' => 'test1', 'repo_id' => 2], true);
+        assertEquals(200, $response['http_code'], "$uri http code mismatch");
+        assertEquals('{"status":"failed","error":"repo_id does not exist"}', $response['response'], "$uri did not get inserted");
     }
 
 ?>
