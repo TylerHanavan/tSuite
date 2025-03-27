@@ -43,7 +43,7 @@
 
         $result = query($insert_query, $insert_vals);
 
-        if($result === '1') {
+        if(is_int($result) && $result > 0) {
             $response['status'] = 'success';
         } else {
             $response['status'] = 'failure';
