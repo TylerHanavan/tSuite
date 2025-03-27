@@ -46,7 +46,7 @@
         $uri = '/api/v1/repo_setting';
 
         // Test bad repo_id (not exists in repo table)
-        $response = test_curl($properties['endpoint_url'] . "/$uri", [], true);
+        $response = test_curl($properties['endpoint_url'] . "/$uri", [], false);
         assertEquals(200, $response['http_code'], "$uri http code mismatch");
         assertEquals('[{"id":1,"repo_id":2,"name":"test1","value":"test"}]', $response['response'], "$uri did not return the right entity");
 
@@ -59,7 +59,7 @@
         // Test bad repo_id (not exists in repo table)
         $response = test_curl($properties['endpoint_url'] . "/$uri", ['setting_value' => 'test', 'setting_name' => 'test1', 'repo_id' => 2], true);
         assertEquals(400, $response['http_code'], "$uri http code mismatch");
-        assertEquals('{"status":"failed","error":"repo_id does not exist"}', $response['response'], "$uri did not trigger error for repo_setting already exists");
+        assertEquals('{"status":"failed","error":"repo_setting already exists for repo"}', $response['response'], "$uri did not trigger error for repo_setting already exists");
         
         echo "Concluded testing POST $uri (errored third run)\n";
 
