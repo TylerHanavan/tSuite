@@ -71,4 +71,14 @@
         echo "Concluded testing POST $uri (successful fourth run)\n";
     }
 
+    function test_repo_setting_get_2($properties) {
+        $uri = '/api/v1/repo_setting';
+
+        $response = test_curl($properties['endpoint_url'] . "/$uri", [], false);
+        assertEquals(200, $response['http_code'], "$uri http code mismatch");
+        assertEquals('[{"id":1,"repo_id":2,"name":"test1","value":"test"},{"id":2,"repo_id":2,"name":"test2","value":"jest"},{"id":3,"repo_id":1,"name":"Alpha_test-3","value":"TENten12!@#$%^&*()-_+={[}];:\'\",<.>\/?\\\|~`1234567890"}]', $response['response'], "$uri did not return the right entity");
+
+        echo "Concluded testing GET $uri (successful second run)\n";
+    }
+
 ?>
