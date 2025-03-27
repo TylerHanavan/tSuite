@@ -1,8 +1,7 @@
 <?php
 
     /** TODO:
-     * Test null payload
-     * Test string payload
+     * Multiple commits in single POST
      */
 
     function test_commit_post_1($properties) {
@@ -38,6 +37,8 @@
         $entity1 = commit_testing_array_add_field_and_test_missing_field_response($properties, $uri, $entity1, 'date', '2025-03-27 01:02:03', '{"status":"failed","error":"No message provided for entity 0"}');
         $entity1 = commit_testing_array_add_field_and_test_missing_field_response($properties, $uri, $entity1, 'message', 'test commit', '{"status":"failed","error":"No author provided for entity 0"}');
 
+        echo "Concluded testing POST $uri (errored first run)\n";
+
         $entity1['author'] = 'developer';
 
         $entities = [];
@@ -47,7 +48,18 @@
         assertEquals(200, $response['http_code'], "$uri http code mismatch");
         assertEquals('{"success":[{"position":0,"entity":{"repo_id":"1","hash":"abcdefghi1234567","branch":"dev","date":"2025-03-27 01:02:03","message":"test commit","author":"developer"},"result":"1"}],"status":"success"}', $response['response'], "$uri did not trigger success for successful insert");
 
-        echo "Concluded testing POST $uri (errored second run)\n";
+        echo "Concluded testing POST $uri (successful second run)\n";
+    }
+
+    function test_commit_get_1($properties) {
+        $uri = '/api/v1/commit';
+
+        $response = test_curl($properties['endpoint_url'] . "/$uri", $entities, false);
+        assertEquals(200, $response['http_code'], "$uri http code mismatch");
+        assertEquals('[{"repo_id":"1","hash":"abcdefghi1234567","branch":"dev","date":"2025-03-27 01:02:03","message":"test commit","author":"developer"}]', $response['response'], "$uri did not trigger success for successful insert");
+
+        echo "Concluded testing GET $uri (successful first run\n";
+
     }
 
     #[NotATest]
