@@ -5,7 +5,7 @@
      * Test string payload
      */
 
-    function test_repo_post_1($properties) {
+    function test_commit_post_1($properties) {
         $uri = "/api/v1/commit";
 
         $entities = array();
