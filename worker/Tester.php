@@ -41,12 +41,15 @@
             $error = error_get_last();
             if ($error !== null) {
                 // Handle fatal errors here
-                echo "Fatal error: {$error['message']} in {$error['file']} on line {$error['line']}\n";
+                $error_message = "Fatal error: {$error['message']} in {$error['file']} on line {$error['line']}";
+
+                echo "$error_message\n";
 
                 if($this->running_stage != null) {
                     $this->running_stage->set_errored(true);
                     $this->running_stage->set_runtime_start(0);
                     $this->running_stage->set_runtime_end(0);
+                    $this->running_stage->set_output($error_message);
                     $this->run_tests();
                 }
 
