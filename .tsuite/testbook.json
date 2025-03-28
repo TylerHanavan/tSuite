@@ -4,6 +4,7 @@
       {
         "title": "Build tSuite with Composer",
         "description": "Builds",
+        "stage_type": "download",
         "actions": [
           {
             "shell": [
@@ -15,6 +16,7 @@
       "install": {
         "title": "Install tSuite",
         "description": "Copies the files to the install location",
+        "stage_type": "install",
         "actions": [
           {
             "shell": [
@@ -27,6 +29,7 @@
       "setupDB": {
         "title": "Setup MySQL Database",
         "description": "This test drops the MySQL database if it exists, creates a new database, creates the user and grants the permissions to the user.",
+        "stage_type": "install",
         "actions": [
           {
             "shell": [
@@ -44,6 +47,7 @@
       "apiTests": {
         "title": "Run API Tests",
         "description": "This runs the tSuite API tests.",
+        "stage_type": "test",
         "actions": [
           {
             "php": [
