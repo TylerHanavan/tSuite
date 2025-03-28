@@ -51,11 +51,23 @@
         "actions": [
           {
             "php": [
-              "tests/InitialSetupTest.php",
-              "tests/APITestGetEndpointsWhileEmpty.php",
-              "tests/RepoAPITest.php",
-              "tests/CommitAPITest.php",
-              "tests/RepoSettingAPITest.php"
+              "tests/api/InitialSetupTest.php",
+              "tests/api/APITestGetEndpointsWhileEmpty.php",
+              "tests/api/RepoAPITest.php",
+              "tests/api/CommitAPITest.php",
+              "tests/api/RepoSettingAPITest.php"
+            ]
+          }
+        ]
+      },
+      "otherTests": {
+        "title": "Run Other Tests",
+        "description": "This runs the tSuite Other tests.",
+        "stage_type": "test",
+        "actions": [
+          {
+            "php": [
+              "tests/other/FatalErrorTest.php"
             ]
           }
         ]
