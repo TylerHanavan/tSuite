@@ -167,19 +167,20 @@
                 $stage_array_to_add['runtime_duration'] = $stage_runtime_total;
                 $test_results['total_runtime'] += $stage_array_to_add['runtime_duration'];
 
+                $stage_type = $stage->get_stage_type();
+
+                switch($stage_type) {
+                    case 'install':
+                        $install_duration += $stage_runtime_total; break;
+                    case 'download':
+                        $download_duration += $stage_runtime_total; break;
+                    case 'test':
+                        $test_duration += $stage_runtime_total; break;
+                }
+
                 foreach($stage->get_file_results() as $file_name => $file_result) {
                     $test_results['files'][$file_name] = $file_result;
-                    $stage_type = $stage->get_stage_type();
-
-                    switch($stage_type) {
-                        case 'install':
-                            $install_duration += $stage_runtime_total; break;
-                        case 'download':
-                            $download_duration += $stage_runtime_total; break;
-                        case 'test':
-                            $test_duration += $stage_runtime_total; break;
-                        default: break;
-                    }
+                    
                     foreach($file_result['tests'] as $function => $function_results) {
                         if(isset($function_results['status'])) {
                             $status = $function_results['status'];
@@ -447,7 +448,7 @@
 
                 $stage = $this->generate_stage($stage_name, $stage_title, $stage_data);
 
-                if(isset($stage_data['stage_type'])) $stage->set_stage_type($stage_data['stage_type']);
+                if(isset($stage_data['stage_type'])) $stage = $stage->set_stage_type($stage_data['stage_type']);
 
                 $stages[] = $stage;
 
