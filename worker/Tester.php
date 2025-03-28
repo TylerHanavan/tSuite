@@ -141,7 +141,6 @@
                 return;
             }
             $this->saved_execution_data = true;
-            $end_time_test = 0;//get_current_time_milliseconds();
 
             $download_duration = 0;
             $install_duration = 0;
@@ -231,7 +230,7 @@
             $this->quit_driver();
         }
 
-        public function execute_stage($stage) {
+        public function execute_stage(Stage $stage) : array {
             if($stage == null) {
                 echo "Tester::execute_stage: stage was null\n";
                 return null;
@@ -256,7 +255,7 @@
 
         }
 
-        public function execute_action($action) {
+        public function execute_action(Action $action) {
             if($action == null) {
                 echo "Tester::execute_action action is null\n";
                 return null;
@@ -289,7 +288,7 @@
             return null;
         }
 
-        public function execute_shell_action($action) {
+        public function execute_shell_action(Action $action) : array {
             $action_response = [];
 
             $settings_string = $this->get_repo_settings_command_string();
@@ -308,7 +307,7 @@
             return $action_response;
         }
 
-        public function execute_php_action($action) {
+        public function execute_php_action(Action $action) : array {
             $action_response = [];
 
             foreach($action->get_subactions() as $php_file) {
@@ -411,7 +410,7 @@
             return $return_actions;
         }
 
-        public function generate_stage($slug, $stage_title, $stage_data) {
+        public function generate_stage(string $slug, string $stage_title, ?array $stage_data) : Stage {
 
             //TODO: Better handling
             if(!isset($stage_data['actions']) || $stage_data == null)
@@ -428,7 +427,7 @@
 
         }
 
-        public function generate_stages($testbook_properties) {
+        public function generate_stages(?array $testbook_properties) : array {
 
             if($testbook_properties == null) {
                 echo "Testbook is null\n";
@@ -458,7 +457,7 @@
 
         }
 
-        public function get_repo_settings_command_string() {
+        public function get_repo_settings_command_string() : string {
             $command_string = '';
             foreach($this->repo_settings as $key => $value) {
                 if(!isset($key) || $key == '' || $key === '' || $key == null) continue;
@@ -467,7 +466,7 @@
             return rtrim($command_string, ';');
         }
 
-        public function get_functions_from_file($file) {
+        public function get_functions_from_file(string $file) : array|bool {
             $functions = [];
             
             // Check if the file exists and can be included
@@ -517,7 +516,7 @@
             return $functions;
         }
 
-        public function scanDirectoryRecursively($dir) {
+        public function scanDirectoryRecursively(string $dir) : array {
             $files = [];
         
             foreach (scandir($dir) as $file) {
@@ -536,7 +535,7 @@
             return $files;
         }
 
-        public function handleAction($actions) {
+        public function handleAction(array $actions) : array {
 
             $response = array();
 
