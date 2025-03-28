@@ -369,6 +369,7 @@
                                 $test_file_results[$function]['status'] = 'failure';
                                 $test_file_results[$function]['reason'] = 'Fatal error unable to be caught';
                                 $action->get_stage()->add_file_result($file, ['status' => 'failure', 'tests' => $test_file_results]);
+                                $action->get_stage()->set_errored(true);
                             }
                         }
                     }
