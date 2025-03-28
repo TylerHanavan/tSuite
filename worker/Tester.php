@@ -49,7 +49,7 @@
                     $this->running_stage->set_errored(true);
                     $this->running_stage->set_runtime_start(0);
                     $this->running_stage->set_runtime_end(0);
-                    $this->running_stage->set_output($error_message);
+                    $this->running_stage->add_output($error_message);
                     $this->run_tests();
                 }
 
