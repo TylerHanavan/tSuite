@@ -13,6 +13,7 @@
         private $file_results;
         private $runtime_start;
         private $runtime_end;
+        private $stage_type;
 
         public function __construct($slug, $name, $actions, $extra_fields = []) {
             $this->slug = $slug;
@@ -29,6 +30,8 @@
 
             $this->runtime_start = -1;
             $this->runtime_end = -1;
+
+            $this->stage_type = null;
 
         }
 
@@ -108,6 +111,16 @@
 
         public function set_runtime_end($runtime_end) {
             $this->runtime_end = $runtime_end;
+        }
+
+        public function get_stage_type() : ?string {
+            return $this->stage_type;
+        }
+
+        public function set_stage_type(string $stage_type) : Stage {
+            $this->stage_type = $stage_type;
+
+            return $this;
         }
     }
 
