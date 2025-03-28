@@ -45,6 +45,8 @@
 
                 if($this->running_stage != null) {
                     $this->running_stage->set_errored(true);
+                    $this->running_stage->set_runtime_start(0);
+                    $this->running_stage->set_runtime_end(0);
                     $this->run_tests();
                 }
 
