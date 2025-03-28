@@ -143,13 +143,9 @@
             $this->saved_execution_data = true;
             $end_time_test = 0;//get_current_time_milliseconds();
 
-            $start_time_install = 0;
-            $start_time_download = 0;
-            $start_time_test = 0;
-
-            $download_duration = $start_time_install - $start_time_download;
-            $install_duration = $start_time_test - $start_time_install;
-            $test_duration = $end_time_test - $start_time_test;
+            $download_duration = 0;
+            $install_duration = 0;
+            $test_duration = 0;
 
             $total_tests_passed = 0;
             $total_tests_failed = 0;
@@ -163,15 +159,28 @@
             foreach($this->stages as $stage) {
                 $stage_array_to_add = [];
 
+                $stage_runtime_total = $stage->get_runtime_end() - $stage->get_runtime_start();
+
                 $stage_array_to_add['status'] = $stage->is_errored() ? 'failure' : 'success';
                 $stage_array_to_add['output'] = $stage->get_output();
                 $stage_array_to_add['runtime_start'] = $stage->get_runtime_start();
                 $stage_array_to_add['runtime_end'] = $stage->get_runtime_end();
-                $stage_array_to_add['runtime_duration'] = $stage->get_runtime_end() - $stage->get_runtime_start();
+                $stage_array_to_add['runtime_duration'] = $stage_runtime_total;
                 $test_results['total_runtime'] += $stage_array_to_add['runtime_duration'];
 
                 foreach($stage->get_file_results() as $file_name => $file_result) {
                     $test_results['files'][$file_name] = $file_result;
+                    $stage_type = $stage->get_stage_type();
+
+                    switch($stage_type) {
+                        case 'install':
+                            $install_duration += $stage_runtime_total; break;
+                        case 'download':
+                            $download_duration += $stage_runtime_total; break;
+                        case 'test':
+                            $test_duration += $stage_runtime_total; break;
+                        default: break;
+                    }
                     foreach($file_result['tests'] as $function => $function_results) {
                         if(isset($function_results['status'])) {
                             $status = $function_results['status'];
@@ -438,6 +447,8 @@
                 $stage_description = $stage_data['description'];
 
                 $stage = $this->generate_stage($stage_name, $stage_title, $stage_data);
+
+                if(isset($stage_data['stage_type'])) $stage->set_stage_type($stage_data['stage_type']);
 
                 $stages[] = $stage;
 

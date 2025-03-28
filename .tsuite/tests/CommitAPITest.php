@@ -2,6 +2,8 @@
 
     /** TODO:
      * Multiple commits in single POST
+     * Test PUT
+     * Test GET with query parameters (needs to be implemented in api handler)
      */
 
     function test_commit_post_1($properties) {
@@ -58,7 +60,7 @@
         assertEquals(200, $response['http_code'], "$uri http code mismatch");
         assertEquals('[{"id":1,"repo_id":1,"hash":"abcdefghi1234567","branch":"dev","date":"2025-03-27 01:02:03","author":"developer","message":"test commit","test_status":null,"success_tests":null,"failed_tests":null,"download_duration":-1,"install_duration":-1,"test_duration":-1,"do_retest_flag":0}]', $response['response'], "$uri did not trigger success for successful insert");
 
-        echo "Concluded testing GET $uri (successful first run\n";
+        echo "Concluded testing GET $uri (successful first run)\n";
 
     }
 
