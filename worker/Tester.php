@@ -225,6 +225,7 @@
                     }
                 } else {
                     echo "post_commit failed to insert the new row; unable to write to test_results file\n";
+                    var_dump($commit_response);
                 }
             }
 
