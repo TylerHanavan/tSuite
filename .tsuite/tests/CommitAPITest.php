@@ -3,6 +3,7 @@
     /** TODO:
      * Multiple commits in single POST
      * Test PUT
+     * Test GET with query parameters (needs to be implemented in api handler)
      */
 
     function test_commit_post_1($properties) {

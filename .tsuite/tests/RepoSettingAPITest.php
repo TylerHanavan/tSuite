@@ -2,7 +2,9 @@
 
     /**
      * TODO
-     * Test name/value instead of setting_name/setting_value
+     * Test POST name/value instead of setting_name/setting_value
+     * Test GET with query parameters (needs to be implemented in api handler)
+     * TEST PUT 
      */
     function test_repo_setting_post_1($properties) {
         $uri = "/api/v1/repo_setting";
