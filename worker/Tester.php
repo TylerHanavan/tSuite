@@ -178,6 +178,10 @@
                 $stage_array_to_add['runtime_duration'] = $stage_runtime_total;
                 $test_results['total_runtime'] += $stage_array_to_add['runtime_duration'];
 
+                if($stage->get_expected_outcome() == 'FATAL_ERROR' && $stage->get_outcome() == 'FATAL_ERROR') {
+                    $stage_array_to_add['status'] = 'success';
+                }
+
                 $stage_type = $stage->get_stage_type();
 
                 switch($stage_type) {
