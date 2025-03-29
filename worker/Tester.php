@@ -15,6 +15,8 @@
         private $saved_execution_data;
         private $selenium_driver;
 
+        private $test_suite_status;
+
         public function __construct($tsuite_dir, $repo_settings, $testbook_properties, $lock_file, $commit_data) {
 
             $this->tsuite_dir = rtrim($tsuite_dir, '/');
@@ -33,6 +35,8 @@
 
             $this->selenium_driver = null;
 
+            $this->test_suite_status = ['MARK_REMAINING_TESTS_FAILED' => false];
+
             register_shutdown_function(array($this, 'registerShutdown'));
 
         }
@@ -50,6 +54,7 @@
                     $this->running_stage->set_runtime_start(0);
                     $this->running_stage->set_runtime_end(0);
                     $this->running_stage->add_output($error_message);
+                    $this->running_stage->set_outcome('FATAL_ERROR');
                     $this->run_tests();
                 }
 
@@ -166,6 +171,7 @@
                 $stage_runtime_total = $stage->get_runtime_end() - $stage->get_runtime_start();
 
                 $stage_array_to_add['status'] = $stage->is_errored() ? 'failure' : 'success';
+                $stage_array_to_add['outcome'] = $stage->get_outcome() == null ? ($stage->is_errored() ? 'FAILURE' : 'SUCCESS') : $stage->get_outcome();
                 $stage_array_to_add['output'] = $stage->get_output();
                 $stage_array_to_add['runtime_start'] = $stage->get_runtime_start();
                 $stage_array_to_add['runtime_end'] = $stage->get_runtime_end();
@@ -354,6 +360,17 @@
                         $handled = false;
                         if(!isset($test_file_results[$function])) $test_file_results[$function] = [];
                         try {
+                            $ref = new ReflectionFunction($function);
+                            if($ref->getAttributes(TestConditions::class)) {
+                                // TODO: Implements
+                            }
+                            if($this->test_suite_status['MARK_REMAINING_TESTS_FAILED']) {
+                                $test_file_results[$function]['status'] = 'failure';
+                                $test_file_results[$function]['reason'] = 'Automatically failing remaining tests due to presence of: MARK_REMAINING_TESTS_FAILED = true';
+                                $action->get_stage()->set_errored(true);
+                                $action->get_stage()->set_successful(false);
+                                continue;
+                            }
                             call_user_func_array($function, array(&$properties));
                             $test_file_results[$function]['status'] = 'success';
                             if(!$action->get_stage()->is_errored())
@@ -456,6 +473,7 @@
                 $stage = $this->generate_stage($stage_name, $stage_title, $stage_data);
 
                 if(isset($stage_data['stage_type'])) $stage = $stage->set_stage_type($stage_data['stage_type']);
+                if(isset($stage_data['expected_outcome'])) $stage = $stage->set_expected_outcome($stage_data['expected_outcome']);
 
                 $stages[] = $stage;
 
@@ -627,6 +645,36 @@
 
     #[Attribute]
     class NotATest {}
+
+    #[Attribute]
+    class TestConditions {
+
+        /**
+         * Contains the array of conditions (as objects) that allows the test to be interpreted and handled in different ways than usual.
+         * [ {}, {}, {} ]
+         * 
+         * Example 1
+         *     Imagine we have a test suite that takes a very long time to run, and if we encounter a failure during a certain step that all later tests depend on.
+         *     It is very likely that all or many of the later tests will also fail. We might not want to wait to see it through.
+         *     This condition 'TEST_FAILS' allows you to specify what should happen if a particular test fails, such as deciding to not run any further tests and marking them as failed via 'MARK_REMAINING_TESTS_FAILED'.
+         *     Please Note: The presence of this flag as true causes tSuite to not run the functions inside any of the test files that are 'php' actions.
+         *     Please Note: The presence of this flag as true still runs the shell actions as normal.
+         * 
+         * [
+         *     {
+         *         "condition" => "TEST_FAILS",
+         *         "true" => "MARK_REMAINING_TESTS_FAILED",
+         *         "false" => ""
+         *     }
+         * ]
+         * 
+         */
+        public array $conditions;
+
+        public function __construct(?array $conditions = null) {
+            $this->conditions = $conditions;
+        }
+    }
 
     function test_curl($uri, $data, $post = true, $session_cookie = null) {
 
