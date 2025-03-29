@@ -195,7 +195,6 @@
                 }
 
                 foreach($stage->get_file_results() as $file_name => $file_result) {
-                    $test_results['files'][$file_name] = $file_result;
                     
                     foreach($file_result['tests'] as $function => $function_results) {
                         if(isset($function_results['status'])) {
@@ -205,6 +204,7 @@
                                 if(isset($function_results['reason'])) {
                                     if($function_results['reason'] === 'Fatal error unable to be caught' && $stage->get_expected_outcome() === 'FATAL_ERROR') {
                                         $total_tests_passed++;
+                                        $file_result['tests'][$function]['status'] == 'success';
                                     }
                                 } else {
                                     $total_tests_failed++;
@@ -213,6 +213,8 @@
                             }
                         }
                     }
+
+                    $test_results['files'][$file_name] = $file_result;
                 }
 
                 $test_results['stages'][$stage->get_slug()] = $stage_array_to_add;
