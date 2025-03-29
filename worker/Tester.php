@@ -202,8 +202,14 @@
                             $status = $function_results['status'];
                             if($status === 'success') $total_tests_passed++;
                             if($status === 'failure') {
-                                $total_tests_failed++;
-                                $test_results['status'] = 'failure';
+                                if(isset($function_results['reason'])) {
+                                    if($function_results['reason'] === 'Fatal error unable to be caught' && $stage->get_expected_outcome() === 'FATAL_ERROR') {
+                                        $total_tests_passed++;
+                                    }
+                                } else {
+                                    $total_tests_failed++;
+                                    $test_results['status'] = 'failure';
+                                }
                             }
                         }
                     }
