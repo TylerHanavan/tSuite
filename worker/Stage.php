@@ -128,7 +128,7 @@
             return $this;
         }
 
-        public function get_outcome() : string {
+        public function get_outcome() : ?string {
             return $this->outcome;
         }
 
@@ -138,7 +138,7 @@
             return $this;
         }
 
-        public function get_expected_outcome() : string {
+        public function get_expected_outcome() : ?string {
             return $this->expected_outcome;
         }
 
