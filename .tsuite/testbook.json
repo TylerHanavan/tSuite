@@ -60,10 +60,11 @@
           }
         ]
       },
-      "otherTests": {
-        "title": "Run Other Tests",
-        "description": "This runs the tSuite Other tests.",
+      "fatalErrorTest": {
+        "title": "Run Fatal Error Test",
+        "description": "This runs the Fatal Error Test. It should fail with a fatal error, but as it's 'expected_outcome' = 'FAIL', it should actually pass. It should fail the test if no fatal error is detected.",
         "stage_type": "test",
+        "expected_outcome": "FAIL",
         "actions": [
           {
             "php": [
