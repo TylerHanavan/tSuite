@@ -14,6 +14,8 @@
         private $runtime_start;
         private $runtime_end;
         private $stage_type;
+        private $outcome;
+        private $expected_outcome;
 
         public function __construct($slug, $name, $actions, $extra_fields = []) {
             $this->slug = $slug;
@@ -32,6 +34,9 @@
             $this->runtime_end = -1;
 
             $this->stage_type = null;
+
+            $this->outcome = null; // Outcome not yet determined
+            $this->expected_outcome = null; // Default `null` - means expect the test to pass
 
         }
 
@@ -119,6 +124,26 @@
 
         public function set_stage_type(string $stage_type) : Stage {
             $this->stage_type = $stage_type;
+
+            return $this;
+        }
+
+        public function get_outcome() : string {
+            return $this->outcome;
+        }
+
+        public function set_outcome(?string $outcome) : Stage {
+            $this->outcome = $outcome;
+
+            return $this;
+        }
+
+        public function get_expected_outcome() : string {
+            return $this->expected_outcome;
+        }
+
+        public function set_expected_outcome(?string $expected_outcome) : Stage {
+            $this->expected_outcome = $expected_outcome;
 
             return $this;
         }
