@@ -8,7 +8,19 @@
 
     $curtime = date('Ymd H:i:s');
 
+    if(!isset($argv[1]) || $argv[1] == null || $argv[1] === '') {
+        echo "No tSuite parent pid argument #1 specified for test_worker.php. Exiting!\n";
+        exit(1);
+    }
+
+    if(!isset($argv[2]) || $argv[2] == null || $argv[2] === '') {
+        echo "No tSuite uri argument #2 specified for test_worker.php. Exiting!\n";
+        exit(1);
+    }
+
     $ppid = $argv[1];
+
+    $tsuite_uri = $argv[2];
 
     echo "\n$curtime - Starting test_worker.php from $ppid\n";
 
@@ -337,8 +349,9 @@
     }
 
     function do_curl($uri, $data, $post = true) {
+        global $tsuite_uri;
 
-        $url = "localhost:80/$uri";
+        $url = "$tsuite_uri/$uri";
         
         $ch = curl_init();
 
