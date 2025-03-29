@@ -172,6 +172,7 @@
 
                 $stage_array_to_add['status'] = $stage->is_errored() ? 'failure' : 'success';
                 $stage_array_to_add['outcome'] = $stage->get_outcome() == null ? ($stage->is_errored() ? 'FAILURE' : 'SUCCESS') : $stage->get_outcome();
+                if($stage->get_expected_outcome() != null) $stage_array_to_add['expected_outcome'] = $stage->get_expected_outcome();
                 $stage_array_to_add['output'] = $stage->get_output();
                 $stage_array_to_add['runtime_start'] = $stage->get_runtime_start();
                 $stage_array_to_add['runtime_end'] = $stage->get_runtime_end();
